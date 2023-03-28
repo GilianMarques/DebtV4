@@ -1,0 +1,12 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Debt" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+
+        <!--todo modificar esse tema antes de publicar o app. -->
+
+
+    </style>
+
+    <style name="Theme.Debt" parent="Base.Theme.Debt" />
+</resources>

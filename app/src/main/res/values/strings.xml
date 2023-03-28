@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Debt</string>
+    <string name="google_sign_in_web_client_id">869684535880-hscde8qafqhbi842i78mcqbfc68qmf02.apps.googleusercontent.com</string>
+    <string name="Tentar_novamente">Tentar novamente</string>
+    <string name="Voce_nao_esta_conectado_a_internet_ou_a_data">Você não está conectado à internet ou a data do dispositivo está incorreta</string>
+    <string name="Voce_cancelou_o_login">"Você cancelou o login"</string>
+    <string name="Ha_mais_de_um_processo_de_login_em_andamento">"Há mais de um processo de login em andamento. Quantas vezes você apertou esse botão?"</string>
+    <string name="O_login_falhou">"O login falhou. Código: {0}"</string>
+    <string name="Houve_um_erro_ao_contactar_a_api_do_goole">"Houve um erro ao contactar a API do Google, verfique sua conexão e tente reiniciar o app.  Código: {0}"</string>
+    <string name="Houve_um_erro_ao_autenticar_sua_conta">Houve um erro ao autenticar sua conta, tente novamente. Causa: {0}</string>
+    <string name="Bem_vindo_X">Bem-vindo {0}</string>
+    <string name="Nome_da_despesa">Nome da despesa</string>
+    <string name="Valor_da_despesa">Valor da despesa</string>
+    <string name="Data_de_pagamento">Data de pagamento</string>
+    <string name="Nova_despesa">Nova despesa</string>
+    <string name="Observacoes">Observações</string>
+</resources>

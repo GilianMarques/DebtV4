@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/fragMain">
+
+    <fragment
+        android:id="@+id/fragMain"
+        android:name="gmarques.debtv4.presenter.main.FragMain"
+        android:label="frag_main"
+        tools:layout="@layout/frag_main" >
+
+        <action
+            android:id="@+id/action_login"
+            app:destination="@id/login" />
+
+        <action
+            android:id="@+id/action_add_despesa"
+            app:destination="@id/fragAddDespesa" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/login"
+        android:name="gmarques.debtv4.presenter.FragLogin"
+        android:label="Login" >
+        <action
+            android:id="@+id/action_fragMain"
+            app:destination="@id/fragMain" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragAddDespesa"
+        android:name="gmarques.debtv4.presenter.add_despesa.FragAddDespesa"
+        android:label="FragAddDespesa" >
+        <action
+            android:id="@+id/action_fragMain"
+            app:destination="@id/fragMain" />
+    </fragment>
+
+</navigation>
