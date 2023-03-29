@@ -12,6 +12,8 @@ import android.os.*
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowManager
+import android.view.WindowMetrics
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -94,8 +96,8 @@ object UIUtils {
     fun mostrarTeclado(view: View) {
         Handler().postDelayed({
             Handler(Looper.getMainLooper()).post {
-                val motionEventDown: MotionEvent = MotionEvent
-                    .obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis() + 100, MotionEvent.ACTION_DOWN, view.measuredWidth.toFloat(), (view.measuredHeight / 2).toFloat(), 0)
+                val motionEventDown: MotionEvent =
+                        MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis() + 100, MotionEvent.ACTION_DOWN, view.measuredWidth.toFloat(), (view.measuredHeight / 2).toFloat(), 0)
                 view.dispatchTouchEvent(motionEventDown)
                 motionEventDown.recycle()
                 val motionEventUP: MotionEvent =
@@ -107,8 +109,7 @@ object UIUtils {
     }
 
     fun esconderTeclado(view: View) {
-        val imm = App.inst
-            .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm = App.inst.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
@@ -123,12 +124,24 @@ object UIUtils {
         val g = (Color.green(color) * factor).roundToInt()
         val b = (Color.blue(color) * factor).roundToInt()
         return Color.argb(
-            a,
-            r.coerceAtMost(255),
-            g.coerceAtMost(255),
-            b.coerceAtMost(255)
+            a, r.coerceAtMost(255), g.coerceAtMost(255), b.coerceAtMost(255)
         )
     }
 
+    /**
+     * @return o tamanho da tela em pixels width e height
+     */
+    fun tamanhoTela(): Pair<Int, Int> {
+
+        val windowManager = App.inst.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowMetrics = windowManager.currentWindowMetrics
+            val rect = windowMetrics.bounds
+            rect.width() to rect.height()
+        } else {
+            App.inst.resources.displayMetrics.widthPixels to App.inst.resources.displayMetrics.heightPixels
+        }
+    }
 
 }

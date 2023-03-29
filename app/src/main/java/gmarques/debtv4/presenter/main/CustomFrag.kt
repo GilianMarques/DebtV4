@@ -1,9 +1,13 @@
 package gmarques.debtv4.presenter.main
 
+import android.content.Context
+import android.os.Build
+import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import gmarques.debtv4.App
 import gmarques.debtv4.R
 
 open class CustomFrag : Fragment() {
@@ -19,4 +23,7 @@ open class CustomFrag : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
+
+
+
 }
