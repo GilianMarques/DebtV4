@@ -24,6 +24,7 @@ class Mascara(private val mascara: String) : TextWatcher {
         aplicandoMascara = true
 
         val compEditavel = editable.length
+        if (compEditavel == 0) return
 
         if (compEditavel < mascara.length) {
             if (mascara[compEditavel] != '#') {

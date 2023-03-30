@@ -15,4 +15,10 @@
     <string name="Nova_despesa">Nova despesa</string>
     <string name="Observacoes">Observações</string>
     <string name="Selecione_a_data_do_pagamento">Selecione a data do pagamento</string>
+    <string name="Concluir">Concluir</string>
+    <string name="Despesa_esta_paga">Despesa está paga</string>
+    <string name="Despesa_recorrente">Despesa recorrente</string>
+    <string name="Fatura_de_cartao">Fatura de cartão</string>
+    <string name="Poupanca">Poupança</string>
+    <string name="Tipo_despesa">Tipo de despesa</string>
 </resources>

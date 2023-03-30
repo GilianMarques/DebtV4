@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="24dp"
+    android:paddingBottom="24dp"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/recorrente"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:drawablePadding="16dp"
+        android:padding="8dp"
+        android:text="@string/Despesa_recorrente"
+        app:drawableStartCompat="@drawable/vec_recorrente" />
+
+    <View
+        android:id="@+id/divider1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/cartao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:drawablePadding="16dp"
+        android:padding="8dp"
+        android:text="@string/Fatura_de_cartao"
+        app:drawableStartCompat="@drawable/vec_cartao" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/poupanca"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:drawablePadding="16dp"
+        android:padding="8dp"
+        android:text="@string/Poupanca"
+        app:drawableStartCompat="@drawable/vec_poupanca" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

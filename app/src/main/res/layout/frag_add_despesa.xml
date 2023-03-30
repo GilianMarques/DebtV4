@@ -80,7 +80,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/layout_background"
-        android:paddingTop="16dp"
+        android:paddingTop="8dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -91,27 +91,71 @@
             android:orientation="vertical"
             tools:context=".presenter.main.FragMain">
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/despesa_paga"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:drawableStart="@drawable/vec_done"
+                android:drawablePadding="16dp"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="4dp"
+                android:text="@string/Despesa_esta_paga"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_nome"
                 style="@style/TextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 app:counterEnabled="false"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
 
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/despesa_paga">
 
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edt_nome"
+                    android:id="@+id/nome"
                     style="@style/TextInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vec_nome"
                     android:hint="@string/Nome_da_despesa"
                     android:imeOptions="actionNext"
+                    android:inputType="textCapSentences"
+                    android:singleLine="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_tipo"
+                style="@style/TextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:counterEnabled="false"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/til_nome">
+
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tipo_despesa"
+                    style="@style/TextInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vec_info"
+                    android:hint="@string/Tipo_despesa"
+                    android:imeOptions="actionNext"
+                    android:inputType="textCapSentences"
                     android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -123,11 +167,11 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toStartOf="@+id/iv_data_picker"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/til_nome">
+                app:layout_constraintTop_toBottomOf="@id/til_tipo">
 
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edt_data_pgto"
+                    android:id="@+id/data_pgto"
                     style="@style/TextInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -144,11 +188,11 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_data_picker"
-                android:layout_width="56dp"
+                android:layout_width="60dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/iv_data_picker_background"
-                android:padding="10dp"
+                android:background="@drawable/back_data_picker"
+                android:padding="14dp"
                 android:tint="?colorPrimary"
                 app:layout_constraintBottom_toBottomOf="@id/til_data_pgto"
                 app:layout_constraintEnd_toEndOf="@id/til_nome"
@@ -167,15 +211,14 @@
 
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edt_observacoes"
+                    android:id="@+id/observacoes"
                     style="@style/TextInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vec_observacoes"
                     android:hint="@string/Observacoes"
                     android:inputType="textMultiLine"
-                    android:maxLines="5"
-                    android:minLines="3"
+                    android:maxLines="4"
                     android:singleLine="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -184,11 +227,12 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add" />
+        android:text="@string/Concluir"
+        app:icon="@drawable/vec_done" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

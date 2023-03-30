@@ -131,13 +131,13 @@ class FragLogin : Fragment() {
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
         val credenciais = GoogleAuthProvider.getCredential(acct.idToken, null)
         mAuth!!.signInWithCredential(credenciais).addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    revogarAcessoAoApp()
-                    usuarioAutenticado()
-                } else {
-                    erroDeAutenticacaoFirebase(task)
-                }
+            if (task.isSuccessful) {
+                revogarAcessoAoApp()
+                usuarioAutenticado()
+            } else {
+                erroDeAutenticacaoFirebase(task)
             }
+        }
     }
 
     /**
@@ -158,11 +158,11 @@ class FragLogin : Fragment() {
 
         val user = mAuth!!.currentUser!!
         val nome = if (user.displayName != null) user.displayName else "?"
-        binding.tvInfo.text =
-                MessageFormat.format(getString(R.string.Bem_vindo_X), nome!!.split(" ")[0])
+        binding.tvInfo.text = MessageFormat
+            .format(getString(R.string.Bem_vindo_X), nome!!.split(" ")[0])
 
         delay(2000)
-        findNavController().navigate(FragLoginDirections.actionFragMain())
+        findNavController().navigateUp()
     }
 
     /**

@@ -3,6 +3,7 @@ package gmarques.debtv4.domain.entidades
 import java.util.UUID
 
 
+
 class Despesa {
     companion object {
         const val VALOR_MAXIMO = 999_999_99

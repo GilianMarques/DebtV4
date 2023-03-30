@@ -10,9 +10,12 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.datepicker.MaterialDatePicker
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
+import gmarques.debtv4.databinding.LayoutTipoDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.extension_functions.ExtFunctions.Companion.porcentoDe
 import gmarques.debtv4.presenter.main.CustomFrag
@@ -55,18 +58,51 @@ class FragAddDespesa : CustomFrag() {
         initTextViewValoreMoeda()
         initCampoDeNome()
         initCampoData()
+        initCampoTipoDespesa()
         initCampoObservacoes()
 
     }
 
+    private fun initCampoTipoDespesa() {
+        binding.tipoDespesa.setOnFocusChangeListener { view: View, b: Boolean ->
+            if (b) {
+                mostrarBsTipoDespesa()
+            }
+        }
+    }
+
+    private fun mostrarBsTipoDespesa() {
+// TODO: criar Bsheet proprio e usar blur 
+        val ui = LayoutTipoDespesaBinding.inflate(layoutInflater)
+
+        val dialog = BottomSheetDialog(requireContext())
+        dialog.setContentView(ui.root)
+        dialog.setOnDismissListener {
+            binding.tipoDespesa.clearFocus() // o usuario nao deve poder escrever na view de maneira alguma (mas a view deve permanecer ativada)
+        }
+        dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        dialog.show()
+
+        val acao = { texto: String ->
+            binding.tipoDespesa.setText(texto)
+            dialog.dismiss()
+            binding.dataPgto.requestFocus()
+        }
+
+        ui.recorrente.setOnClickListener { acao.invoke(ui.recorrente.text.toString()) }
+        ui.cartao.setOnClickListener { acao.invoke(ui.cartao.text.toString()) }
+        ui.poupanca.setOnClickListener { acao.invoke(ui.poupanca.text.toString()) }
+
+    }
+
     private fun initCampoData() {
-        binding.ivDataPicker.setOnClickListener (object:AnimatedClickListener(){
+        binding.ivDataPicker.setOnClickListener(object : AnimatedClickListener() {
             override fun onClick(view: View) {
                 super.onClick(view)
                 mostrarDataPicker()
-                            }
+            }
         })
-        binding.edtDataPgto.addTextChangedListener(Mascara.mascaraData())
+        binding.dataPgto.addTextChangedListener(Mascara.mascaraData())
     }
 
     private fun mostrarDataPicker() {
@@ -87,8 +123,8 @@ class FragAddDespesa : CustomFrag() {
 
             val dataFormat = SimpleDateFormat(mascaraDeData, Locale.getDefault())
             val dataFormatada = dataFormat.format(dataCorreta)
-            binding.edtDataPgto.setText(dataFormatada)
-            binding.edtDataPgto.setSelection(dataFormatada.length)
+            binding.dataPgto.setText(dataFormatada)
+            binding.dataPgto.setSelection(dataFormatada.length)
         }
 
 
@@ -102,19 +138,19 @@ class FragAddDespesa : CustomFrag() {
      */
     private fun coletarDataInicial() = try {
         val format = SimpleDateFormat(mascaraDeData, Locale.getDefault())
-        format.parse(binding.edtDataPgto.text.toString())!!.time
+        format.parse(binding.dataPgto.text.toString())!!.time
     } catch (e: java.lang.Exception) {
         MaterialDatePicker.todayInUtcMilliseconds()
     }
 
     private fun initCampoDeNome() {
         binding.tilNome.counterMaxLength = Despesa.COMPRIMENTO_MAXIMO_NOME
-        binding.edtNome.filters = arrayOf(InputFilter.LengthFilter(Despesa.COMPRIMENTO_MAXIMO_NOME))
+        binding.nome.filters = arrayOf(InputFilter.LengthFilter(Despesa.COMPRIMENTO_MAXIMO_NOME))
     }
 
     private fun initCampoObservacoes() {
         binding.tilObservacoes.counterMaxLength = Despesa.COMPRIMENTO_MAXIMO_OBSERVACOES
-        binding.edtObservacoes.filters =
+        binding.observacoes.filters =
                 arrayOf(InputFilter.LengthFilter(Despesa.COMPRIMENTO_MAXIMO_OBSERVACOES))
     }
 
