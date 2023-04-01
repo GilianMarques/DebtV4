@@ -17,17 +17,20 @@
     </style>
 
 
-    <style name="TextInputEditTextStyle" parent="android:Widget.TextView">
+    <style name="TextInputEditTextStyle" parent="android:Widget.EditText">
         <item name="android:fontFamily">@font/nunito_sans</item>
         <item name="android:drawablePadding">16dp</item>
         <item name="android:textColor">?colorPrimary</item>
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="TextInputLayoutStyle" parent="android:Widget.TextView">
+    <style name="TextInputLayoutStyle" parent="android:Widget.EditText">
         <item name="android:fontFamily">@font/nunito_sans</item>
         <item name="android:textColor">?colorPrimary</item>
-        <item name="android:layout_margin">8dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:layout_marginStart">8dp</item>
     </style>
 
 

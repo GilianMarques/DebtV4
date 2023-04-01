@@ -10,18 +10,20 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.datepicker.MaterialDatePicker
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
 import gmarques.debtv4.databinding.LayoutTipoDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.extension_functions.ExtFunctions.Companion.porcentoDe
+import gmarques.debtv4.presenter.BetterBottomSheet
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.Mascara
 import gmarques.debtv4.presenter.outros.UIUtils
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.*
 import java.util.*
@@ -60,32 +62,36 @@ class FragAddDespesa : CustomFrag() {
         initCampoData()
         initCampoTipoDespesa()
         initCampoObservacoes()
-
     }
 
+    @Suppress("UsePropertyAccessSyntax")
     private fun initCampoTipoDespesa() {
-        binding.tipoDespesa.setOnFocusChangeListener { view: View, b: Boolean ->
+        val listener = { view: View, b: Boolean ->
             if (b) {
-                mostrarBsTipoDespesa()
+                lifecycleScope.launch {
+                    UIUtils.ocultarTeclado(view)
+                    mostrarBsTipoDespesa()
+                }
             }
         }
+        binding.tilTipo.setOnFocusChangeListener(listener)
+        binding.tipoDespesa.setOnFocusChangeListener(listener)
     }
 
     private fun mostrarBsTipoDespesa() {
-// TODO: criar Bsheet proprio e usar blur 
+
         val ui = LayoutTipoDespesaBinding.inflate(layoutInflater)
 
-        val dialog = BottomSheetDialog(requireContext())
-        dialog.setContentView(ui.root)
-        dialog.setOnDismissListener {
-            binding.tipoDespesa.clearFocus() // o usuario nao deve poder escrever na view de maneira alguma (mas a view deve permanecer ativada)
-        }
-        dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        dialog.show()
+        val bsheet = BetterBottomSheet()
+            .customView(ui.root)
+            .cancelavel(true)
+            .onDismiss { binding.tipoDespesa.clearFocus() }
+            .show(parentFragmentManager)
+
 
         val acao = { texto: String ->
             binding.tipoDespesa.setText(texto)
-            dialog.dismiss()
+            bsheet.dismiss()
             binding.dataPgto.requestFocus()
         }
 
@@ -107,19 +113,15 @@ class FragAddDespesa : CustomFrag() {
 
     private fun mostrarDataPicker() {
 
-        val picker = MaterialDatePicker.Builder.datePicker()
-            .setSelection(coletarDataInicial())
-            .setTitleText("")
-            .build()
+        val picker = MaterialDatePicker.Builder.datePicker().setSelection(coletarDataInicial())
+            .setTitleText("").build()
 
         // tem um bug no picker que retorna a data com um dia a menos
         picker.addOnPositiveButtonClickListener {
 
-            val dataCorreta = LocalDateTime
-                .ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault())
-                .plusDays(1)
-                .toInstant(OffsetDateTime.now().offset)
-                .toEpochMilli()
+            val dataCorreta =
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault())
+                        .plusDays(1).toInstant(OffsetDateTime.now().offset).toEpochMilli()
 
             val dataFormat = SimpleDateFormat(mascaraDeData, Locale.getDefault())
             val dataFormatada = dataFormat.format(dataCorreta)

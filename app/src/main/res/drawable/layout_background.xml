@@ -2,7 +2,10 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-    <solid android:color="?android:windowBackground" />
+    <!--> usar '?android:windowBackground' como fundo causa uma exception em dialogos <-->
+
+    <solid android:color="@color/window_background" />
+
     <corners
         android:topLeftRadius="16dp"
         android:topRightRadius="16dp" />

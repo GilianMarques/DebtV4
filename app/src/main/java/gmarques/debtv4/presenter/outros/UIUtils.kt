@@ -5,15 +5,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.Point
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
 import android.os.*
+import android.util.Log
 import android.util.TypedValue
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
-import android.view.WindowMetrics
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -108,7 +107,7 @@ object UIUtils {
         }, 300)
     }
 
-    fun esconderTeclado(view: View) {
+    fun ocultarTeclado(view: View) {
         val imm = App.inst.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
@@ -143,5 +142,45 @@ object UIUtils {
             App.inst.resources.displayMetrics.widthPixels to App.inst.resources.displayMetrics.heightPixels
         }
     }
+
+
+    /**
+     *
+     * @param activityContext Deve ser o context de uma activity para que o calculo seja feito
+     * de maneira correta mesmo em casos de despisitivos rodando apps em multi-janela
+     *
+     * @return o tamanho da tela descontando as areas da statusbar e navbar
+     */
+
+    fun tamanhoTelaSemStatusOuNavBar(activityContext: Context): Pair<Int, Int> {
+
+
+        val windowManager = activityContext
+            .getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+        // TODO:  testar em android oreo
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+            val windowMetrics = windowManager.currentWindowMetrics
+            val barrasDoSistema = windowManager
+                .currentWindowMetrics
+                .windowInsets
+                .getInsets(WindowInsets.Type.systemBars())
+
+            var alturaTela = windowMetrics.bounds.height()
+            val larguraTela = windowMetrics.bounds.width()
+
+            alturaTela -= barrasDoSistema.top
+            alturaTela -= barrasDoSistema.bottom
+
+            larguraTela to alturaTela
+        } else {
+            val display: Display = windowManager.defaultDisplay
+            val size = Point()
+            display.getSize(size)
+            size.x to size.y
+        }
+    }
+
 
 }
