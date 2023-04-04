@@ -8,22 +8,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.datepicker.MaterialDatePicker
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
-import gmarques.debtv4.databinding.LayoutTipoDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
-import gmarques.debtv4.domain.extension_functions.ExtFunctions.Companion.porcentoDe
-import gmarques.debtv4.presenter.BetterBottomSheet
+import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.apenasNumeros
+import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.porcentoDe
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.Mascara
 import gmarques.debtv4.presenter.outros.UIUtils
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.*
 import java.util.*
@@ -35,6 +32,7 @@ class FragAddDespesa : CustomFrag() {
     private lateinit var viewModel: FragAddDespesaViewModel
     private lateinit var binding: FragAddDespesaBinding
     private val animsAtualizadasPeloAppBar = ArrayList<ValueAnimator>()
+
 
     private val mascaraDeData = "dd/MM/yyyy"
 
@@ -60,44 +58,45 @@ class FragAddDespesa : CustomFrag() {
         initTextViewValoreMoeda()
         initCampoDeNome()
         initCampoData()
-        initCampoTipoDespesa()
         initCampoObservacoes()
+        initBotoesDiaseMeses()
+        initCampoRepetir()
     }
 
-    @Suppress("UsePropertyAccessSyntax")
-    private fun initCampoTipoDespesa() {
-        val listener = { view: View, b: Boolean ->
-            if (b) {
-                lifecycleScope.launch {
-                    UIUtils.ocultarTeclado(view)
-                    mostrarBsTipoDespesa()
-                }
-            }
+    private fun initBotoesDiaseMeses() {
+
+        binding.toggleButtonRepetir.check(binding.meses.id)
+
+        binding.toggleButtonRepetir.addOnButtonCheckedListener { _, _, _ ->
+            exibirTextoCompletoViewRepetir()
         }
-        binding.tilTipo.setOnFocusChangeListener(listener)
-        binding.tipoDespesa.setOnFocusChangeListener(listener)
     }
 
-    private fun mostrarBsTipoDespesa() {
 
-        val ui = LayoutTipoDespesaBinding.inflate(layoutInflater)
-
-        val bsheet = BetterBottomSheet()
-            .customView(ui.root)
-            .cancelavel(true)
-            .onDismiss { binding.tipoDespesa.clearFocus() }
-            .show(parentFragmentManager)
-
-
-        val acao = { texto: String ->
-            binding.tipoDespesa.setText(texto)
-            bsheet.dismiss()
-            binding.dataPgto.requestFocus()
+    private fun initCampoRepetir() {
+        binding.edtRepetir.setOnFocusChangeListener { view: View, b: Boolean ->
+            if (b) binding.edtRepetir.setText(binding.edtRepetir.text.toString().apenasNumeros())
+            else exibirTextoCompletoViewRepetir()
         }
+    }
 
-        ui.recorrente.setOnClickListener { acao.invoke(ui.recorrente.text.toString()) }
-        ui.cartao.setOnClickListener { acao.invoke(ui.cartao.text.toString()) }
-        ui.poupanca.setOnClickListener { acao.invoke(ui.poupanca.text.toString()) }
+    /**
+     * Limpa o foco da view e exibe o texto completo na view de dias/meses a repetir
+     * exemplo: "Repetir a cada 2 Dia(s)" se houver algum valor inserido no campo
+     * senao, nenhuma ação e feita.
+     */
+    private fun exibirTextoCompletoViewRepetir() {
+        binding.edtRepetir.clearFocus()
+
+        val repetiraCada = binding.edtRepetir.text.toString().apenasNumeros()
+
+        if (repetiraCada!!.isNotEmpty() && repetiraCada.isNotBlank()) {
+            val botaoSelecionadoId = binding.toggleButtonRepetir.checkedButtonId
+            val botaoSelecionado = if (botaoSelecionadoId == binding.meses.id) binding.meses
+            else binding.dias
+
+            binding.edtRepetir.setText(String.format(getString(R.string.Repetir_a_cada_x_y), repetiraCada, botaoSelecionado.text.toString().lowercase()))
+        }
 
     }
 

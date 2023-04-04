@@ -22,4 +22,13 @@
     <string name="Poupanca">Poupança</string>
     <string name="Tipo_despesa">Tipo de despesa</string>
     <string name="Despesa_ocasional">Despesa ocasional</string>
+    <string name="Repetir_a_cada">Repetir a cada: (opcional)</string>
+    <string name="_1">1</string>
+    <string name="Dia_s">Dia(s)</string>
+    <string name="Mes_es">Mês(es)</string>
+    <string name="Ate">Até</string>
+    <string name="Indeterminadamente">Indeterminadamente</string>
+    <string name="Repetir">Repetir</string>
+    <string name="Repetir_ate">Repetir até:</string>
+    <string name="Repetir_a_cada_x_y">Repetir a cada %1$s %2$s</string>
 </resources>

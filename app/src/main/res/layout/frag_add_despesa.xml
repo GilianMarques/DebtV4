@@ -94,7 +94,6 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/despesa_paga"
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -137,33 +136,8 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_tipo"
-                style="@style/TextInputLayoutStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:counterEnabled="false"
-                app:endIconMode="clear_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/til_nome">
 
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/tipo_despesa"
-                    style="@style/TextInputEditTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/vec_despesas"
-                    android:hint="@string/Tipo_despesa"
-                    android:imeOptions="actionNext"
-                    android:inputType="textCapSentences"
-                    android:text="@string/Despesa_ocasional"
-                    android:singleLine="true" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.appcompat.widget.LinearLayoutCompat
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -177,7 +151,10 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginTop="0dp"
                     android:layout_marginBottom="0dp"
-                    android:layout_weight="0.9">
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/iv_data_picker"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -198,20 +175,20 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iv_data_picker"
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_marginTop="2dp"
+                    android:layout_width="64dp"
+                    android:layout_height="0dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_weight="0.2"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="6dp"
                     android:background="@drawable/back_data_picker"
-                    android:padding="14dp"
+                    android:padding="18dp"
                     android:tint="?colorPrimary"
                     app:layout_constraintBottom_toBottomOf="@id/til_data_pgto"
-                    app:layout_constraintEnd_toEndOf="@id/til_nome"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/til_data_pgto"
-                    app:srcCompat="@drawable/vec_escolher_data" />
+                    app:srcCompat="@drawable/vec_data_picker" />
 
-            </androidx.appcompat.widget.LinearLayoutCompat>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
             <com.google.android.material.textfield.TextInputLayout
@@ -237,6 +214,142 @@
                     android:singleLine="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/repetir_"
+                style="@style/TextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:counterEnabled="false"
+                app:counterMaxLength="3"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edt_repetir"
+                    style="@style/TextInputEditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/vec_data_intervalo"
+                    android:hint="@string/Repetir_a_cada"
+                    android:imeOptions="actionNext"
+                    android:inputType="number"
+                    android:singleLine="true" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleButton_repetir"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/repetir_"
+                app:singleSelection="true">
+
+                <Button
+                    android:id="@+id/dias"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/Dia_s" />
+
+                <Button
+                    android:id="@+id/meses"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/Mes_es" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                tools:context=".presenter.main.FragMain">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_data_limite_repetir"
+                    style="@style/TextInputLayoutStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/iv_data_picker_repetir"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/data_limite_repetir"
+                        style="@style/TextInputEditTextStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:digits="0123456789/"
+                        android:drawableStart="@drawable/vec_data"
+                        android:hint="@string/Repetir_ate"
+                        android:imeOptions="actionNext"
+                        android:inputType="number"
+                        android:maxLength="10"
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_data_picker_repetir"
+                    android:layout_width="64dp"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/back_data_picker"
+                    android:padding="18dp"
+                    android:tint="?colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="@id/til_data_limite_repetir"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/til_data_limite_repetir"
+                    app:srcCompat="@drawable/vec_data_picker" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleButton2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/repetir_"
+                app:singleSelection="true">
+
+                <Button
+                    android:id="@+id/indeterminadamente"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/Indeterminadamente" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

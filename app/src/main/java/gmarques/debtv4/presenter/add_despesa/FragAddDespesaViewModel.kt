@@ -11,4 +11,6 @@ class FragAddDespesaViewModel : ViewModel() {
 
 
     fun usuarioLogado() = FirebaseAuth.getInstance().currentUser != null
+
+
 }

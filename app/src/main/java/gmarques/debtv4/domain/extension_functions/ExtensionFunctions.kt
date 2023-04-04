@@ -6,7 +6,7 @@ import java.math.MathContext
 import java.math.RoundingMode
 import kotlin.math.roundToInt
 
-class ExtFunctions {
+class ExtensionFunctions {
 
     companion object {
         /**
@@ -21,14 +21,16 @@ class ExtFunctions {
                 .toFloat()
         }
 
-
-
         fun Int.dp(): Int {
             return (this * Resources.getSystem().displayMetrics.density).roundToInt()
         }
 
-        fun Float.dp(): Int {
-            return (this * Resources.getSystem().displayMetrics.density).roundToInt()
+        /**
+         * remove da string tudo que não é numero
+         */
+        fun String?.apenasNumeros(): String? {
+            return if (this == null) null else Regex("\\D").replace(this, "")
         }
+
     }
 }

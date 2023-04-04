@@ -1,77 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingTop="24dp">
 
-    <EditText
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/repetir_"
+        style="@style/TextInputLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:focusedByDefault="true"/>
-    <TextView
-        android:id="@+id/ocasional"
+        app:counterEnabled="false"
+        app:endIconMode="clear_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/repetir"
+            style="@style/TextInputEditTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/vec_repetir"
+            android:hint="@string/Repetir_a_cada"
+            android:imeOptions="actionNext"
+            android:inputType="textCapSentences"
+            android:singleLine="true"
+            android:text="@string/_1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/repetir_"
+        app:singleSelection="true">
+
+        <Button
+            android:id="@+id/dias"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/Dia_s" />
+
+        <Button
+            android:id="@+id/meses"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/Mes_es" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/data_limite"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:checked="true"
+        android:drawableStart="@drawable/vec_data"
         android:drawablePadding="16dp"
-        android:padding="8dp"
-        android:text="@string/Despesa_ocasional"
-        app:drawableStartCompat="@drawable/vec_despesas" />
+        android:paddingStart="12dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="4dp"
+        android:text="@string/Indeterminadamente"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toggleButton" />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="?android:attr/listDivider" />
 
-    <TextView
-        android:id="@+id/recorrente"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:drawablePadding="16dp"
-        android:padding="8dp"
-        android:text="@string/Despesa_recorrente"
-        app:drawableStartCompat="@drawable/vec_recorrente" />
-
-    <View
-        android:id="@+id/divider1"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="?android:attr/listDivider" />
-
-    <TextView
-        android:id="@+id/cartao"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:drawablePadding="16dp"
-        android:padding="8dp"
-        android:text="@string/Fatura_de_cartao"
-        app:drawableStartCompat="@drawable/vec_cartao" />
-
-    <View
-        android:id="@+id/divider2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="?android:attr/listDivider" />
-
-    <TextView
-        android:id="@+id/poupanca"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:drawablePadding="16dp"
-        android:padding="8dp"
-        android:text="@string/Poupanca"
-        app:drawableStartCompat="@drawable/vec_poupanca" />
-
-</androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.constraintlayout.widget.ConstraintLayout>
