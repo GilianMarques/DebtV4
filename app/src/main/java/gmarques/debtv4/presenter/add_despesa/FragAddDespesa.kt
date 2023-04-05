@@ -8,21 +8,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.datepicker.MaterialDatePicker
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
+import gmarques.debtv4.databinding.LayoutBsRepetirDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
+import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.apenasNumeros
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.porcentoDe
+import gmarques.debtv4.presenter.BetterBottomSheet
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.Mascara
 import gmarques.debtv4.presenter.outros.UIUtils
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.*
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.util.*
 import kotlin.math.abs
 
@@ -32,7 +40,6 @@ class FragAddDespesa : CustomFrag() {
     private lateinit var viewModel: FragAddDespesaViewModel
     private lateinit var binding: FragAddDespesaBinding
     private val animsAtualizadasPeloAppBar = ArrayList<ValueAnimator>()
-
 
     private val mascaraDeData = "dd/MM/yyyy"
 
@@ -59,44 +66,72 @@ class FragAddDespesa : CustomFrag() {
         initCampoDeNome()
         initCampoData()
         initCampoObservacoes()
-        initBotoesDiaseMeses()
         initCampoRepetir()
+        initBotaoRecorrente()
     }
 
-    private fun initBotoesDiaseMeses() {
-
-        binding.toggleButtonRepetir.check(binding.meses.id)
-
-        binding.toggleButtonRepetir.addOnButtonCheckedListener { _, _, _ ->
-            exibirTextoCompletoViewRepetir()
+    private fun initBotaoRecorrente() {
+        binding.ivRecorrente.setOnClickListener {
+            binding.dataLimiteRepetir.setText(getString(R.string.Indeterminadamente))
         }
     }
-
 
     private fun initCampoRepetir() {
-        binding.edtRepetir.setOnFocusChangeListener { view: View, b: Boolean ->
-            if (b) binding.edtRepetir.setText(binding.edtRepetir.text.toString().apenasNumeros())
-            else exibirTextoCompletoViewRepetir()
+        binding.edtRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
+            if (b) mostrarBottomSheetRepetir { qtdRepeticoes: Int, tipoIntervalo: String ->
+
+                if (qtdRepeticoes > 0) {
+                    binding.edtRepetir.setText(
+                        String.format(
+                            getString(R.string.Repetir_a_cada_x_y), qtdRepeticoes.toString(), tipoIntervalo
+                        )
+                    )
+
+                } else {
+                    binding.edtRepetir.setText(getString(R.string.Nao_repetir))
+                }
+                binding.dataLimiteRepetir.requestFocus()
+            }
         }
     }
 
-    /**
-     * Limpa o foco da view e exibe o texto completo na view de dias/meses a repetir
-     * exemplo: "Repetir a cada 2 Dia(s)" se houver algum valor inserido no campo
-     * senao, nenhuma ação e feita.
-     */
-    private fun exibirTextoCompletoViewRepetir() {
-        binding.edtRepetir.clearFocus()
+    private fun mostrarBottomSheetRepetir(callback: (Int, String) -> Any) {
+        val dialogo = BetterBottomSheet()
+        val binding = LayoutBsRepetirDespesaBinding.inflate(layoutInflater)
 
-        val repetiraCada = binding.edtRepetir.text.toString().apenasNumeros()
+        binding.salvar.setOnClickListener {
 
-        if (repetiraCada!!.isNotEmpty() && repetiraCada.isNotBlank()) {
-            val botaoSelecionadoId = binding.toggleButtonRepetir.checkedButtonId
-            val botaoSelecionado = if (botaoSelecionadoId == binding.meses.id) binding.meses
-            else binding.dias
+            val texto = binding.edtRepetir.text.toString().apenasNumeros()
 
-            binding.edtRepetir.setText(String.format(getString(R.string.Repetir_a_cada_x_y), repetiraCada, botaoSelecionado.text.toString().lowercase()))
+            val qtdRepeticoes = if (texto != null
+                && texto.isNotEmpty()
+                && texto.toInt() <= Recorrencia.INTERVALO_MAX_REPETICAO
+            ) texto.toInt()
+            else 1
+
+            val botaoSelecionado =
+                    if (binding.toggleButton.checkedButtonId == binding.dias.id) binding.dias
+                    else binding.meses
+            callback.invoke(qtdRepeticoes, botaoSelecionado.text.toString().lowercase())
+            dialogo.dismiss()
         }
+
+        binding.naoRepetir.setOnClickListener {
+            callback.invoke(0, "0")
+            dialogo.dismiss()
+        }
+
+        dialogo.customView(binding.root)
+            /*se esse dialogo for cancelavel sera necessario definir um dismiss listener para
+            * tirar o foco a view de repetir, senao ocorrera um bug toda vez que o usuario fechar
+            * o dialogo sem ser pelos botoes(salvar e cancelar) onde é possivel editar o texto da view livremente*/
+            .cancelavel(false)
+            .show(parentFragmentManager)
+        lifecycleScope.launch {
+            delay(300)
+            UIUtils.mostrarTeclado(binding.edtRepetir)
+        }
+
 
     }
 

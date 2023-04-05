@@ -31,4 +31,7 @@
     <string name="Repetir">Repetir</string>
     <string name="Repetir_ate">Repetir até:</string>
     <string name="Repetir_a_cada_x_y">Repetir a cada %1$s %2$s</string>
+    <string name="Nao_repetir">Não repetir</string>
+    <string name="Salvar">Salvar</string>
+    <string name="Intervalo_das_repeticoes">Intervalo das repetições</string>
 </resources>

@@ -35,6 +35,9 @@ class BetterBottomSheet : DialogFragment() {
         aplicarFlags()
         customView?.let {
             binding.container.addView(customView)
+            val params = customView!!.layoutParams
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT
+            customView!!.layoutParams = params
         }
         return binding.root
     }
