@@ -37,4 +37,5 @@
     <string name="O_valor_maximo_para_esse_campo_e_x">O valor máximo para esse campo é %1$s</string>
     <string name="Entrada_invalida">Entrada inválida</string>
     <string name="Selecione_dias_ou_meses_para_prosseguir">Selecione Dias ou Meses para prosseguir </string>
+    <string name="Quando_foi_paga">Quando foi paga (dd/mm/aaaa)</string>
 </resources>

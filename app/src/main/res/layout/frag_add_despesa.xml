@@ -142,7 +142,7 @@
                 tools:context=".presenter.main.FragMain">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/til_data_pgto"
+                    android:id="@+id/til_data_pagamento"
                     style="@style/TextInputLayoutStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -156,7 +156,7 @@
 
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/data_pgto"
+                        android:id="@+id/data_pagamento"
                         style="@style/TextInputEditTextStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -181,9 +181,65 @@
                     android:background="@drawable/back_data_picker"
                     android:padding="18dp"
                     android:tint="?colorPrimary"
-                    app:layout_constraintBottom_toBottomOf="@id/til_data_pgto"
+                    app:layout_constraintBottom_toBottomOf="@id/til_data_pagamento"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/til_data_pgto"
+                    app:layout_constraintTop_toTopOf="@id/til_data_pagamento"
+                    app:srcCompat="@drawable/vec_data_picker" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/container_data_despesa_paga"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                tools:context=".presenter.main.FragMain"
+                tools:visibility="visible">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_data_pago"
+                    style="@style/TextInputLayoutStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/iv_data_picker_desp_paga"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/data_desp_paga"
+                        style="@style/TextInputEditTextStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:digits="0123456789/"
+                        android:drawableStart="@drawable/vec_data"
+                        android:hint="@string/Quando_foi_paga"
+                        android:imeOptions="actionDone"
+                        android:inputType="number"
+                        android:maxLength="10"
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_data_picker_desp_paga"
+                    android:layout_width="64dp"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/back_data_picker"
+                    android:padding="18dp"
+                    android:tint="?colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="@id/til_data_pago"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/til_data_pago"
                     app:srcCompat="@drawable/vec_data_picker" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -275,7 +331,7 @@
                 app:counterEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/til_data_pgto">
+                app:layout_constraintTop_toBottomOf="@id/til_data_pagamento">
 
 
                 <com.google.android.material.textfield.TextInputEditText
