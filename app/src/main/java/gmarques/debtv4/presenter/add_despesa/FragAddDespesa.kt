@@ -24,6 +24,7 @@ import gmarques.debtv4.domain.uteis.DataUtils.Companion.agoraEmMillis
 import gmarques.debtv4.domain.uteis.DataUtils.Companion.corrigirFusoHorario
 import gmarques.debtv4.domain.uteis.DataUtils.Companion.dataFormatadaParaLong
 import gmarques.debtv4.domain.uteis.DataUtils.Companion.formatarData
+import gmarques.debtv4.presenter.TecladoCalculadora
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.MascaraData
@@ -38,7 +39,6 @@ class FragAddDespesa : CustomFrag() {
     private lateinit var binding: FragAddDespesaBinding
     private val animsAtualizadasPeloAppBar = ArrayList<ValueAnimator>()
 
-    // TODO: resolver bug do datapicker
     // TODO: criar teclado calculadora
     // TODO: testar tudo oque foi feito até aqui
     override fun onCreateView(
@@ -68,6 +68,7 @@ class FragAddDespesa : CustomFrag() {
         initCampoDataLimiteRepeticao()
         initSwitchDespesaPaga()
         initCampoDataEmQueDespesaFoiPaga()
+        TecladoCalculadora().show(parentFragmentManager, "")
     }
 
     private fun initCampoDataEmQueDespesaFoiPaga() {
@@ -235,7 +236,6 @@ class FragAddDespesa : CustomFrag() {
     private fun initTextViewValoreMoeda() {
         binding.tvValor.text = "999,95"
         binding.tvMoeda.text = Currency.getInstance(Locale.getDefault()).symbol
-
     }
 
     private fun initAppBar() {

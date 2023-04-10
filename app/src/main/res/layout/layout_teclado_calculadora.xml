@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/display_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?colorPrimary">
+
+
+    <TextView
+        android:id="@+id/tv_historico"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fontFamily="@font/nunito_sans_light"
+        android:gravity="bottom"
+        android:textAlignment="textEnd"
+        android:textColor="@color/text_color_primary"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@id/edt_valor"
+        app:layout_constraintEnd_toEndOf="@id/edt_valor"
+        app:layout_constraintStart_toStartOf="@id/edt_valor"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="RtlCompat"
+        tools:text="1520,99" />
+
+    <EditText
+        android:id="@+id/edt_valor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:background="@color/transparent"
+        android:fontFamily="@font/nunito_sans_extrabold"
+        android:textAlignment="textEnd"
+        android:textColor="@color/text_color_primary"
+
+        android:textSize="64sp"
+        app:autoSizeMaxTextSize="100sp"
+        app:autoSizeMinTextSize="12sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@id/guideline_0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="1520,99" />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/teclado_parent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/layout_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline_0">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.2" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.4" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.6" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.8" />
+
+        <TextView
+            android:id="@+id/tv_concluir"
+            style="@style/TecladoCalculadoraSinalStyle"
+            android:text="@string/Concluir"
+            app:layout_constraintBottom_toTopOf="@id/guideline_1"
+            app:layout_constraintEnd_toStartOf="@id/tv_apagar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_apagar"
+            style="@style/TecladoCalculadoraSinalStyle"
+            android:text="@string/_apagar"
+            app:layout_constraintBottom_toTopOf="@id/guideline_1"
+            app:layout_constraintEnd_toStartOf="@id/tv_igual"
+            app:layout_constraintStart_toEndOf="@id/tv_2"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_igual"
+            style="@style/TecladoCalculadoraSinalStyle"
+            android:text="@string/_igual"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@id/guideline_1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_3"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_1"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_1"
+            app:layout_constraintBottom_toTopOf="@id/guideline_2"
+            app:layout_constraintEnd_toStartOf="@id/tv_2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guideline_1" />
+
+        <TextView
+            android:id="@+id/tv_2"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_2"
+            app:layout_constraintBottom_toTopOf="@id/guideline_2"
+            app:layout_constraintEnd_toStartOf="@id/tv_3"
+            app:layout_constraintStart_toEndOf="@id/tv_1"
+            app:layout_constraintTop_toBottomOf="@id/guideline_1" />
+
+        <TextView
+            android:id="@+id/tv_3"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_3"
+            app:layout_constraintBottom_toTopOf="@id/guideline_2"
+            app:layout_constraintEnd_toStartOf="@id/tv_soma"
+            app:layout_constraintStart_toEndOf="@id/tv_2"
+            app:layout_constraintTop_toBottomOf="@id/guideline_1" />
+
+        <TextView
+            android:id="@+id/tv_soma"
+            style="@style/TecladoCalculadoraSinalStyle"
+            android:text="@string/_soma"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@id/guideline_2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_3"
+            app:layout_constraintTop_toBottomOf="@id/guideline_1" />
+
+        <TextView
+            android:id="@+id/tv_4"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_4"
+            app:layout_constraintBottom_toTopOf="@id/guideline_3"
+            app:layout_constraintEnd_toStartOf="@id/tv_5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guideline_2" />
+
+        <TextView
+            android:id="@+id/tv_5"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_5"
+            app:layout_constraintBottom_toTopOf="@id/guideline_3"
+            app:layout_constraintEnd_toStartOf="@id/tv_6"
+            app:layout_constraintStart_toEndOf="@id/tv_4"
+            app:layout_constraintTop_toBottomOf="@id/guideline_2" />
+
+        <TextView
+            android:id="@+id/tv_6"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_6"
+            app:layout_constraintBottom_toTopOf="@id/guideline_3"
+            app:layout_constraintEnd_toStartOf="@id/tv_subtr"
+            app:layout_constraintStart_toEndOf="@id/tv_5"
+            app:layout_constraintTop_toBottomOf="@id/guideline_2" />
+
+        <TextView
+            android:id="@+id/tv_subtr"
+            style="@style/TecladoCalculadoraSinalStyle"
+            android:text="@string/_sub"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@id/guideline_3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_6"
+            app:layout_constraintTop_toBottomOf="@id/guideline_2" />
+
+        <TextView
+            android:id="@+id/tv_7"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_7"
+            app:layout_constraintBottom_toTopOf="@id/guideline_4"
+            app:layout_constraintEnd_toStartOf="@id/tv_8"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guideline_3" />
+
+        <TextView
+            android:id="@+id/tv_8"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_8"
+            app:layout_constraintBottom_toTopOf="@id/guideline_4"
+            app:layout_constraintEnd_toStartOf="@id/tv_9"
+            app:layout_constraintStart_toEndOf="@id/tv_7"
+            app:layout_constraintTop_toBottomOf="@id/guideline_3" />
+
+        <TextView
+            android:id="@+id/tv_9"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_9"
+            app:layout_constraintBottom_toTopOf="@id/guideline_4"
+            app:layout_constraintEnd_toStartOf="@id/tv_mult"
+            app:layout_constraintStart_toEndOf="@id/tv_8"
+            app:layout_constraintTop_toBottomOf="@id/guideline_3" />
+
+        <TextView
+            android:id="@+id/tv_mult"
+            style="@style/TecladoCalculadoraSinalStyle"
+            android:text="@string/_mult"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@id/guideline_4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_9"
+            app:layout_constraintTop_toBottomOf="@id/guideline_3" />
+
+        <TextView
+            android:id="@+id/tv_virgula"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_virgula"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guideline_4" />
+
+        <TextView
+            android:id="@+id/tv_0"
+            style="@style/TecladoCalculadoraStyle"
+            android:text="@string/_0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_porcento"
+            app:layout_constraintStart_toEndOf="@id/tv_virgula"
+            app:layout_constraintTop_toBottomOf="@id/guideline_4" />
+
+        <TextView
+            android:id="@+id/tv_porcento"
+            style="@style/TecladoCalculadoraSinalStyle"
+            android:text="@string/_porcent"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tv_div"
+            app:layout_constraintStart_toEndOf="@id/tv_0"
+            app:layout_constraintTop_toBottomOf="@id/guideline_4" />
+
+        <TextView
+            android:id="@+id/tv_div"
+            style="@style/TecladoCalculadoraSinalStyle"
+            android:text="@string/_div"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_porcento"
+            app:layout_constraintTop_toBottomOf="@id/guideline_4" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

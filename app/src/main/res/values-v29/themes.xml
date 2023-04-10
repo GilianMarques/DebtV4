@@ -35,4 +35,21 @@
     </style>
 
 
+    <style name="TecladoCalculadoraStyle" parent="android:Widget.TextView">
+        <item name="android:background">?selectableItemBackground</item>
+        <item name="android:fontFamily">@font/nunito_sans_extrabold</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:textColor">?colorPrimary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+
+    <style name="TecladoCalculadoraSinalStyle" parent="TecladoCalculadoraStyle">
+        <item name="android:textColor">?colorAccent</item>
+    </style>
+
 </resources>

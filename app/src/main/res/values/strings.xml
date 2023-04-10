@@ -23,7 +23,6 @@
     <string name="Tipo_despesa">Tipo de despesa</string>
     <string name="Despesa_ocasional">Despesa ocasional</string>
     <string name="Repetir_a_cada">Repetir a cada: (opcional)</string>
-    <string name="_1">1</string>
     <string name="Dia_s">Dia(s)</string>
     <string name="Mes_es">Mês(es)</string>
     <string name="Ate">Até</string>
@@ -38,4 +37,23 @@
     <string name="Entrada_invalida">Entrada inválida</string>
     <string name="Selecione_dias_ou_meses_para_prosseguir">Selecione Dias ou Meses para prosseguir </string>
     <string name="Quando_foi_paga">Quando foi paga (dd/mm/aaaa)</string>
+    <string name="_1">1</string>
+    <string name="_2">2</string>
+    <string name="_3">3</string>
+    <string name="_4">4</string>
+    <string name="_5">5</string>
+    <string name="_6">6</string>
+    <string name="_7">7</string>
+    <string name="_8">8</string>
+    <string name="_9">9</string>
+    <string name="_0">0</string>
+    <string name="_soma">+</string>
+    <string name="_sub">-</string>
+    <string name="_mult">x</string>
+    <string name="_div">÷</string>
+    <string name="_porcent">%</string>
+    <string name="_igual">=</string>
+    <string name="_virgula">,</string>
+    <string name="_apagar">⌫</string>
+
 </resources>
