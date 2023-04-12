@@ -11,6 +11,9 @@ internal class TecladoCalculadoraTest {
         val retorno = tcalc.removerOperadoresEmSequenciaDaFormula("35+67-x5xxx%3x÷754")
         Assert.assertEquals("35+67x5%3÷754", retorno)
 
+        val retorno2 = tcalc.removerOperadoresEmSequenciaDaFormula("35++2--6÷-4-x-2")
+        Assert.assertEquals("35+2--6÷-4x-2", retorno2)
+
     }
 
     @Test
