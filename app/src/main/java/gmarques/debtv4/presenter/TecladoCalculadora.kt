@@ -35,7 +35,7 @@ class TecladoCalculadora : DialogFragment() {
     }
 
 
-    // TODO: remover foco da view dps de calcular
+    // TODO: remover foco da view dps de calcular, add snackbar para erros
 
     private var colorAccent: Int = 0
     private lateinit var binding: LayoutTecladoCalculadoraBinding
@@ -165,16 +165,23 @@ class TecladoCalculadora : DialogFragment() {
                     super.onClick(view)
 
                     val operador = (view as TextView).text.toString()
+                    val formula = binding.edtValor.text.toString()
 
                     // pode add apenas o sinal '-' no começo da formula
-                    if (binding.edtValor.text.isEmpty() && operador != OP_SUBT) return
-                    else if (binding.edtValor.text.isNotEmpty() && REGEX_OPERADORES.contains(binding.edtValor.text.toString())) return
+                    if (formula.isEmpty() && operador != OP_SUBT) return
+                    else if (formula.isNotEmpty() && REGEX_OPERADORES.contains(formula)) return
 
+                    if (valorNaTelaEhUmaFormulaValida(formula)) binding.tvIgual.callOnClick()// simula um aperto no botao de = do teclado para calcular a formula existente antes de adicionar ourto operador
                     incluirCaractere(operador)
 
                 }
             })
         }
+    }
+
+    // TODO: isso funciona mesmo?
+    private fun valorNaTelaEhUmaFormulaValida(formula: String): Boolean {
+        return Calculadora.regexFormulaValida.matches(formula)
     }
 
     @SuppressLint("SetTextI18n")
@@ -183,7 +190,8 @@ class TecladoCalculadora : DialogFragment() {
         try {
 
             Log.d("USUK", "TecladoCalculadora.mostrarResultado: $formula")
-            val resultado = Calculadora(formula).calcular()
+            val resultado = Calculadora().calcular(formula)
+            Log.d("USUK", "TecladoCalculadora.mostrarResultado: $resultado")
             binding.edtValor.setText(resultado)
             binding.edtValor.setSelection(resultado.length)
 
@@ -193,8 +201,7 @@ class TecladoCalculadora : DialogFragment() {
 
         } catch (e: java.lang.Exception) {
 
-            val erroSpan = SpannableString(formula)
-                .apply { setSpan(ForegroundColorSpan(colorAccent), 0, formula.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE) }
+            val erroSpan = SpannableString(formula).apply { setSpan(ForegroundColorSpan(colorAccent), 0, formula.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE) }
 
             binding.edtValor.setText(erroSpan)
             UIUtils.vibrar(UIUtils.Vibracao.ERRO)
@@ -213,16 +220,16 @@ class TecladoCalculadora : DialogFragment() {
     private fun mostrarErrosNaFormula(formula: String): Boolean {
         val areaErros = ArrayList<IntRange>()
 
-        val virgulaSeguidaDeOperador = Regex("""[,][$REGEX_OPERADORES]""")
-        val operadoresSeguidosDeVirgula = Regex("""[$REGEX_OPERADORES][,]""")
-        val virgulaNoComeco = Regex("""^[,]""")
-        val virgulaNoFim = Regex("""[,]$""")
-        val opNoComeco = Regex("""^[${REGEX_OPERADORES_SEM_SUBT}]""")// o sinal - pode ficar no começo da formula
-        val opNoFim = Regex("""[$REGEX_OPERADORES]$""")
+        val virgulaSeguidaDeOperador = Regex("""([,])[$REGEX_OPERADORES]""")
+        val operadoresSeguidosDeVirgula = Regex("""[$REGEX_OPERADORES]([,])""")
+        val virgulaNoComeco = Regex("""^([,])""")
+        val virgulaNoFim = Regex("""([,])$""")
+        val opNoComeco = Regex("""^([${REGEX_OPERADORES_SEM_SUBT}])""")// o sinal - pode ficar no começo da formula
+        val opNoFim = Regex("""([$REGEX_OPERADORES])$""")
 
         val padroes = arrayListOf(virgulaSeguidaDeOperador, operadoresSeguidosDeVirgula, virgulaNoComeco, virgulaNoFim, opNoComeco, opNoFim)
 
-        padroes.forEach { padrao -> padrao.findAll(formula).forEach { areaErros.add(it.range) } }
+        padroes.forEach { padrao -> padrao.findAll(formula).forEach { areaErros.add(it.groups[1]!!.range) } }
 
         val spannableStr = SpannableString(formula)
 
@@ -347,154 +354,126 @@ class TecladoCalculadora : DialogFragment() {
         corrigirVirgulasIlegais()
     }
 
-    class Calculadora(formula: String) {
+    class Calculadora {
         companion object {
             /**
-             * Padrao regex para encontrar um numero que pode ou nao ser negativo
+             * Esse regex encontra um numero que pode ou nao ser negativo e agrupa o numero e seu sinal
              */
-            const val GRUPO_DIGITOS_PRE_OP = """[+x÷%-]?([-]?[\d.]+)"""
-            const val GRUPO_DIGITOS_POS_OP = """([+x÷%-]?[-]?[\d.]+)"""
-            const val REGEX_SOMA = """[\d]?[$OP_SOMA]"""
-            const val REGEX_SUBT = """[\d]?[$OP_SUBT]"""
-            const val REGEX_MULT = """[\d]?[$OP_MULT]"""
-            const val REGEX_DIV = """[\d]?[$OP_DIV]"""
-            const val REGEX_PORCE = """[\d]?[$OP_PORCE]"""
+            private const val GRUPO_DIGITOS_PRE_OP = """[$REGEX_OPERADORES]?([-]?[\d.]+)"""
+
+            /**
+             * Busca o operador que define qual operaçao sera feita com os valores extraidos da formula,
+             */
+            private const val REGEX_OPERACAO = """([\d]?[$REGEX_OPERADORES])"""
+
+            /**
+             * Mesmo que [Calculadora.GRUPO_DIGITOS_PRE_OP] mas um pouco diferente ja que é usado para achar o numero
+             * depois do operador da formula
+             */
+            private const val GRUPO_DIGITOS_POS_OP = """([$OP_SUBT]?[\d.]+)"""
+
+            /**
+             * Captura um numero que pode ou nao ser negativo, seguido por um operador qualquer e outro
+             * numero que pode ou nao ser negativo
+             *
+             * Obs: para capiturar um numero negativo no começo da formula deve-se adcionar um operador +
+             * antes dele. veja o setter de [novaFormula] para entender melhor.
+             */
+            val regexFormulaValida = Regex("""$GRUPO_DIGITOS_PRE_OP$REGEX_OPERACAO$GRUPO_DIGITOS_POS_OP""")
+
         }
 
+        private val mathContext = MathContext(8, RoundingMode.HALF_DOWN)
         private var novaFormula = ""
             /**
-
-             * Os padroes regex atuais só entendem que um numero é negativo se seu sinal de menos
-             * for precedido por outro operador qualquer (+,x,÷,%,-) neste exemplo 25*-35+3/4,
-             * entende-se que 35 é negativo ja que o sinal de menos é precedido pelo sinal de multiplicaçao
-             * que representa a operaçao a ser feita agora, se o numero da frente é negativo os
-             * padroes regex nao conseguem identificar ex: -25*-35+3/4, aqui apenas o 35 é reconhecido
-             * como negativo.
              *
              * Esse setter adiciona uma sinal de soma a uma formula que começe com
              * um numero negativo para que os padroes regex consigam identificar que o
              * sinal de menos significa que o primeiro numero da formula é negativo.
+             *
+             * Os padroes regex atuais só entendem que um numero é negativo se seu sinal de menos
+             * for precedido por outro operador qualquer (+,x,÷,%,-) neste exemplo 25*-35,
+             * entende-se que 35 é negativo ja que o sinal de menos é precedido pelo sinal de multiplicaçao
+             * que representa a operaçao a ser feita agora, se o numero da frente é negativo os
+             * padroes regex nao conseguem identificar ex: -25*-35, aqui apenas o 35 é reconhecido
+             * como negativo.
              */
             set(value) {
-
-                // TODO: ATENÇAO OPTEI POR DESCONTINUAR ESSA VERSAO DA CALCULADORA QUE RESOLVE FORMULAS PQ TA DANDO BASTANTE TRABALHO E O APP NAO PRECISA DE TUDO ISSO
-
-                // TODO: qdo a formula estiver totalmente calculada nao se deve adicionar um + na frente pois caga o resultado 
-                // TODO: use 10,1x-2,3÷1,04+-0,5-0,01÷-5,2 para testar se deu tudo certo no navegador. copie a formula do wpp para inserir no app
-                // TODO: crie uma função para validar o valor recebido aqui e setar ele adequadamente, nao faça isso aqui no setter 
-                field = if (Regex(REGEX_OPERADORES).findAll(value).count() <= 1) {
-                    //se a formula tem apenas um ou nenhum operador ela ja foi calculada e por tanto
-                    // nao se deve adicionar um sinal de mais na frente dela se for negativa
-                    value
-                } else if (value.startsWith(OP_SUBT)) "$OP_SOMA$value"
+                field = if (value.startsWith(OP_SUBT)) "$OP_SOMA$value"
                 else value
             }
-        private val mathContext = MathContext(8, RoundingMode.HALF_DOWN)
 
+        /**
+         * Trata a formula, manda calcular e trata o resultado, retornando-o para o cliente
+         */
+        fun calcular(formula: String): String {
 
-        init {
             novaFormula = formula.replace(",", ".")
+
+            val resultado = extraireCalcularValores()
+
+            /* Se o resultado da formula for negativo, um sinal de + sera adicionado na frente do resultado
+             * (veja o setter da variavel novaFormula), esse sinal de soma deve ser removido ao fim dos calculos*/
+            return if (resultado.startsWith("$OP_SOMA$OP_SUBT")) resultado.drop(1) else resultado
         }
 
         /**
-         * Faz o calculo da formula na ordem correta:
-         *  multiplicacoes e divisoes primeiro, depois somas e subtraçoes, por ultimo, porcentagens
-         *  @throws NumberFormatException se a formula for invalida
+         *  Extrai os valores da formula e seu operador, chamando a função adequada para realizar
+         *  o calculo dos valores
+         *  @throws Exception se a formula for invalida
+         *  @throws NumberFormatException se houver erro numerico no momento dos calculos
          */
-        fun calcular(): String {
+        private fun extraireCalcularValores(): String {
+            val match = regexFormulaValida.find(novaFormula, 0)
+            if (match == null || match.groups.count() != 4) throw java.lang.Exception("Formula invalida Formula: '$novaFormula'")
 
-            //Log.d("USUK", "Calculadora.calcular: $novaFormula - formula")
-            calcularMultiPlicacoes()
-            //Log.d("USUK", "Calculadora.calcular: $novaFormula - pos mult")
-            calcularDivisoes()
-            //Log.d("USUK", "Calculadora.calcular: $novaFormula - pos div")
-            calcularSomas()
-            //Log.d("USUK", "Calculadora.calcular: $novaFormula - pos somas")
-            calcularSubtracoes()
-            //Log.d("USUK", "Calculadora.calcular: $novaFormula - pos subs")
-            calcularPorcentagens()
-            //Log.d("USUK", "Calculadora.calcular: $novaFormula - pos porcents")
+            val valor1 = match.groups[1]!!.value
+            val operador = match.groups[2]!!.value
+            val valor2 = match.groups[3]!!.value
 
-            /*se o resultado da formula for negativo, um sinal de + sera adicionado na frente do resultado
-            * (veja o setter da variavel novaFormula), esse sinal de soma deve ser removido ao fim dos calculos*/
-            return if (novaFormula.startsWith("$OP_SOMA$OP_SUBT")) novaFormula.drop(1) else novaFormula
-        }
+            return when (operador) {
+                OP_MULT  -> multiplicar(valor1, valor2)
+                OP_DIV   -> dividir(valor1, valor2)
+                OP_SOMA  -> somar(valor1, valor2)
+                OP_SUBT  -> subtrair(valor1, valor2)
+                OP_PORCE -> porcentagem(valor1, valor2)
+                else     -> throw java.lang.Exception("operador desconhecido operador: '$operador', formula: '$novaFormula'")
+            }.toPlainString()
 
-        private fun calcularPorcentagens() {
-            if (!novaFormula.contains(OP_PORCE)) return
-
-            val regex = Regex("""$GRUPO_DIGITOS_PRE_OP$REGEX_PORCE$GRUPO_DIGITOS_POS_OP""")
-
-            while (regex.containsMatchIn(novaFormula)) {
-                val match = regex.find(novaFormula, 0)!!
-                val valor1 = match.groups[1]!!.value
-                val valor2 = match.groups[2]!!.value
-                val resultado = valor1.toBigDecimal().multiply(valor2.toBigDecimal(), mathContext).divide("100".toBigDecimal(), mathContext)
-                novaFormula = novaFormula.replace(match.value, resultado.toString())
-                Log.d("USUK", "Calculadora: $novaFormula")
-            }
-        }
-
-        private fun calcularSubtracoes() {
-            if (!novaFormula.contains(OP_SUBT)) return
-
-            val regex = Regex("""$GRUPO_DIGITOS_PRE_OP$REGEX_SUBT$GRUPO_DIGITOS_POS_OP""")
-
-            while (regex.containsMatchIn(novaFormula)) {
-                val match = regex.find(novaFormula, 0)!!
-                val valor1 = match.groups[1]!!.value
-                val valor2 = match.groups[2]!!.value
-                val resultado = valor1.toBigDecimal().subtract(valor2.toBigDecimal(), mathContext)
-                novaFormula = novaFormula.replace(match.value, resultado.toString())
-                Log.d("USUK", "Calculadora: $novaFormula")
-            }
-        }
-
-        private fun calcularSomas() {
-            if (!novaFormula.contains(OP_SOMA)) return
-
-            val regex = Regex("""$GRUPO_DIGITOS_PRE_OP$REGEX_SOMA$GRUPO_DIGITOS_POS_OP""")
-
-            while (regex.containsMatchIn(novaFormula)) {
-                val match = regex.find(novaFormula, 0)!!
-                val valor1 = match.groups[1]!!.value
-                val valor2 = match.groups[2]!!.value
-                val resultado = valor1.toBigDecimal().add(valor2.toBigDecimal(), mathContext)
-                novaFormula = novaFormula.replace(match.value, resultado.toString())
-                Log.d("USUK", "Calculadora: $novaFormula")
-            }
-        }
-
-        private fun calcularDivisoes() {
-            if (!novaFormula.contains(OP_DIV)) return
-
-            val regex = Regex("""$GRUPO_DIGITOS_PRE_OP$REGEX_DIV$GRUPO_DIGITOS_POS_OP""")
-            while (regex.containsMatchIn(novaFormula)) {
-                val match = regex.find(novaFormula, 0)!!
-                val valor1 = match.groups[1]!!.value
-                val valor2 = match.groups[2]!!.value
-                val resultado = valor1.toBigDecimal().divide(valor2.toBigDecimal(), mathContext)
-                novaFormula = novaFormula.replace(match.value, resultado.toString())
-                Log.d("USUK", "Calculadora: $novaFormula")
-            }
-        }
-
-        private fun calcularMultiPlicacoes() {
-
-            if (!novaFormula.contains(OP_MULT)) return
-
-            val regex = Regex("""$GRUPO_DIGITOS_PRE_OP$REGEX_MULT$GRUPO_DIGITOS_POS_OP""")
-
-            while (regex.containsMatchIn(novaFormula)) {
-                val match = regex.find(novaFormula, 0)!!
-                val valor1 = match.groups[1]!!.value
-                val valor2 = match.groups[2]!!.value
-                val resultado = valor1.toBigDecimal().multiply(valor2.toBigDecimal(), mathContext)
-                novaFormula = novaFormula.replace(match.value, resultado.toString())
-                Log.d("USUK", "Calculadora: $novaFormula")
-            }
 
         }
+
+        /**
+         *  @throws NumberFormatException se houver erro numerico no momento dos calculos
+         */
+        private fun porcentagem(valor1: String, valor2: String) =
+            valor1.toBigDecimal().multiply(valor2.toBigDecimal(), mathContext).divide("100".toBigDecimal(), mathContext)
+
+        /**
+         *  @throws NumberFormatException se houver erro numerico no momento dos calculos
+         */
+        private fun subtrair(valor1: String, valor2: String) =
+            valor1.toBigDecimal().subtract(valor2.toBigDecimal(), mathContext)
+
+        /**
+         *  @throws NumberFormatException se houver erro numerico no momento dos calculos
+         */
+        private fun somar(valor1: String, valor2: String) =
+            valor1.toBigDecimal().add(valor2.toBigDecimal(), mathContext)
+
+        /**
+         *  @throws NumberFormatException se houver erro numerico no momento dos calculos
+         */
+        private fun dividir(valor1: String, valor2: String) =
+            valor1.toBigDecimal().divide(valor2.toBigDecimal(), mathContext)
+
+        /**
+         *  @throws NumberFormatException se houver erro numerico no momento dos calculos
+         */
+        private fun multiplicar(valor1: String, valor2: String) =
+            valor1.toBigDecimal().multiply(valor2.toBigDecimal(), mathContext)
+
+
     }
 
 }
