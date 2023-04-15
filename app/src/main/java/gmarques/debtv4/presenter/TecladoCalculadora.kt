@@ -27,6 +27,7 @@ import java.math.RoundingMode
  * @Date: quinta-feira, 30 de março de 2023 às 20:23
  */
 class TecladoCalculadora : DialogFragment() {
+
     companion object {
         const val OP_SOMA = "+"
         const val OP_SUBT = "-"
@@ -38,12 +39,13 @@ class TecladoCalculadora : DialogFragment() {
 
     }
 
-
+    private var titulo: String = ""
     private var mostrandoErrosNaFormula: Boolean = false
     private var colorAccent: Int = 0
     private var valorInicial: String = ""
     private lateinit var callback: (String) -> Unit
     private lateinit var binding: LayoutTecladoCalculadoraBinding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -87,9 +89,19 @@ class TecladoCalculadora : DialogFragment() {
         initBotoesOperadores()
         initEdtValor()
         initBotaoIgual()
-        initBotaoVirgula()
+        initBotaoPonto()
         initBotaoApagar()
         initBotaoConcluir()
+        initToolbar()
+    }
+
+    private fun initToolbar() {
+        binding.layoutToolbar.titulo.text = titulo
+        binding.layoutToolbar.voltar.setOnClickListener {
+            dismiss()
+        }
+
+
     }
 
     private fun initBotaoConcluir() {
@@ -149,20 +161,20 @@ class TecladoCalculadora : DialogFragment() {
             override fun onClick(view: View) {
                 super.onClick(view)
 
-                val formula = binding.edtValor.text.toString()
-
+                var formula = binding.edtValor.text.toString()
+                formula = incluirZerosOndeNecessario(formula)
                 val erros = notificarSeHouveremErrosNaFormula(formula)
                 if (!erros) mostrarResultado(formula)
             }
         })
     }
 
-    private fun initBotaoVirgula() {
+    private fun initBotaoPonto() {
         binding.tvPonto.setOnClickListener(object : AnimatedClickListener() {
             override fun onClick(view: View) {
                 super.onClick(view)
-                val virgula = (view as TextView).text.toString()
-                incluirCaractere(virgula)
+                val ponto = (view as TextView).text.toString()
+                incluirCaractere(ponto)
             }
         })
     }
@@ -231,7 +243,8 @@ class TecladoCalculadora : DialogFragment() {
             binding.edtValor.setText(resultado)
             binding.edtValor.setSelection(resultado.length)
 
-            binding.tvHistorico.text = "${binding.tvHistorico.text}\n$formula"
+            binding.tvHistorico.text = "${binding.tvHistorico.text}\n$formula = $resultado"
+            binding.scroll.scrollTo(0, binding.tvHistorico.height);
 
             UIUtils.vibrar(UIUtils.Vibracao.SUCESSO)
 
@@ -254,6 +267,28 @@ class TecladoCalculadora : DialogFragment() {
         Snackbar.make(requireContext(), binding.root, string, Snackbar.LENGTH_LONG).show()
         UIUtils.vibrar(UIUtils.Vibracao.ERRO)
         binding.edtValor.requestFocus()
+    }
+
+    /**
+     * Por comodidade, usuario pode digitar formulas sem o numero antes do ponto, ex: 15.99+.96
+     * nesse caso o app insere 0 um na formula ficando 15.99+0.96
+     */
+    @VisibleForTesting
+    fun incluirZerosOndeNecessario(formula: String): String {
+
+        var novaFormula = formula
+
+        val regexPrimeiroNumeroFormula = Regex("""^[.][\d]+""")
+        val regexSegundoNumeroFormula = Regex("""[$REGEX_OPERADORES]([.][\d]+)""")
+
+        val matchPrim = regexPrimeiroNumeroFormula.find(novaFormula, 0)
+        if (matchPrim != null) novaFormula = novaFormula.replace(matchPrim.value, "0${matchPrim.value}")
+
+
+        val matchSeg = regexSegundoNumeroFormula.find(novaFormula, 0)
+        if (matchSeg != null) novaFormula = novaFormula.replace(matchSeg.groups[1]!!.value, "0${matchSeg.groups[1]!!.value}")
+
+        return novaFormula
     }
 
     /**
@@ -298,14 +333,14 @@ class TecladoCalculadora : DialogFragment() {
 
         val areaErros = ArrayList<IntRange>()
 
-        val virgulaSeguidaDeOperador = Regex("""([.])[$REGEX_OPERADORES]""")
-        val operadoresSeguidosDeVirgula = Regex("""[$REGEX_OPERADORES]([.])""")
-        val virgulaNoComeco = Regex("""^([.])""")
-        val virgulaNoFim = Regex("""([.])$""")
+        val pontoSeguidaDeOperador = Regex("""([.])[$REGEX_OPERADORES]""")
+        val operadoresSeguidosDePonto = Regex("""[$REGEX_OPERADORES]([.])""")
+        val pontoNoComeco = Regex("""^([.])""")
+        val pontoNoFim = Regex("""([.])$""")
         val opNoComeco = Regex("""^([${REGEX_OPERADORES_SEM_SUBT}])""")// o sinal - pode ficar no começo da formula
         val opNoFim = Regex("""([$REGEX_OPERADORES])$""")
 
-        val padroes = arrayListOf(virgulaSeguidaDeOperador, operadoresSeguidosDeVirgula, virgulaNoComeco, virgulaNoFim, opNoComeco, opNoFim)
+        val padroes = arrayListOf(pontoSeguidaDeOperador, operadoresSeguidosDePonto, pontoNoComeco, pontoNoFim, opNoComeco, opNoFim)
 
         padroes.forEach { padrao -> padrao.findAll(formula).forEach { areaErros.add(it.groups[1]!!.range) } }
 
@@ -333,7 +368,7 @@ class TecladoCalculadora : DialogFragment() {
     }
 
     /**
-     * Essa função atualiza a interface com a formula corrigida em caso de virgulas duplicadas
+     * Essa função atualiza a interface com a formula corrigida em caso de pontos duplicados
      */
     private fun corrigirPontosIlegais() {
 
@@ -394,15 +429,15 @@ class TecladoCalculadora : DialogFragment() {
     /**
      * Essa funcao busca corrigir erros simples que podem ocorrer durante a digitação da formula
      * e nao todos os possiveis erros.
-     * @return uma versao da formula onde os numeros nao terao mais do que uma virgula
+     * @return uma versao da formula onde os numeros nao terao mais do que um ponto
      */
     @VisibleForTesting
     fun removerPontosMultiplos(formula: String): String {
 
-        if (formula.length <= 1) return formula.replace(".", "")
+        if (formula.length <= 1) return formula
 
         val regexOperadores = Regex("""[$REGEX_OPERADORES]""")
-        val regexVirgulas = Regex("""[.]+""")
+        val regexPontos = Regex("""[.]+""")
         val numeros = regexOperadores.split(formula)
 
         var novaFormula = formula
@@ -410,15 +445,15 @@ class TecladoCalculadora : DialogFragment() {
         for (numero in numeros) {
             if (!numero.contains(".")) continue
 
-            val posUltimaVirgula = regexVirgulas.findAll(numero).last().range.last
+            val posUltimaPonto = regexPontos.findAll(numero).last().range.last
 
             var novoNumero = ""
             for (i in numero.indices) {
                 val charNum = numero[i].toString()
-                if (charNum != "." || i == posUltimaVirgula) novoNumero += charNum
+                if (charNum != "." || i == posUltimaPonto) novoNumero += charNum
             }
 
-            novaFormula = formula.replace(numero, novoNumero)
+            novaFormula = novaFormula.replace(numero, novoNumero)
 
         }
         return novaFormula
@@ -469,12 +504,23 @@ class TecladoCalculadora : DialogFragment() {
         corrigirCasasDecimaisIlegais()
     }
 
-    fun callback(callback: (String) -> Unit) = apply {
-        this.callback = callback
-    }
+    class Builder {
 
-    fun valorInicial(valorInicial: String) = apply {
-        this.valorInicial = valorInicial
+        private val calc = TecladoCalculadora()
+
+        fun callback(callback: (String) -> Unit) = apply {
+            calc.callback = callback
+        }
+
+        fun valorInicial(valorInicial: String) = apply {
+            calc.valorInicial = valorInicial
+        }
+
+        fun titulo(titulo: String) = apply {
+            calc.titulo = titulo
+        }
+
+        fun build() = calc
     }
 
     class Calculadora {

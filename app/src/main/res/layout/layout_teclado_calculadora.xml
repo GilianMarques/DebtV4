@@ -7,21 +7,41 @@
     android:layout_height="match_parent"
     android:background="?colorPrimary">
 
-
-    <TextView
-        android:id="@+id/tv_historico"
+    <include
+        android:id="@+id/layout_toolbar"
+        layout="@layout/layout_toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/nunito_sans_light"
-        android:gravity="bottom"
-        android:textAlignment="textEnd"
-        android:textColor="@color/text_color_primary"
-        android:textSize="16sp"
+        android:background="?colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scrollIndicators="none"
+        android:fadingEdgeLength="10dp"
+        android:fadingEdge="vertical"
+        android:requiresFadingEdge="vertical"
+        android:scrollbars="none"
+        android:fillViewport="false"
         app:layout_constraintBottom_toTopOf="@id/edt_valor"
         app:layout_constraintEnd_toEndOf="@id/edt_valor"
         app:layout_constraintStart_toStartOf="@id/edt_valor"
-        tools:ignore="RtlCompat"
-        tools:text="1520,99" />
+        app:layout_constraintTop_toBottomOf="@id/layout_toolbar">
+
+        <TextView
+            android:id="@+id/tv_historico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nunito_sans_light"
+            android:textAlignment="viewEnd"
+            android:textColor="@color/text_color_primary"
+            android:textSize="16sp"
+            tools:text="1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n1520,99\n" />
+    </ScrollView>
 
     <EditText
         android:id="@+id/edt_valor"

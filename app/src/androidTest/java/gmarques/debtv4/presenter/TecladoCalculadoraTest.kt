@@ -56,4 +56,17 @@ internal class TecladoCalculadoraTest {
         Assert.assertFalse(tcalc.resultadoValido("1345,00"))
 
     }
+
+    @Test
+    fun incluirZerosOndeNecessario() {
+
+        val tcalc = TecladoCalculadora()
+
+        Assert.assertEquals("0.3",tcalc.incluirZerosOndeNecessario(".3"))
+        Assert.assertEquals("+0.35",tcalc.incluirZerosOndeNecessario("+.35"))
+        Assert.assertEquals("0.5+0.35",tcalc.incluirZerosOndeNecessario(".5+.35"))
+        Assert.assertEquals("0.59+0.35",tcalc.incluirZerosOndeNecessario(".59+.35"))
+        Assert.assertEquals("0.59+",tcalc.incluirZerosOndeNecessario(".59+"))
+
+    }
 }

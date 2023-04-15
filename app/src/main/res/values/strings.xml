@@ -57,5 +57,6 @@
     <string name="_apagar">⌫</string>
     <string name="Formula_invalida">Formula inválida</string>
     <string name="Resultado_deve_ser_um_numero_positivo_com">Resultado deve ser um número positivo com duas casas decimais</string>
+    <string name="Digite_o_valor_da_despesa">Digite o valor da despesa</string>
 
 </resources>

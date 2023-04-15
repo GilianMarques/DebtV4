@@ -240,14 +240,14 @@ class FragAddDespesa : CustomFrag() {
         binding.tvValor.text = "999,95"
         binding.tvMoeda.text = Currency.getInstance(Locale.getDefault()).symbol
         binding.tvValor.setOnClickListener {
-            TecladoCalculadora()
+            TecladoCalculadora.Builder()
                 .valorInicial(binding.tvValor.text.toString().emDouble())
                 .callback { valor: String ->
 
                     binding.tvValor.text = valor.emMoedaSemSimbolo()
                     viewModel.valorDespesa = valor
-                }
-                .show(parentFragmentManager, "")
+                }.titulo(getString(R.string.Digite_o_valor_da_despesa))
+                .build().show(parentFragmentManager, "")
 
         }
     }
