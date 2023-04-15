@@ -8,9 +8,13 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.util.Range
 import android.view.*
 import android.widget.TextView
+import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.snackbar.Snackbar
+import gmarques.debtv4.R
 import gmarques.debtv4.databinding.LayoutTecladoCalculadoraBinding
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.UIUtils
@@ -35,9 +39,10 @@ class TecladoCalculadora : DialogFragment() {
     }
 
 
-    // TODO: remover foco da view dps de calcular, add snackbar para erros
-
+    private var mostrandoErrosNaFormula: Boolean = false
     private var colorAccent: Int = 0
+    private var valorInicial: String = ""
+    private lateinit var callback: (String) -> Unit
     private lateinit var binding: LayoutTecladoCalculadoraBinding
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,6 +89,34 @@ class TecladoCalculadora : DialogFragment() {
         initBotaoIgual()
         initBotaoVirgula()
         initBotaoApagar()
+        initBotaoConcluir()
+    }
+
+    private fun initBotaoConcluir() {
+        binding.tvConcluir.setOnClickListener(object : AnimatedClickListener() {
+            override fun onClick(view: View) {
+                super.onClick(view)
+
+                val formula = binding.edtValor.text.toString()
+
+                if (resultadoValido(formula)) {
+                    callback.invoke(formula)
+                    dismiss()
+                } else {
+                    notificarErro(getString(R.string.Resultado_deve_ser_um_numero_positivo_com))
+                }
+            }
+        })
+    }
+
+    /**
+     * retorna true se o resultado recebido for valido, veja os testes
+     * para entender melhor o que é um resultado valido
+     */
+    @VisibleForTesting
+    fun resultadoValido(resultado: String): Boolean {
+        val resultadoValido = Regex("""[\d]+[.]?[\d]?[\d]?""")
+        return resultadoValido.matches(resultado)
     }
 
     private fun initBotaoApagar() {
@@ -117,14 +150,15 @@ class TecladoCalculadora : DialogFragment() {
                 super.onClick(view)
 
                 val formula = binding.edtValor.text.toString()
-                val erros = mostrarErrosNaFormula(formula)
+
+                val erros = notificarSeHouveremErrosNaFormula(formula)
                 if (!erros) mostrarResultado(formula)
             }
         })
     }
 
     private fun initBotaoVirgula() {
-        binding.tvVirgula.setOnClickListener(object : AnimatedClickListener() {
+        binding.tvPonto.setOnClickListener(object : AnimatedClickListener() {
             override fun onClick(view: View) {
                 super.onClick(view)
                 val virgula = (view as TextView).text.toString()
@@ -135,6 +169,9 @@ class TecladoCalculadora : DialogFragment() {
 
     private fun initEdtValor() {
         binding.edtValor.showSoftInputOnFocus = false
+        binding.edtValor.setText(valorInicial)
+        binding.edtValor.requestFocus()
+
     }
 
     private fun initBotoesNumeros() {
@@ -171,17 +208,16 @@ class TecladoCalculadora : DialogFragment() {
                     if (formula.isEmpty() && operador != OP_SUBT) return
                     else if (formula.isNotEmpty() && REGEX_OPERADORES.contains(formula)) return
 
-                    if (valorNaTelaEhUmaFormulaValida(formula)) binding.tvIgual.callOnClick()// simula um aperto no botao de = do teclado para calcular a formula existente antes de adicionar ourto operador
+                    // simula um aperto no botao de = do teclado para calcular a formula existente antes de adicionar ourto operador
+                    // mas apenas se o cursos estiver no final da formula, se nao for o caso pode ser que o usuario esteja apenas
+                    //querendo substituir o operador atual, e por tanto o calculo nao deve ser realizado
+                    if (valorNaTelaEhUmaFormulaValida(formula) && binding.edtValor.selectionStart == formula.length) binding.tvIgual.callOnClick()
+
                     incluirCaractere(operador)
 
                 }
             })
         }
-    }
-
-    // TODO: isso funciona mesmo?
-    private fun valorNaTelaEhUmaFormulaValida(formula: String): Boolean {
-        return Calculadora.regexFormulaValida.matches(formula)
     }
 
     @SuppressLint("SetTextI18n")
@@ -201,29 +237,71 @@ class TecladoCalculadora : DialogFragment() {
 
         } catch (e: java.lang.Exception) {
 
+            notificarErro(getString(R.string.Formula_invalida))
+
             val erroSpan = SpannableString(formula).apply { setSpan(ForegroundColorSpan(colorAccent), 0, formula.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE) }
-
             binding.edtValor.setText(erroSpan)
+
             UIUtils.vibrar(UIUtils.Vibracao.ERRO)
-
             binding.edtValor.setSelection(formula.length)
-
 
             Log.e("USUK", "Calculadora.calcular: $formula")
             e.printStackTrace()
         }
     }
 
+    private fun notificarErro(string: String) {
+        Snackbar.make(requireContext(), binding.root, string, Snackbar.LENGTH_LONG).show()
+        UIUtils.vibrar(UIUtils.Vibracao.ERRO)
+        binding.edtValor.requestFocus()
+    }
+
     /**
-     * Usa regex para encontrar padroes comuns de erro e os marca na tela para o usuario ver
+     * Se [encontrarErrosNaFormula] encontrar erros, essa função dispara um fluxo para mostrar
+     * um snackbar e vibrar o aparelho
+     * @return false se nao houverem erros
      */
-    private fun mostrarErrosNaFormula(formula: String): Boolean {
+    private fun notificarSeHouveremErrosNaFormula(formula: String): Boolean {
+        return if (encontrarErrosNaFormula(formula)) {
+            notificarErro(getString(R.string.Formula_invalida))
+            true
+        } else false
+    }
+
+    /**
+     * mostra no campo de valor a posiçao dos caracteres invalidos atraves de Spannables
+     *
+     */
+    private fun mostrarErrosNaUi(indicesDosErros: ArrayList<IntRange>, formula: String) {
+        mostrandoErrosNaFormula = true
+
+        val spannableStr = SpannableString(formula)
+
+        indicesDosErros.forEach {
+            spannableStr.setSpan(ForegroundColorSpan(colorAccent), it.first, (it.last + 1).coerceAtMost(formula.length), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+        }
+
+        binding.edtValor.setText(spannableStr)
+        binding.edtValor.setSelection(spannableStr.toString().length)
+        mostrandoErrosNaFormula = false
+    }
+
+    private fun valorNaTelaEhUmaFormulaValida(formula: String): Boolean {
+        return Calculadora.regexFormulaValida.matches(formula)
+    }
+
+    /**
+     * Usa regex para encontrar padroes comuns de erro
+     * @return false se nao houverem erros
+     */
+    private fun encontrarErrosNaFormula(formula: String): Boolean {
+
         val areaErros = ArrayList<IntRange>()
 
-        val virgulaSeguidaDeOperador = Regex("""([,])[$REGEX_OPERADORES]""")
-        val operadoresSeguidosDeVirgula = Regex("""[$REGEX_OPERADORES]([,])""")
-        val virgulaNoComeco = Regex("""^([,])""")
-        val virgulaNoFim = Regex("""([,])$""")
+        val virgulaSeguidaDeOperador = Regex("""([.])[$REGEX_OPERADORES]""")
+        val operadoresSeguidosDeVirgula = Regex("""[$REGEX_OPERADORES]([.])""")
+        val virgulaNoComeco = Regex("""^([.])""")
+        val virgulaNoFim = Regex("""([.])$""")
         val opNoComeco = Regex("""^([${REGEX_OPERADORES_SEM_SUBT}])""")// o sinal - pode ficar no começo da formula
         val opNoFim = Regex("""([$REGEX_OPERADORES])$""")
 
@@ -231,30 +309,59 @@ class TecladoCalculadora : DialogFragment() {
 
         padroes.forEach { padrao -> padrao.findAll(formula).forEach { areaErros.add(it.groups[1]!!.range) } }
 
-        val spannableStr = SpannableString(formula)
-
-        areaErros.forEach {
-            spannableStr.setSpan(ForegroundColorSpan(colorAccent), it.first, (it.last + 1).coerceAtMost(formula.length), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+        return if (areaErros.isEmpty()) false
+        else {
+            mostrarErrosNaUi(areaErros, formula)
+            true
         }
-
-        binding.edtValor.setText(spannableStr)
-        binding.edtValor.setSelection(spannableStr.toString().length)
-        UIUtils.vibrar(UIUtils.Vibracao.ERRO)
-
-
-        return areaErros.size > 0
     }
 
     /**
      * Essa função atualiza a interface com a formula corrigida em caso de operadores duplicados
      */
     private fun corrigirOperadoresIlegais() {
+        val selecao = binding.edtValor.selectionStart
+
         val formula = binding.edtValor.text.toString()
 
         val formulaCorrigida = removerOperadoresEmSequenciaDaFormula(formula)
 
         binding.edtValor.setText(formulaCorrigida)
+
+        val selecaoSegura = if (Range(0, formulaCorrigida.length).contains(selecao)) selecao else formulaCorrigida.length
+        binding.edtValor.setSelection(selecaoSegura)
+    }
+
+    /**
+     * Essa função atualiza a interface com a formula corrigida em caso de virgulas duplicadas
+     */
+    private fun corrigirPontosIlegais() {
+
+        val selecao = binding.edtValor.selectionStart
+
+        val formula = binding.edtValor.text.toString()
+        val formulaCorrigida = removerPontosMultiplos(formula)
+
+        binding.edtValor.setText(formulaCorrigida)
         binding.edtValor.setSelection(formulaCorrigida.length)
+
+        val selecaoSegura = if (Range(0, formulaCorrigida.length).contains(selecao)) selecao else formulaCorrigida.length
+        binding.edtValor.setSelection(selecaoSegura)
+    }
+
+    private fun corrigirCasasDecimaisIlegais() {
+
+        val selecao = binding.edtValor.selectionStart
+
+        val formula = binding.edtValor.text.toString()
+        val formulaCorrigida = removerCasasDecimaisIlegais(formula)
+
+        binding.edtValor.setText(formulaCorrigida)
+        binding.edtValor.setSelection(formulaCorrigida.length)
+
+        val selecaoSegura = if (Range(0, formulaCorrigida.length).contains(selecao)) selecao else formulaCorrigida.length
+        binding.edtValor.setSelection(selecaoSegura)
+
     }
 
     /**
@@ -264,6 +371,7 @@ class TecladoCalculadora : DialogFragment() {
      * Essa funcao busca corrigir erros simples que podem ocorrer durante a digitação da formula
      * e nao todos os possiveis erros.
      */
+    @VisibleForTesting
     fun removerOperadoresEmSequenciaDaFormula(formula: String): String {
         if (formula.length <= 1) return formula
 
@@ -284,47 +392,53 @@ class TecladoCalculadora : DialogFragment() {
     }
 
     /**
-     * Essa função atualiza a interface com a formula corrigida em caso de virgulas duplicadas
-     */
-    private fun corrigirVirgulasIlegais() {
-        val formula = binding.edtValor.text.toString()
-
-        val formulaCorrigida = removerVirgulasMultiplas(formula)
-
-        binding.edtValor.setText(formulaCorrigida)
-        binding.edtValor.setSelection(formulaCorrigida.length)
-    }
-
-    /**
      * Essa funcao busca corrigir erros simples que podem ocorrer durante a digitação da formula
      * e nao todos os possiveis erros.
      * @return uma versao da formula onde os numeros nao terao mais do que uma virgula
      */
-    fun removerVirgulasMultiplas(formula: String): String {
+    @VisibleForTesting
+    fun removerPontosMultiplos(formula: String): String {
 
-        if (formula.length <= 1) return formula.replace(",", "")
+        if (formula.length <= 1) return formula.replace(".", "")
 
         val regexOperadores = Regex("""[$REGEX_OPERADORES]""")
-        val regexVirgulas = Regex("""[,]+""")
+        val regexVirgulas = Regex("""[.]+""")
         val numeros = regexOperadores.split(formula)
 
         var novaFormula = formula
 
         for (numero in numeros) {
-            if (!numero.contains(",")) continue
+            if (!numero.contains(".")) continue
 
             val posUltimaVirgula = regexVirgulas.findAll(numero).last().range.last
 
             var novoNumero = ""
             for (i in numero.indices) {
                 val charNum = numero[i].toString()
-                if (charNum != "," || i == posUltimaVirgula) novoNumero += charNum
+                if (charNum != "." || i == posUltimaVirgula) novoNumero += charNum
             }
 
             novaFormula = formula.replace(numero, novoNumero)
 
         }
         return novaFormula
+    }
+
+    /**
+     * Encontra e limita casas decimais a no maximo dois numeros
+     */
+    @VisibleForTesting
+    fun removerCasasDecimaisIlegais(formula: String): String {
+
+        val regex = Regex("""([.][\d]{2})[\d]+""")
+        var novaFormula = formula
+
+        while (regex.containsMatchIn(novaFormula)) {
+            val match = regex.find(novaFormula, 0)
+            novaFormula = novaFormula.replace(match!!.value, match.groups[1]!!.value)
+        }
+        return novaFormula
+
     }
 
     @SuppressLint("SetTextI18n")
@@ -338,7 +452,7 @@ class TecladoCalculadora : DialogFragment() {
         if (localDeInsercaoInicio == -1) {
             //sem selecao
             binding.edtValor.setText("$textoAtual$valor")
-        } else if (localDeInsercaoFinal != -1) {
+        } else if (localDeInsercaoFinal > localDeInsercaoInicio) {
             //parte do texto foi selecionado
             val novoTexto = textoAtual.delete(localDeInsercaoInicio, localDeInsercaoFinal).insert(localDeInsercaoInicio, valor)
             binding.edtValor.text = novoTexto
@@ -351,7 +465,16 @@ class TecladoCalculadora : DialogFragment() {
         }
 
         corrigirOperadoresIlegais()
-        corrigirVirgulasIlegais()
+        corrigirPontosIlegais()
+        corrigirCasasDecimaisIlegais()
+    }
+
+    fun callback(callback: (String) -> Unit) = apply {
+        this.callback = callback
+    }
+
+    fun valorInicial(valorInicial: String) = apply {
+        this.valorInicial = valorInicial
     }
 
     class Calculadora {
@@ -376,14 +499,18 @@ class TecladoCalculadora : DialogFragment() {
              * Captura um numero que pode ou nao ser negativo, seguido por um operador qualquer e outro
              * numero que pode ou nao ser negativo
              *
-             * Obs: para capiturar um numero negativo no começo da formula deve-se adcionar um operador +
+             * Obs: para capturar um numero negativo no começo da formula deve-se adcionar um operador +
              * antes dele. veja o setter de [novaFormula] para entender melhor.
              */
             val regexFormulaValida = Regex("""$GRUPO_DIGITOS_PRE_OP$REGEX_OPERACAO$GRUPO_DIGITOS_POS_OP""")
 
         }
 
-        private val mathContext = MathContext(8, RoundingMode.HALF_DOWN)
+        private val escala = 2
+        private val arredondamento = RoundingMode.HALF_UP
+        private val mathContext = MathContext(12, arredondamento)
+
+
         private var novaFormula = ""
             /**
              *
@@ -408,7 +535,7 @@ class TecladoCalculadora : DialogFragment() {
          */
         fun calcular(formula: String): String {
 
-            novaFormula = formula.replace(",", ".")
+            novaFormula = formula
 
             val resultado = extraireCalcularValores()
 
@@ -447,31 +574,31 @@ class TecladoCalculadora : DialogFragment() {
          *  @throws NumberFormatException se houver erro numerico no momento dos calculos
          */
         private fun porcentagem(valor1: String, valor2: String) =
-            valor1.toBigDecimal().multiply(valor2.toBigDecimal(), mathContext).divide("100".toBigDecimal(), mathContext)
+            valor1.toBigDecimal().multiply(valor2.toBigDecimal()).divide("100".toBigDecimal(), mathContext).setScale(escala, arredondamento)
 
         /**
          *  @throws NumberFormatException se houver erro numerico no momento dos calculos
          */
         private fun subtrair(valor1: String, valor2: String) =
-            valor1.toBigDecimal().subtract(valor2.toBigDecimal(), mathContext)
+            valor1.toBigDecimal().subtract(valor2.toBigDecimal(), mathContext).setScale(escala, arredondamento)
 
         /**
          *  @throws NumberFormatException se houver erro numerico no momento dos calculos
          */
         private fun somar(valor1: String, valor2: String) =
-            valor1.toBigDecimal().add(valor2.toBigDecimal(), mathContext)
+            valor1.toBigDecimal().add(valor2.toBigDecimal(), mathContext).setScale(escala, arredondamento)
 
         /**
          *  @throws NumberFormatException se houver erro numerico no momento dos calculos
          */
         private fun dividir(valor1: String, valor2: String) =
-            valor1.toBigDecimal().divide(valor2.toBigDecimal(), mathContext)
+            valor1.toBigDecimal().divide(valor2.toBigDecimal(), mathContext).setScale(escala, arredondamento)
 
         /**
          *  @throws NumberFormatException se houver erro numerico no momento dos calculos
          */
         private fun multiplicar(valor1: String, valor2: String) =
-            valor1.toBigDecimal().multiply(valor2.toBigDecimal(), mathContext)
+            valor1.toBigDecimal().multiply(valor2.toBigDecimal(), mathContext).setScale(escala, arredondamento)
 
 
     }

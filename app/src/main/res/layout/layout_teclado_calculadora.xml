@@ -11,7 +11,7 @@
     <TextView
         android:id="@+id/tv_historico"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:fontFamily="@font/nunito_sans_light"
         android:gravity="bottom"
         android:textAlignment="textEnd"
@@ -20,7 +20,6 @@
         app:layout_constraintBottom_toTopOf="@id/edt_valor"
         app:layout_constraintEnd_toEndOf="@id/edt_valor"
         app:layout_constraintStart_toStartOf="@id/edt_valor"
-        app:layout_constraintTop_toTopOf="parent"
         tools:ignore="RtlCompat"
         tools:text="1520,99" />
 
@@ -230,9 +229,9 @@
             app:layout_constraintTop_toBottomOf="@id/guideline_3" />
 
         <TextView
-            android:id="@+id/tv_virgula"
+            android:id="@+id/tv_ponto"
             style="@style/TecladoCalculadoraStyle"
-            android:text="@string/_virgula"
+            android:text="@string/_ponto"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tv_0"
             app:layout_constraintStart_toStartOf="parent"
@@ -244,7 +243,7 @@
             android:text="@string/_0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tv_porcento"
-            app:layout_constraintStart_toEndOf="@id/tv_virgula"
+            app:layout_constraintStart_toEndOf="@id/tv_ponto"
             app:layout_constraintTop_toBottomOf="@id/guideline_4" />
 
         <TextView

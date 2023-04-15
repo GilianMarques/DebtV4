@@ -42,19 +42,22 @@
                     android:fontFamily="@font/nunito_sans_extrabold"
                     android:gravity="center"
                     android:maxEms="10"
+                    android:singleLine="true"
                     android:maxLines="1"
                     android:textAlignment="center"
                     android:textColor="@color/text_color_primary"
                     android:textSize="64sp"
                     app:autoSizeMaxTextSize="100sp"
                     app:autoSizeMinTextSize="12sp"
+                    android:paddingStart="30dp"
                     app:autoSizeStepGranularity="2sp"
                     app:autoSizeTextType="uniform"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:text="1520,99" />
+                    tools:text="9.999.999,99"
+                    tools:ignore="RtlSymmetry" />
 
                 <TextView
                     android:id="@+id/tv_moeda"
@@ -67,7 +70,7 @@
                     android:textColor="@color/text_color_primary"
                     android:textSize="16sp"
                     app:layout_constraintBaseline_toBaselineOf="@id/tv_valor"
-                    app:layout_constraintEnd_toStartOf="@id/tv_valor"
+                    app:layout_constraintStart_toStartOf="@id/tv_valor"
                     tools:text="R$" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -192,7 +195,7 @@
                 android:id="@+id/container_data_despesa_paga"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:visibility="gone"
                 tools:context=".presenter.main.FragMain"
                 tools:visibility="visible">

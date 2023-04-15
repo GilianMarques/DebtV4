@@ -11,12 +11,13 @@ import android.view.animation.ScaleAnimation
 abstract class AnimatedClickListener : View.OnClickListener {
     override fun onClick(view: View) {
         val anim: Animation = ScaleAnimation(
-            1f, 1.018f,
-            1f, 1.018f,
+            1f, 1.028f,
+            1f, 1.028f,
             Animation.RELATIVE_TO_SELF, 0.5f,
             Animation.RELATIVE_TO_SELF, 0.5f
         )
-        anim.fillAfter = true // Needed to keep the result of the animation
+        //false pq se nao , nao é possivel tornar view invisiveis apos a execução da animaçao
+        anim.fillAfter = false
         anim.duration = 150
         anim.repeatCount = 1
         anim.repeatMode = Animation.REVERSE

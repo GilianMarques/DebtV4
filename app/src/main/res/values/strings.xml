@@ -53,7 +53,9 @@
     <string name="_div">÷</string>
     <string name="_porcent">%</string>
     <string name="_igual">=</string>
-    <string name="_virgula">,</string>
+    <string name="_ponto">.</string>
     <string name="_apagar">⌫</string>
+    <string name="Formula_invalida">Formula inválida</string>
+    <string name="Resultado_deve_ser_um_numero_positivo_com">Resultado deve ser um número positivo com duas casas decimais</string>
 
 </resources>

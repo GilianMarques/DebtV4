@@ -17,6 +17,9 @@ import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Recorrencia
+import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emDouble
+import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
+import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoedaSemSimbolo
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.porcentoDe
 import gmarques.debtv4.domain.uteis.DataUtils.Companion.DD_MM_AAAA
 import gmarques.debtv4.domain.uteis.DataUtils.Companion.MM_AAAA
@@ -29,6 +32,7 @@ import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.MascaraData
 import gmarques.debtv4.presenter.outros.UIUtils
+import java.text.NumberFormat
 import java.util.*
 import kotlin.math.abs
 
@@ -68,7 +72,6 @@ class FragAddDespesa : CustomFrag() {
         initCampoDataLimiteRepeticao()
         initSwitchDespesaPaga()
         initCampoDataEmQueDespesaFoiPaga()
-        TecladoCalculadora().show(parentFragmentManager, "")
     }
 
     private fun initCampoDataEmQueDespesaFoiPaga() {
@@ -236,6 +239,17 @@ class FragAddDespesa : CustomFrag() {
     private fun initTextViewValoreMoeda() {
         binding.tvValor.text = "999,95"
         binding.tvMoeda.text = Currency.getInstance(Locale.getDefault()).symbol
+        binding.tvValor.setOnClickListener {
+            TecladoCalculadora()
+                .valorInicial(binding.tvValor.text.toString().emDouble())
+                .callback { valor: String ->
+
+                    binding.tvValor.text = valor.emMoedaSemSimbolo()
+                    viewModel.valorDespesa = valor
+                }
+                .show(parentFragmentManager, "")
+
+        }
     }
 
     private fun initAppBar() {
@@ -299,3 +313,6 @@ class FragAddDespesa : CustomFrag() {
 
 
 }
+
+
+

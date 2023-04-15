@@ -4,14 +4,16 @@ import android.content.res.Resources
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
+import java.text.NumberFormat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.util.*
 import kotlin.math.roundToInt
 
 class ExtensionFunctions {
-    
+
     companion object {
         /**
          * @return quantos % 'A' é de 'B' on de 'A' é o inteiro no qual a funçao esta sendo chamada e
@@ -22,17 +24,51 @@ class ExtensionFunctions {
             return BigDecimal(this).divide(BigDecimal(alvo), MathContext(6, RoundingMode.UP))
                 .multiply(BigDecimal(100)).toFloat()
         }
-        
+
         fun Int.dp(): Int {
             return (this * Resources.getSystem().displayMetrics.density).roundToInt()
         }
-        
+
         /**
          * remove da string tudo que não é numero
          */
         fun String?.apenasNumeros(): String? {
-            return if (this == null) null else Regex("\\D").replace(this, "")
+            return if (this == null) null else Regex("""\D""").replace(this, "")
         }
-       
+
+        /**
+         * Converte a string em moeda
+         * @throws IllegalArgumentException  se a string nao for um valor monetario valido
+         * Exemplo de string valida 1520.00
+         */
+        fun String.emMoeda(): String {
+            return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(this.toDouble()).toString()
+        }
+
+        /**
+         * remove o simboloda moeda da string convertida
+         */
+        fun String.emMoedaSemSimbolo(): String {
+            return Regex("""[^\d.,]""").replace(emMoeda(), "")
+        }
+
+        /**
+         * converte o valor monetario na string em um double porem
+         * retorna esse valor como string mesmo
+         */
+        fun String.emDouble(): String {
+            // para um exemplo, considere R$ 10.592,33
+
+            val valorSemVirgula = Regex("""[^\d.,]""")
+                .replace(this, "")
+                .replace(",", ".") // fica '10.592.33'
+
+            val valorInteiro = valorSemVirgula.dropLast(3) // removo os centavos, resultado: '10.592'
+            val valorDecimal = valorSemVirgula.drop(valorSemVirgula.length - 3) // removo os reais, resultado: '.33'
+
+            return "${valorInteiro.replace(".", "")}$valorDecimal"
+
+        }
+
     }
 }
