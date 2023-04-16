@@ -18,7 +18,6 @@ import gmarques.debtv4.databinding.FragAddDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emDouble
-import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoedaSemSimbolo
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.porcentoDe
 import gmarques.debtv4.domain.uteis.DataUtils.Companion.DD_MM_AAAA
@@ -32,7 +31,6 @@ import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.MascaraData
 import gmarques.debtv4.presenter.outros.UIUtils
-import java.text.NumberFormat
 import java.util.*
 import kotlin.math.abs
 
@@ -135,13 +133,13 @@ class FragAddDespesa : CustomFrag() {
 
     private fun initCampoRepetir() {
         binding.edtRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
-            if (b) mostrarBottomSheetRepetir { qtdRepeticoes: Int, tipoIntervalo: String, tipoRecorrencia: Recorrencia.Tipo? ->
+            if (b) mostrarBottomSheetRepetir { qtdRepeticoes: Int, tipoRecorrencia: Recorrencia.Tipo? ->
 
-                // qtdRepeticoes = 0 sempre que o usuario clica em 'nao repetir' no bottomsheet
-                if (qtdRepeticoes > 0) {
+                // qtdRepeticoes = -1 sempre que o usuario clica em 'nao repetir' no bottomsheet
+                if (qtdRepeticoes >= 0) {
                     viewModel.qtdRepeticoes = qtdRepeticoes
                     viewModel.tipoRecorrencia = tipoRecorrencia
-                    despesaSeRepete(qtdRepeticoes, tipoIntervalo)
+                    despesaSeRepete(qtdRepeticoes, tipoRecorrencia!!)
                 } else {
                     viewModel.qtdRepeticoes = null
                     viewModel.tipoRecorrencia = null
@@ -170,13 +168,19 @@ class FragAddDespesa : CustomFrag() {
      * Permite que o uaurio selecione a data limite da repeticao desbloqueando a view que coleta essa
      * informação e dando foco nela, além de atualizar a interface com dados da repeticao
      */
-    private fun despesaSeRepete(qtdRepeticoes: Int, tipoIntervalo: String) {
+    private fun despesaSeRepete(qtdRepeticoes: Int, tipoIntervalo: Recorrencia.Tipo) {
 
         binding.tilDataLimiteRepetir.isEnabled = true
         binding.ivRecorrente.isClickable = true
         binding.dataLimiteRepetir.requestFocus()
 
-        binding.edtRepetir.setText(String.format(getString(R.string.Repetir_a_cada_x_y), qtdRepeticoes.toString(), tipoIntervalo))
+        val str = when (tipoIntervalo) {
+            Recorrencia.Tipo.MESES -> getString(R.string.Mes_es)
+            Recorrencia.Tipo.DIAS  -> getString(R.string.Dia_s)
+        }
+        // TODO: criar uma classe comum e ajustar as strings pra reaproveitar as dicas sobre repetiçao
+
+        binding.edtRepetir.setText(String.format(getString(R.string.Repetir_a_cada_x_y), qtdRepeticoes.toString(), str))
     }
 
     /**
@@ -184,9 +188,12 @@ class FragAddDespesa : CustomFrag() {
      * coletada e verificada, se tudo estiver certo os valores sao passados via callback, senao
      * o usuario é notificado para corrigir o que for necessario
      */
-    private fun mostrarBottomSheetRepetir(callback: (Int, String, Recorrencia.Tipo?) -> Any) {
-        BottomSheetRepetir(callback, this@FragAddDespesa, viewModel.qtdRepeticoes
-            ?: 1, viewModel.tipoRecorrencia).mostrar()
+    private fun mostrarBottomSheetRepetir(callback: BottomSheetRepetir.Callback) {
+        BottomSheetRepetir(callback,
+            this@FragAddDespesa,
+            viewModel.qtdRepeticoes ?: 0,
+            viewModel.tipoRecorrencia)
+            .mostrar()
     }
 
     private fun initCampoData() {
