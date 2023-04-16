@@ -10,8 +10,8 @@ class  Recorrencia {
     }
     
     companion object {
-        /**Esse valor é o maximo que o usuario pode configurar de intervalo entre as repetiçoes das despesas em dias/meses*/
         const val INTERVALO_MAX_REPETICAO_DIAS = 90
+        const val INTERVALO_MIN_REPETICAO_DIAS = 31
         const val INTERVALO_MAX_REPETICAO_MESES = 24
     }
     

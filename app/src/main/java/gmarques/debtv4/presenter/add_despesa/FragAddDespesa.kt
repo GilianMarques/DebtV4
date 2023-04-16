@@ -133,17 +133,17 @@ class FragAddDespesa : CustomFrag() {
 
     private fun initCampoRepetir() {
         binding.edtRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
-            if (b) mostrarBottomSheetRepetir { qtdRepeticoes: Int, tipoRecorrencia: Recorrencia.Tipo? ->
+            if (b) mostrarBottomSheetRepetir { qtdRepeticoes: Int, tipoRecorrencia: Recorrencia.Tipo?, dica: String ->
 
                 // qtdRepeticoes = -1 sempre que o usuario clica em 'nao repetir' no bottomsheet
                 if (qtdRepeticoes >= 0) {
                     viewModel.qtdRepeticoes = qtdRepeticoes
                     viewModel.tipoRecorrencia = tipoRecorrencia
-                    despesaSeRepete(qtdRepeticoes, tipoRecorrencia!!)
+                    despesaSeRepete(dica)
                 } else {
                     viewModel.qtdRepeticoes = null
                     viewModel.tipoRecorrencia = null
-                    despesaNaoSeRepete()
+                    despesaNaoSeRepete(dica)
                 }
             }
         }
@@ -153,34 +153,29 @@ class FragAddDespesa : CustomFrag() {
      * Limpa a interface e impede que o usuario defina uma data limete para a repetiçao desaticando a
      * view que coleta essa informação
      */
-    private fun despesaNaoSeRepete() {
+    private fun despesaNaoSeRepete(dica: String) {
 
         binding.tilDataLimiteRepetir.isEnabled = false
         binding.ivRecorrente.isClickable = false
 
         binding.dataLimiteRepetir.setText("")
 
-        binding.edtRepetir.setText(getString(R.string.Nao_repetir))
+        binding.edtRepetir.setText(dica)
         binding.edtRepetir.clearFocus()
     }
 
     /**
-     * Permite que o uaurio selecione a data limite da repeticao desbloqueando a view que coleta essa
+     * Permite que o usuario selecione a data limite da repeticao desbloqueando a view que coleta essa
      * informação e dando foco nela, além de atualizar a interface com dados da repeticao
      */
-    private fun despesaSeRepete(qtdRepeticoes: Int, tipoIntervalo: Recorrencia.Tipo) {
+    private fun despesaSeRepete(dica: String) {
 
         binding.tilDataLimiteRepetir.isEnabled = true
         binding.ivRecorrente.isClickable = true
         binding.dataLimiteRepetir.requestFocus()
 
-        val str = when (tipoIntervalo) {
-            Recorrencia.Tipo.MESES -> getString(R.string.Mes_es)
-            Recorrencia.Tipo.DIAS  -> getString(R.string.Dia_s)
-        }
-        // TODO: criar uma classe comum e ajustar as strings pra reaproveitar as dicas sobre repetiçao
 
-        binding.edtRepetir.setText(String.format(getString(R.string.Repetir_a_cada_x_y), qtdRepeticoes.toString(), str))
+        binding.edtRepetir.setText(dica)
     }
 
     /**

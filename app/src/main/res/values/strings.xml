@@ -35,6 +35,7 @@
     <string name="Intervalo_das_repeticoes">Intervalo das repetições</string>
     <string name="Intervalo_entre_meses_nao_pode_ser_maior_que_x">O intervalo entre meses não pode ser maior que %1$s</string>
     <string name="Intervalo_entre_dias_nao_pode_ser_maior_que_x">O intervalo entre dias não pode ser maior que %1$s</string>
+    <string name="Intervalo_entre_dias_nao_pode_ser_menor_que_x">O intervalo entre dias não pode ser menor que %1$s</string>
     <string name="Entrada_invalida">Entrada inválida</string>
     <string name="Selecione_dias_ou_meses_para_prosseguir">Selecione Dias ou Meses para prosseguir </string>
     <string name="Quando_foi_paga">Quando foi paga (dd/mm/aaaa)</string>
@@ -59,12 +60,10 @@
     <string name="Formula_invalida">Formula inválida</string>
     <string name="Resultado_deve_ser_um_numero_positivo_com">O valor deve ser positivo</string>
     <string name="Digite_o_valor_da_despesa">Digite o valor da despesa</string>
-    <string name="A_despesa_se_repete_todos_os_meses">A despesa se repete todos os meses</string>
-    <string name="A_despesa_se_repete_mes_sim_e_mes_nao">A despesa se repete mês sim e mês não</string>
-    <string name="A_despesa_se_repete_a_cada_x_meses">A despesa se repete a cada %1$s meses</string>
-    <string name="A_despesa_se_repete_todos_os_dias">A despesa se repete todos os dias</string>
-    <string name="A_despesa_se_repete_dia_sim_e_dia_nao">A despesa se repete dia sim e dia não</string>
-    <string name="A_despesa_se_repete_a_cada_x_dias">A despesa se repete a cada %1$s dias</string>
+    <string name="A_despesa_se_repete_todos_os_meses">Repetir todos os meses</string>
+    <string name="A_despesa_se_repete_mes_sim_e_mes_nao">Repetir mês sim e mês não</string>
+    <string name="A_despesa_se_repete_a_cada_x_meses">Repetir a cada %1$s meses</string>
+    <string name="A_despesa_se_repete_a_cada_x_dias">Repetir a cada %1$s dias</string>
     <string name="Selecione_um_tipo_de_recorrencia">Selecione um tipo de recorrência</string>
 
 </resources>
