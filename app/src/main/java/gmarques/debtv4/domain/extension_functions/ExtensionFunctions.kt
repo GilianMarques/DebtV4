@@ -1,18 +1,19 @@
 package gmarques.debtv4.domain.extension_functions
 
 import android.content.res.Resources
+import org.joda.time.DateTimeZone
+import org.joda.time.LocalDateTime
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
 import java.text.NumberFormat
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
-import java.util.*
+import java.util.Locale
 import kotlin.math.roundToInt
 
+
 class ExtensionFunctions {
+
+    // TODO: criar sub-classes por tipo
 
     companion object {
         /**
@@ -21,8 +22,7 @@ class ExtensionFunctions {
          * Exemplo: Se 'A' é = 30 e 'B' é = 200 o retorno sera 15.0
          * */
         fun Int.porcentoDe(alvo: Int): Float {
-            return BigDecimal(this).divide(BigDecimal(alvo), MathContext(6, RoundingMode.UP))
-                .multiply(BigDecimal(100)).toFloat()
+            return BigDecimal(this).divide(BigDecimal(alvo), MathContext(6, RoundingMode.UP)).multiply(BigDecimal(100)).toFloat()
         }
 
         fun Int.dp(): Int {
@@ -59,9 +59,7 @@ class ExtensionFunctions {
         fun String.emDouble(): String {
             // para um exemplo, considere R$ 10.592,33
 
-            val valorSemVirgula = Regex("""[^\d.,]""")
-                .replace(this, "")
-                .replace(",", ".") // fica '10.592.33'
+            val valorSemVirgula = Regex("""[^\d.,]""").replace(this, "").replace(",", ".") // fica '10.592.33'
 
             val valorInteiro = valorSemVirgula.dropLast(3) // removo os centavos, resultado: '10.592'
             val valorDecimal = valorSemVirgula.drop(valorSemVirgula.length - 3) // removo os reais, resultado: '.33'
@@ -70,5 +68,8 @@ class ExtensionFunctions {
 
         }
 
+
     }
+
+
 }

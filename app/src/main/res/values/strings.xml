@@ -22,7 +22,7 @@
     <string name="Poupanca">Poupança</string>
     <string name="Tipo_despesa">Tipo de despesa</string>
     <string name="Despesa_ocasional">Despesa ocasional</string>
-    <string name="Repetir_a_cada">Repetir a cada: (opcional)</string>
+    <string name="Recorrencia_opcional_">Recorrência: (opcional)</string>
     <string name="Dia_s">Dia(s)</string>
     <string name="Mes_es">Mês(es)</string>
     <string name="Ate">Até</string>
@@ -65,5 +65,10 @@
     <string name="A_despesa_se_repete_a_cada_x_meses">Repetir a cada %1$s meses</string>
     <string name="A_despesa_se_repete_a_cada_x_dias">Repetir a cada %1$s dias</string>
     <string name="Selecione_um_tipo_de_recorrencia">Selecione um tipo de recorrência</string>
+    <string name="O_nome_nao_pode_ser_maior_que_x">O nome nao pode ser maior que %1$d</string>
+    <string name="O_nome_nao_pode_ficar_vazio">O nome nao pode ficar vazio</string>
+    <string name="O_valor_da_despesa_nao_pode_ser_maior_que_x">O valor da despesa não pode ser maior que %1$s</string>
+    <string name="O_valor_da_despesa_nao_pode_ser_menor_que_x">O valor da despesa não pode ser menor que %1$s</string>
+    <string name="Verifique_a_data_de_pagamento_da_despesa">Verifique a data de pagamento da despesa</string>
 
 </resources>

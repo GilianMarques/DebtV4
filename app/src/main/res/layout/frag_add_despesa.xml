@@ -42,22 +42,22 @@
                     android:fontFamily="@font/nunito_sans_extrabold"
                     android:gravity="center"
                     android:maxEms="10"
-                    android:singleLine="true"
                     android:maxLines="1"
+                    android:paddingStart="30dp"
+                    android:singleLine="true"
                     android:textAlignment="center"
                     android:textColor="@color/text_color_primary"
                     android:textSize="64sp"
                     app:autoSizeMaxTextSize="100sp"
                     app:autoSizeMinTextSize="12sp"
-                    android:paddingStart="30dp"
                     app:autoSizeStepGranularity="2sp"
                     app:autoSizeTextType="uniform"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:text="9.999.999,99"
-                    tools:ignore="RtlSymmetry" />
+                    tools:ignore="RtlSymmetry"
+                    tools:text="9.999.999,99" />
 
                 <TextView
                     android:id="@+id/tv_moeda"
@@ -126,13 +126,12 @@
 
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/nome"
+                    android:id="@+id/edt_nome"
                     style="@style/TextInputEditTextStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vec_nome"
                     android:hint="@string/Nome_da_despesa"
-                    android:imeOptions="actionDone"
                     android:inputType="textCapSentences"
                     android:singleLine="true" />
 
@@ -166,7 +165,6 @@
                         android:digits="0123456789/"
                         android:drawableStart="@drawable/vec_data"
                         android:hint="@string/Data_de_pagamento"
-                        android:imeOptions="actionDone"
                         android:inputType="number"
                         android:maxLength="10"
                         android:selectAllOnFocus="true"
@@ -222,7 +220,6 @@
                         android:digits="0123456789/"
                         android:drawableStart="@drawable/vec_data"
                         android:hint="@string/Quando_foi_paga"
-                        android:imeOptions="actionDone"
                         android:inputType="number"
                         android:maxLength="10"
                         android:selectAllOnFocus="true"
@@ -253,7 +250,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:imeOptions="actionDone"
                 android:maxLines="1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -266,8 +262,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vec_data_intervalo"
-                    android:hint="@string/Repetir_a_cada"
-                    android:imeOptions="actionDone"
+                    android:hint="@string/Recorrencia_opcional_"
                     android:inputType="number"
                     android:maxLines="1"
                     android:singleLine="true" />
@@ -275,10 +270,13 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_data_limite_repetir"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                tools:context=".presenter.main.FragMain">
+                android:visibility="gone"
+                tools:context=".presenter.main.FragMain"
+                tools:visibility="visible">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_data_limite_repetir"
@@ -302,7 +300,6 @@
                         android:digits="0123456789/"
                         android:drawableStart="@drawable/vec_data"
                         android:hint="@string/Repetir_ate"
-                        android:imeOptions="actionDone"
                         android:inputType="number"
                         android:selectAllOnFocus="true"
                         android:singleLine="true" />
@@ -356,6 +353,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_concluir"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

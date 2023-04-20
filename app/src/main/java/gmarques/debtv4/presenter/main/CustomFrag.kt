@@ -24,10 +24,10 @@ open class CustomFrag : Fragment() {
     }
     
     // TODO: documentar
-    fun notificarErro(edtRepetir: View, mensagem: String) {
-        Snackbar.make(requireContext(), edtRepetir, mensagem, Snackbar.LENGTH_LONG).show()
+    fun notificarErro(view: View, mensagem: String) {
+        Snackbar.make(requireContext(), view, mensagem, Snackbar.LENGTH_LONG).show()
         UIUtils.vibrar(UIUtils.Vibracao.ERRO)
-        view?.requestFocus()
+        view.requestFocus()
     }
     
     

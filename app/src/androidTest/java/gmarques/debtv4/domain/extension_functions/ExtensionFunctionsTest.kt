@@ -17,7 +17,7 @@ internal class ExtensionFunctionsTest {
     }
 
     @Test
-            /**
+    /**
              * se nao jogar exception, passou!
              */
     fun emMoeda() {
@@ -27,12 +27,13 @@ internal class ExtensionFunctionsTest {
 
     @Test
     fun emDouble() {
-        TestCase.assertEquals("10553.99","R$10.553,99".emDouble())
-        TestCase.assertEquals("10553.99","R$ 10.553,99".emDouble())
-        TestCase.assertEquals("10553.99","10.553,99".emDouble())
-        TestCase.assertEquals("10553.99","$10.553,99".emDouble())
-        TestCase.assertEquals("10553.99","10.553.99".emDouble())
-        TestCase.assertEquals("1.99","1,99".emDouble())
-        TestCase.assertEquals("1.99","1.99".emDouble())
+        TestCase.assertEquals("10553.99", "R$10.553,99".emDouble())
+        TestCase.assertEquals("10553.99", "R$ 10.553,99".emDouble())
+        TestCase.assertEquals("10553.99", "10.553,99".emDouble())
+        TestCase.assertEquals("10553.99", "$10.553,99".emDouble())
+        TestCase.assertEquals("10553.99", "10.553.99".emDouble())
+        TestCase.assertEquals("1.99", "1,99".emDouble())
+        TestCase.assertEquals("1.99", "1.99".emDouble())
     }
+
 }

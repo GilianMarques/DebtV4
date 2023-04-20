@@ -6,7 +6,8 @@ import java.util.UUID
 
 class Despesa {
     companion object {
-        const val VALOR_MAXIMO = 999_999_99
+        const val VALOR_MAXIMO = 9_999_999.99
+        const val VALOR_MINIMO = 0.00
         const val COMPRIMENTO_MAXIMO_NOME = 35
         const val COMPRIMENTO_MAXIMO_OBSERVACOES = 250
     }

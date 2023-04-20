@@ -4,6 +4,7 @@ import android.animation.ValueAnimator
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.InputFilter
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
@@ -16,22 +17,25 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
+import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
 import gmarques.debtv4.domain.entidades.Recorrencia
+import gmarques.debtv4.domain.entidades.Recorrencia.Companion.LIMITE_RECORRENCIA_INDEFINIDO
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.conveterEmDataUTC
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarDataEmUtcParaStringLocal
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.emUTC
+import gmarques.debtv4.domain.extension_functions.Datas.Mascaras.*
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emDouble
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoedaSemSimbolo
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.porcentoDe
-import gmarques.debtv4.domain.uteis.DataUtils.Companion.DD_MM_AAAA
-import gmarques.debtv4.domain.uteis.DataUtils.Companion.MM_AAAA
-import gmarques.debtv4.domain.uteis.DataUtils.Companion.agoraEmMillis
-import gmarques.debtv4.domain.uteis.DataUtils.Companion.corrigirFusoHorario
-import gmarques.debtv4.domain.uteis.DataUtils.Companion.dataFormatadaParaLong
-import gmarques.debtv4.domain.uteis.DataUtils.Companion.formatarData
+import gmarques.debtv4.domain.uteis.Nomes
 import gmarques.debtv4.presenter.TecladoCalculadora
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.MascaraData
 import gmarques.debtv4.presenter.outros.UIUtils
-import java.util.*
+import org.joda.time.DateTime
+import java.util.Currency
+import java.util.Locale
 import kotlin.math.abs
 
 class FragAddDespesa : CustomFrag() {
@@ -41,7 +45,6 @@ class FragAddDespesa : CustomFrag() {
     private lateinit var binding: FragAddDespesaBinding
     private val animsAtualizadasPeloAppBar = ArrayList<ValueAnimator>()
 
-    // TODO: criar teclado calculadora
     // TODO: testar tudo oque foi feito até aqui
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,6 +58,7 @@ class FragAddDespesa : CustomFrag() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[FragAddDespesaViewModel::class.java]
         init()
+
     }
 
     private fun init() {
@@ -62,7 +66,7 @@ class FragAddDespesa : CustomFrag() {
         this.initToolbar(binding, getString(R.string.Nova_despesa))
         initAnimacaoDosCantosDoScrollView()
         initAnimacaoDeCorDaStatusBar()
-        initTextViewValoreMoeda()
+        initCampoValor()
         initCampoDeNome()
         initCampoData()
         initCampoObservacoes()
@@ -70,26 +74,46 @@ class FragAddDespesa : CustomFrag() {
         initCampoDataLimiteRepeticao()
         initSwitchDespesaPaga()
         initCampoDataEmQueDespesaFoiPaga()
+        initBtnConcluir()
+        observarErros()
+    }
+
+    private fun observarErros() {
+        viewModel.msgErro.observe(viewLifecycleOwner) {
+            notificarErro(binding.root, it)
+        }
+    }
+
+    private fun initBtnConcluir() {
+
+        binding.fabConcluir.setOnClickListener {
+            binding.root.clearFocus()
+            viewModel.validarEntradasDoUsuario()
+        }
     }
 
     private fun initCampoDataEmQueDespesaFoiPaga() {
+
+        binding.dataDespPaga.addTextChangedListener(MascaraData.mascaraData())
 
         binding.ivDataPickerDespPaga.setOnClickListener(object : AnimatedClickListener() {
             override fun onClick(view: View) {
                 super.onClick(view)
 
-                val dataInicial = viewModel.dataEmQueDespesaFoiPaga ?: agoraEmMillis()
+                val dataInicial = viewModel.dataEmQueDespesaFoiPagaUTC ?: DateTime().millis
 
-                mostrarDataPicker(dataInicial) { _: Long, dataFormatada: String ->
-                    binding.dataDespPaga.setText(dataFormatada)
-                    binding.dataDespPaga.setSelection(dataFormatada.length)
+                mostrarDataPicker(dataInicial) { dataEmUTC ->
+                    val dataLocalFormatada = dataEmUTC.formatarDataEmUtcParaStringLocal(DD_MM_AAAA)
+
+                    binding.dataDespPaga.setText(dataLocalFormatada)
+                    binding.dataDespPaga.setSelection(dataLocalFormatada.length)
                 }
             }
         })
-        binding.dataDespPaga.addTextChangedListener(MascaraData.mascaraData())
+
         binding.dataDespPaga.addTextChangedListener {
             // o valor setado será null até que seja digitada uma data valida
-            viewModel.dataEmQueDespesaFoiPaga = dataFormatadaParaLong(it.toString(), DD_MM_AAAA)
+            viewModel.dataEmQueDespesaFoiPagaUTC = it.toString().conveterEmDataUTC(DD_MM_AAAA)
         }
     }
 
@@ -98,12 +122,12 @@ class FragAddDespesa : CustomFrag() {
 
             if (checado) {
                 binding.containerDataDespesaPaga.visibility = VISIBLE
-                binding.dataDespPaga.setText(formatarData(agoraEmMillis(), DD_MM_AAAA))
-                viewModel.dataEmQueDespesaFoiPaga = agoraEmMillis()
+                binding.dataDespPaga.setText(DateTime().millis.formatarDataEmUtcParaStringLocal(DD_MM_AAAA))
+                viewModel.dataEmQueDespesaFoiPagaUTC = DateTime().millis.emUTC()
             } else {
                 binding.containerDataDespesaPaga.visibility = GONE
                 binding.dataDespPaga.setText("")
-                viewModel.dataEmQueDespesaFoiPaga = null
+                viewModel.dataEmQueDespesaFoiPagaUTC = null
             }
         }
     }
@@ -119,17 +143,16 @@ class FragAddDespesa : CustomFrag() {
         binding.dataLimiteRepetir.addTextChangedListener {
 
             if (indeterm == it.toString()) {
-                viewModel.dataLimiteDaRepeticao = -1 // recorrente
+                viewModel.dataLimiteDaRepeticaoUTC = LIMITE_RECORRENCIA_INDEFINIDO
             } else {
                 // o valor setado será null até que seja digitada uma data valida
-                viewModel.dataLimiteDaRepeticao = dataFormatadaParaLong(it.toString(), MM_AAAA)
+                viewModel.dataLimiteDaRepeticaoUTC = it.toString().conveterEmDataUTC(MM_AAAA)
             }
         }
 
         binding.dataLimiteRepetir.addTextChangedListener(MascaraData.mascaraDataMeseAno())
 
     }
-
 
     private fun initCampoRepetir() {
         binding.edtRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
@@ -150,18 +173,18 @@ class FragAddDespesa : CustomFrag() {
     }
 
     /**
-     * Limpa a interface e impede que o usuario defina uma data limete para a repetiçao desaticando a
+     * Limpa a interface e impede que o usuario defina uma data limete para a repetiçao desativando a
      * view que coleta essa informação
      */
     private fun despesaNaoSeRepete(dica: String) {
 
-        binding.tilDataLimiteRepetir.isEnabled = false
-        binding.ivRecorrente.isClickable = false
+        binding.clDataLimiteRepetir.visibility = GONE
 
         binding.dataLimiteRepetir.setText("")
 
         binding.edtRepetir.setText(dica)
         binding.edtRepetir.clearFocus()
+
     }
 
     /**
@@ -170,10 +193,8 @@ class FragAddDespesa : CustomFrag() {
      */
     private fun despesaSeRepete(dica: String) {
 
-        binding.tilDataLimiteRepetir.isEnabled = true
-        binding.ivRecorrente.isClickable = true
+        binding.clDataLimiteRepetir.visibility = VISIBLE
         binding.dataLimiteRepetir.requestFocus()
-
 
         binding.edtRepetir.setText(dica)
     }
@@ -187,69 +208,80 @@ class FragAddDespesa : CustomFrag() {
         BottomSheetRepetir(callback,
             this@FragAddDespesa,
             viewModel.qtdRepeticoes ?: 0,
-            viewModel.tipoRecorrencia)
+            viewModel.tipoRecorrencia ?: Recorrencia.Tipo.MESES)
             .mostrar()
     }
 
     private fun initCampoData() {
+
+        binding.dataPagamento.addTextChangedListener(MascaraData.mascaraData())
+
         binding.ivDataPicker.setOnClickListener(object : AnimatedClickListener() {
             override fun onClick(view: View) {
                 super.onClick(view)
 
-                val dataInicial = viewModel.dataDePagamentoDaDespesa ?: agoraEmMillis()
+                val dataInicial = viewModel.dataDePagamentoDaDespesaUTC
+                    ?: DateTime().millis.emUTC()
 
-                mostrarDataPicker(dataInicial) { _: Long, dataFormatada: String ->
-                    binding.dataPagamento.setText(dataFormatada)
-                    binding.dataPagamento.setSelection(dataFormatada.length)
+                mostrarDataPicker(dataInicial) { dataEmUTC ->
+                    val dataLocalFormatada = dataEmUTC.formatarDataEmUtcParaStringLocal(DD_MM_AAAA)
+
+                    binding.dataPagamento.setText(dataLocalFormatada)
+                    binding.dataPagamento.setSelection(dataLocalFormatada.length)
                 }
             }
         })
-        binding.dataPagamento.addTextChangedListener(MascaraData.mascaraData())
+
         binding.dataPagamento.addTextChangedListener {
             // o valor setado será null até que seja digitada uma data valida
-            viewModel.dataDePagamentoDaDespesa = dataFormatadaParaLong(it.toString(), DD_MM_AAAA)
+            viewModel.dataDePagamentoDaDespesaUTC = it.toString().conveterEmDataUTC(DD_MM_AAAA)
         }
 
     }
 
-    private fun mostrarDataPicker(dataInicial: Long, callback: (Long, String) -> Unit) {
+    private fun mostrarDataPicker(dataInicial: Long, callback: DataPickerCallback) {
 
         val picker = MaterialDatePicker.Builder.datePicker().setSelection(dataInicial).setTitleText("").build()
 
-        // tem um bug no picker que retorna a data com um dia a menos
-        picker.addOnPositiveButtonClickListener {
+        picker.addOnPositiveButtonClickListener { dataEmUTC ->
 
-            val dataCorreta = corrigirFusoHorario(it)
-            val dataFormatada = formatarData(dataCorreta, DD_MM_AAAA)
-            callback.invoke(dataCorreta, dataFormatada)
+            callback.dataEscolhida(dataEmUTC)
         }
-
 
         picker.show(parentFragmentManager, "tag");
     }
 
     private fun initCampoDeNome() {
         binding.tilNome.counterMaxLength = Despesa.COMPRIMENTO_MAXIMO_NOME
-        binding.nome.filters = arrayOf(InputFilter.LengthFilter(Despesa.COMPRIMENTO_MAXIMO_NOME))
+        binding.edtNome.filters = arrayOf(InputFilter.LengthFilter(Despesa.COMPRIMENTO_MAXIMO_NOME))
+        binding.edtNome.setOnFocusChangeListener { _: View, b: Boolean ->
+            if (!b) {
+                val nomeCorrigido = Nomes.aplicarCorrecao(binding.edtNome.text.toString())
+                binding.edtNome.setText(nomeCorrigido)
+            }
+        }
+        binding.edtNome.addTextChangedListener {
+            viewModel.nomeDespesa = it.toString()
+        }
     }
 
     private fun initCampoObservacoes() {
         binding.tilObservacoes.counterMaxLength = Despesa.COMPRIMENTO_MAXIMO_OBSERVACOES
         binding.observacoes.filters = arrayOf(InputFilter.LengthFilter(Despesa.COMPRIMENTO_MAXIMO_OBSERVACOES))
+        binding.observacoes.addTextChangedListener {
+            viewModel.observacoes = it.toString()
+        }
     }
 
-    private fun initTextViewValoreMoeda() {
-        binding.tvValor.text = "999,95"
+    private fun initCampoValor() {
+        binding.tvValor.text = VALOR_MINIMO.toString().emMoedaSemSimbolo()
         binding.tvMoeda.text = Currency.getInstance(Locale.getDefault()).symbol
         binding.tvValor.setOnClickListener {
-            TecladoCalculadora.Builder()
-                .valorInicial(binding.tvValor.text.toString().emDouble())
-                .callback { valor: String ->
+            TecladoCalculadora.Builder().valorInicial(binding.tvValor.text.toString().emDouble()).callback { valor: String ->
 
-                    binding.tvValor.text = valor.emMoedaSemSimbolo()
-                    viewModel.valorDespesa = valor
-                }.titulo(getString(R.string.Digite_o_valor_da_despesa))
-                .build().show(parentFragmentManager, "")
+                binding.tvValor.text = valor.emMoedaSemSimbolo()
+                viewModel.valorDespesa = valor
+            }.titulo(getString(R.string.Digite_o_valor_da_despesa)).build().show(parentFragmentManager, "")
 
         }
     }
@@ -313,8 +345,12 @@ class FragAddDespesa : CustomFrag() {
         animsAtualizadasPeloAppBar.add(cornerAnimation)
     }
 
+    fun interface DataPickerCallback {
+        fun dataEscolhida(dataEmUTC: Long)
+    }
 
 }
+
 
 
 

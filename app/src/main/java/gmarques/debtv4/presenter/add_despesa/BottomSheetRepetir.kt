@@ -35,10 +35,10 @@ class BottomSheetRepetir(
 
     init {
         initBotoes()
-        carregarViewsComDadosRecebidos()
-        mostrarTeclado()
-        initEdtIntervalo()
         initBotoesTipoRecorrencia()
+        initEdtIntervalo()
+        // TODO: talvez seja melhor nao mostrarTeclado()
+        carregarViewsComDadosRecebidos()
     }
 
     /**
@@ -75,8 +75,6 @@ class BottomSheetRepetir(
      */
     private fun initEdtIntervalo() {
         binding.edtRepetir.addTextChangedListener {
-
-
             qtdRepeticoes = it.toString().ifEmpty { "0" }.toInt()
             atualizarDica()
         }
@@ -108,18 +106,26 @@ class BottomSheetRepetir(
 
     }
 
+    /**
+     * Atualiza/Inicializa a interface com os valores recebidos do cliente
+     */
     private fun carregarViewsComDadosRecebidos() {
 
-        tipoRecorrencia?.let {
-            when (tipoRecorrencia) {
-                MESES -> binding.toggleButton.check(binding.meses.id)
-                DIAS  -> binding.toggleButton.check(binding.dias.id)
-                null  -> {binding.toggleButton.check(binding.meses.id)}
-            }
+        /**
+         * Quando um dos botoes de tipo de recorrencia é checado, o valor de [qtdRepeticoes] pode ser alterado
+         * de acordo com as limitações de cada tipo de recorrencia, por isso é necessario preservar
+         * o valor recebido como inicial nessa variavel antes de configurar os botoes
+         */
+        val rep = qtdRepeticoes
+
+        when (tipoRecorrencia) {
+            null  -> binding.toggleButton.check(binding.meses.id)
+            MESES -> binding.toggleButton.check(binding.meses.id)
+            DIAS  -> binding.toggleButton.check(binding.dias.id)
+
         }
 
-        binding.edtRepetir.setText(qtdRepeticoes.toString())
-
+        binding.edtRepetir.setText(rep.toString())
 
     }
 
