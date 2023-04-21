@@ -11,7 +11,7 @@ import gmarques.debtv4.domain.entidades.Recorrencia.Companion.INTERVALO_MAX_REPE
 import gmarques.debtv4.domain.entidades.Recorrencia.Companion.INTERVALO_MAX_REPETICAO_MESES
 import gmarques.debtv4.domain.entidades.Recorrencia.Companion.INTERVALO_MIN_REPETICAO_DIAS
 import gmarques.debtv4.domain.entidades.Recorrencia.Tipo.*
-import gmarques.debtv4.presenter.BetterBottomSheet
+import gmarques.debtv4.presenter.pop_ups.CustomBottomSheet
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.UIUtils
 import kotlinx.coroutines.delay
@@ -30,7 +30,7 @@ class BottomSheetRepetir(
     private var tipoRecorrencia: Recorrencia.Tipo? = MESES,
 ) {
 
-    private var dialogo: BetterBottomSheet = BetterBottomSheet()
+    private var dialogo: CustomBottomSheet = CustomBottomSheet()
     private var binding: LayoutBsRepetirDespesaBinding = LayoutBsRepetirDespesaBinding.inflate(fragmento.layoutInflater)
 
     init {

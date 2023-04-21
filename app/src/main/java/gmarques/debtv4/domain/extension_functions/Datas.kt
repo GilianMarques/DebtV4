@@ -86,6 +86,15 @@ class Datas {
             return this - DateTimeZone.getDefault().getOffset(this)
         }
 
+        /**
+         * Ajusta a data recebida do picker pra funcionar no app
+         * É uma "solução" meia boca pq tentei ersolvar esse problema por horas e nao consegui...
+         * Se nao fizer essa alteração, quando a data é formatada, fica com 1 dia a menos. Esse é um
+         * problema de fuso-horario UTC/GMT */
+        fun ajustarDataDoPicker(dataEmUTC: Long): Long {
+            return dataEmUTC.emUTC().emUTC()
+        }
+
 
     }
 }

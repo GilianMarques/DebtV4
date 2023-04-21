@@ -3,13 +3,16 @@ package gmarques.debtv4.domain.entidades
 import java.util.UUID
 
 
-
 class Despesa {
     companion object {
-        const val VALOR_MAXIMO = 9_999_999.99
+        const val VALOR_MAXIMO = 9_999_999.99 // 10 milhoes -0,01R$
         const val VALOR_MINIMO = 0.00
         const val COMPRIMENTO_MAXIMO_NOME = 35
         const val COMPRIMENTO_MAXIMO_OBSERVACOES = 250
+
+        /** a contar da data atual, a quantidade de anos pra frente ou pra tras em que o usuario pode
+         * adicionar despesas*/
+        const val VARIACAO_MAXIMA_DATA = 10
     }
 
     var uid = UUID.randomUUID()

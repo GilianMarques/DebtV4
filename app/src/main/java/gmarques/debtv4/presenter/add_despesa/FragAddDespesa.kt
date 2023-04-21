@@ -4,7 +4,6 @@ import android.animation.ValueAnimator
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.InputFilter
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
@@ -22,18 +21,18 @@ import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.entidades.Recorrencia.Companion.LIMITE_RECORRENCIA_INDEFINIDO
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.conveterEmDataUTC
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarDataEmUtcParaStringLocal
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.emUTC
 import gmarques.debtv4.domain.extension_functions.Datas.Mascaras.*
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emDouble
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoedaSemSimbolo
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.porcentoDe
 import gmarques.debtv4.domain.uteis.Nomes
-import gmarques.debtv4.presenter.TecladoCalculadora
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.MascaraData
 import gmarques.debtv4.presenter.outros.UIUtils
-import org.joda.time.DateTime
+import gmarques.debtv4.presenter.pop_ups.DataPicker
+import gmarques.debtv4.presenter.pop_ups.DataPicker.*
+import gmarques.debtv4.presenter.pop_ups.TecladoCalculadora
 import java.util.Currency
 import java.util.Locale
 import kotlin.math.abs
@@ -100,7 +99,8 @@ class FragAddDespesa : CustomFrag() {
             override fun onClick(view: View) {
                 super.onClick(view)
 
-                val dataInicial = viewModel.dataEmQueDespesaFoiPagaUTC ?: DateTime().millis
+                val dataInicial = viewModel.dataEmQueDespesaFoiPagaUTC
+                    ?: MaterialDatePicker.todayInUtcMilliseconds()
 
                 mostrarDataPicker(dataInicial) { dataEmUTC ->
                     val dataLocalFormatada = dataEmUTC.formatarDataEmUtcParaStringLocal(DD_MM_AAAA)
@@ -122,8 +122,8 @@ class FragAddDespesa : CustomFrag() {
 
             if (checado) {
                 binding.containerDataDespesaPaga.visibility = VISIBLE
-                binding.dataDespPaga.setText(DateTime().millis.formatarDataEmUtcParaStringLocal(DD_MM_AAAA))
-                viewModel.dataEmQueDespesaFoiPagaUTC = DateTime().millis.emUTC()
+                binding.dataDespPaga.setText(System.currentTimeMillis().formatarDataEmUtcParaStringLocal(DD_MM_AAAA))
+                viewModel.dataEmQueDespesaFoiPagaUTC = MaterialDatePicker.todayInUtcMilliseconds()
             } else {
                 binding.containerDataDespesaPaga.visibility = GONE
                 binding.dataDespPaga.setText("")
@@ -205,11 +205,8 @@ class FragAddDespesa : CustomFrag() {
      * o usuario é notificado para corrigir o que for necessario
      */
     private fun mostrarBottomSheetRepetir(callback: BottomSheetRepetir.Callback) {
-        BottomSheetRepetir(callback,
-            this@FragAddDespesa,
-            viewModel.qtdRepeticoes ?: 0,
-            viewModel.tipoRecorrencia ?: Recorrencia.Tipo.MESES)
-            .mostrar()
+        BottomSheetRepetir(callback, this@FragAddDespesa, viewModel.qtdRepeticoes
+            ?: 0, viewModel.tipoRecorrencia ?: Recorrencia.Tipo.MESES).mostrar()
     }
 
     private fun initCampoData() {
@@ -221,7 +218,7 @@ class FragAddDespesa : CustomFrag() {
                 super.onClick(view)
 
                 val dataInicial = viewModel.dataDePagamentoDaDespesaUTC
-                    ?: DateTime().millis.emUTC()
+                    ?: MaterialDatePicker.todayInUtcMilliseconds()
 
                 mostrarDataPicker(dataInicial) { dataEmUTC ->
                     val dataLocalFormatada = dataEmUTC.formatarDataEmUtcParaStringLocal(DD_MM_AAAA)
@@ -240,15 +237,7 @@ class FragAddDespesa : CustomFrag() {
     }
 
     private fun mostrarDataPicker(dataInicial: Long, callback: DataPickerCallback) {
-
-        val picker = MaterialDatePicker.Builder.datePicker().setSelection(dataInicial).setTitleText("").build()
-
-        picker.addOnPositiveButtonClickListener { dataEmUTC ->
-
-            callback.dataEscolhida(dataEmUTC)
-        }
-
-        picker.show(parentFragmentManager, "tag");
+        DataPicker(dataInicial, parentFragmentManager, callback)
     }
 
     private fun initCampoDeNome() {
@@ -343,10 +332,6 @@ class FragAddDespesa : CustomFrag() {
         }
 
         animsAtualizadasPeloAppBar.add(cornerAnimation)
-    }
-
-    fun interface DataPickerCallback {
-        fun dataEscolhida(dataEmUTC: Long)
     }
 
 }

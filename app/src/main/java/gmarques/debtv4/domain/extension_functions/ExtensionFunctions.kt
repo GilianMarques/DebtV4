@@ -1,8 +1,6 @@
 package gmarques.debtv4.domain.extension_functions
 
 import android.content.res.Resources
-import org.joda.time.DateTimeZone
-import org.joda.time.LocalDateTime
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode

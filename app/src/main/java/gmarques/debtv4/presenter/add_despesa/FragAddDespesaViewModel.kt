@@ -14,7 +14,6 @@ import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
 import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
 import kotlinx.coroutines.launch
-import org.joda.time.LocalDateTime
 
 class FragAddDespesaViewModel : ViewModel() {
 
@@ -68,11 +67,16 @@ class FragAddDespesaViewModel : ViewModel() {
 
     private fun validarDataDePagamento(): Boolean {
         if (dataDePagamentoDaDespesaUTC == null) return erroDeValidacao(context.getString(R.string.Verifique_a_data_de_pagamento_da_despesa))
-        // TODO: verificar data
         return true
     }
 
     private fun validarRecorrencia(): Boolean {
+        when (tipoRecorrencia) {
+            Recorrencia.Tipo.MESES -> TODO()
+            Recorrencia.Tipo.DIAS  -> TODO()
+            null                   -> TODO()
+// TODO: continuar aqui
+        }
         return true
     }
 

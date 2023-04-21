@@ -1,4 +1,4 @@
-package gmarques.debtv4.presenter
+package gmarques.debtv4.presenter.pop_ups
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -337,7 +337,7 @@ class TecladoCalculadora : DialogFragment() {
         val operadoresSeguidosDePonto = Regex("""[$REGEX_OPERADORES]([.])""")
         val pontoNoComeco = Regex("""^([.])""")
         val pontoNoFim = Regex("""([.])$""")
-        val opNoComeco = Regex("""^([${REGEX_OPERADORES_SEM_SUBT}])""")// o sinal - pode ficar no começo da formula
+        val opNoComeco = Regex("""^([$REGEX_OPERADORES_SEM_SUBT])""")// o sinal - pode ficar no começo da formula
         val opNoFim = Regex("""([$REGEX_OPERADORES])$""")
 
         val padroes = arrayListOf(pontoSeguidaDeOperador, operadoresSeguidosDePonto, pontoNoComeco, pontoNoFim, opNoComeco, opNoFim)
@@ -415,7 +415,7 @@ class TecladoCalculadora : DialogFragment() {
          * enquadrado no padrao, o padrao nao considera operadores seguidos pelo sinal '-' (subraçao) pois
          * este inbdica que o numero a seguir é negativo
          */
-        val regexOpLal = Regex("""[$REGEX_OPERADORES][${REGEX_OPERADORES_SEM_SUBT}]+""")
+        val regexOpLal = Regex("""[$REGEX_OPERADORES][$REGEX_OPERADORES_SEM_SUBT]+""")
         var novaFormula = formula
 
         while (regexOpLal.containsMatchIn(novaFormula)) {

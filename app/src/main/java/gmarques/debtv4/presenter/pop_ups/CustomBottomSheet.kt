@@ -1,4 +1,4 @@
-package gmarques.debtv4.presenter
+package gmarques.debtv4.presenter.pop_ups
 
 import android.animation.ValueAnimator
 import android.graphics.Color
@@ -18,7 +18,7 @@ import gmarques.debtv4.presenter.outros.UIUtils
  * @Author: Gilian Marques
  * @Date: quinta-feira, 30 de março de 2023 às 20:23
  */
-class BetterBottomSheet : DialogFragment() {
+class CustomBottomSheet : DialogFragment() {
     private var dismissListener: (() -> Unit)? = null
     private val duracao = 250L
     private var customView: View? = null
