@@ -70,5 +70,11 @@
     <string name="O_valor_da_despesa_nao_pode_ser_maior_que_x">O valor da despesa não pode ser maior que %1$s</string>
     <string name="O_valor_da_despesa_nao_pode_ser_menor_que_x">O valor da despesa não pode ser menor que %1$s</string>
     <string name="Verifique_a_data_de_pagamento_da_despesa">Verifique a data de pagamento da despesa</string>
+    <string name="Verifique_a_data_em_que_a_despesa_foi_paga">Verifique a data em que a despesa foi paga</string>
+    <string name="Valor_de_repeti_o_menor_que_o_permitido_para_meses">Valor de repetição menor que o permitido para meses</string>
+    <string name="Valor_de_repeti_o_maior_que_o_permitido_para_meses">Valor de repetição maior que o permitido para meses</string>
+    <string name="Valor_de_repeti_o_menor_que_o_permitido_para_dias">Valor de repetição menor que o permitido para dias</string>
+    <string name="Valor_de_repeti_o_maior_que_o_permitido_para_dias">Valor de repetição maior que o permitido para dias</string>
+    <string name="Selecione_a_data_limite_da_recorr_ncia">Selecione a data limite da recorrência</string>
 
 </resources>

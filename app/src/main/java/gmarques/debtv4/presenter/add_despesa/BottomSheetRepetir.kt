@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 class BottomSheetRepetir(
     private val callback: Callback,
     private val fragmento: CustomFrag,
-    private var qtdRepeticoes: Int = 0,
+    private var qtdRepeticoes: Long = 0L,
     private var tipoRecorrencia: Recorrencia.Tipo? = MESES,
 ) {
 
@@ -49,7 +49,7 @@ class BottomSheetRepetir(
 
         binding.toggleButton.addOnButtonCheckedListener { a: MaterialButtonToggleGroup, _: Int, _: Boolean ->
 
-            qtdRepeticoes = binding.edtRepetir.text.toString().ifEmpty { "0" }.toInt()
+            qtdRepeticoes = binding.edtRepetir.text.toString().ifEmpty { "0" }.toLong()
 
             when (a.checkedButtonId) {
                 R.id.meses -> {
@@ -75,7 +75,7 @@ class BottomSheetRepetir(
      */
     private fun initEdtIntervalo() {
         binding.edtRepetir.addTextChangedListener {
-            qtdRepeticoes = it.toString().ifEmpty { "0" }.toInt()
+            qtdRepeticoes = it.toString().ifEmpty { "0" }.toLong()
             atualizarDica()
         }
     }
@@ -89,8 +89,8 @@ class BottomSheetRepetir(
 
             MESES -> {
                 when (qtdRepeticoes) {
-                    0    -> fragmento.getString(R.string.A_despesa_se_repete_todos_os_meses)
-                    1    -> fragmento.getString(R.string.A_despesa_se_repete_mes_sim_e_mes_nao)
+                    0L    -> fragmento.getString(R.string.A_despesa_se_repete_todos_os_meses)
+                    1L    -> fragmento.getString(R.string.A_despesa_se_repete_mes_sim_e_mes_nao)
                     else -> String.format(fragmento.getString(R.string.A_despesa_se_repete_a_cada_x_meses), qtdRepeticoes)
                 }
             }
@@ -149,7 +149,7 @@ class BottomSheetRepetir(
     }
 
     private fun naoRepetir() {
-        callback.concluido(-1, null, fragmento.getString(R.string.Nao_repetir))
+        callback.concluido(null, null, fragmento.getString(R.string.Nao_repetir))
         dialogo.dismiss()
     }
 
@@ -228,6 +228,6 @@ class BottomSheetRepetir(
     }
 
     fun interface Callback {
-        fun concluido(qtdRepeticoes: Int, tipoRecorrencia: Recorrencia.Tipo?, dica: String)
+        fun concluido(qtdRepeticoes: Long?, tipoRecorrencia: Recorrencia.Tipo?, dica: String)
     }
 }

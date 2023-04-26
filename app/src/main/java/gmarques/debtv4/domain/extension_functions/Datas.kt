@@ -3,6 +3,11 @@ package gmarques.debtv4.domain.extension_functions
 import androidx.annotation.VisibleForTesting
 import org.joda.time.DateTimeZone
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.Locale
 
 /**
@@ -32,9 +37,9 @@ class Datas {
          * em long novamente esse long terá seus ultimos 4 digitos diferentes do long que originou essa string
          * já que esses 4 digitos representavam os millis dos segundos que nao ficaram salvos na string
          */
-        fun Long.formatarDataEmUtcParaStringLocal(mascara: Mascaras): String {
+        fun Long.formatarString(mascara: Mascaras): String {
             val dataFormat = SimpleDateFormat(mascara.tipo, Locale.getDefault())
-            return dataFormat.format(this.paradataLocal())
+            return dataFormat.format(this)
         }
 
         /**
@@ -60,13 +65,14 @@ class Datas {
         }
 
         /**
-         * Converte uma data em string no fuso-horario local  para um long em UTC.
-         * Se a string for uma data em UTC o Long retornado tara um valor errado.
+         * Converte uma data em string para um long
+         * 13/13/203 é considerado valido, isso é um comportamento inadequado
+         * todo: corrigir.
          * @return null se a string recebida não for uma data valida
          */
-        fun String.conveterEmDataUTC(mascara: Mascaras): Long? = try {
+        fun String.conveterLongMillis(mascara: Mascaras): Long? = try {
             val format = SimpleDateFormat(mascara.tipo, Locale.getDefault())
-            format.parse(this)!!.time.emUTC()
+            format.parse(this)!!.time
         } catch (e: java.lang.Exception) {
             null
         }
@@ -88,11 +94,16 @@ class Datas {
 
         /**
          * Ajusta a data recebida do picker pra funcionar no app
-         * É uma "solução" meia boca pq tentei ersolvar esse problema por horas e nao consegui...
-         * Se nao fizer essa alteração, quando a data é formatada, fica com 1 dia a menos. Esse é um
-         * problema de fuso-horario UTC/GMT */
+         */
         fun ajustarDataDoPicker(dataEmUTC: Long): Long {
-            return dataEmUTC.emUTC().emUTC()
+            // copiado da minha propria resposta no stackOverflow, que regresso foi esse...
+
+            // create an object with a matching timezone
+            val utcDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(dataEmUTC), ZoneOffset.UTC)
+            // create an object converting from UTC to the device´s timezone
+            val myTimeZoneDate = ZonedDateTime.of(utcDate, ZoneId.systemDefault())
+
+            return myTimeZoneDate.toInstant().toEpochMilli()
         }
 
 

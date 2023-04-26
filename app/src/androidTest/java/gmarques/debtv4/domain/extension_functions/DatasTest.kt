@@ -1,13 +1,15 @@
 package gmarques.debtv4.domain.extension_functions
 
+import android.util.Log
 import gmarques.debtv4.domain.extension_functions.Datas.*
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.conveterEmDataUTC
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.conveterLongMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.emUTC
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarDataEmUtcParaStringLocal
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarString
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.paradataLocal
 import gmarques.debtv4.domain.extension_functions.Datas.Mascaras.*
 import junit.framework.TestCase
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import org.junit.Test
 
 internal class DatasTest {
@@ -60,7 +62,7 @@ internal class DatasTest {
         // Testo a conversao em todas as mascaras
         Mascaras.values().forEach {
 
-            val data = agoraUTCEmMillis.formatarDataEmUtcParaStringLocal(it)
+            val data = agoraUTCEmMillis.formatarString(it)
 
             when (it) {
                 DD_MM_AAAA       -> {
@@ -90,11 +92,36 @@ internal class DatasTest {
         val agora = DateTime.now().withMillisOfSecond(0)
         val agoraUTCEmMillis = agora.millis.emUTC()
 
-        val stringLocal = agoraUTCEmMillis.formatarDataEmUtcParaStringLocal(DD_MM_AAAA_H_M_S)
-        val agoraUTCEmMillisConvertido = stringLocal.conveterEmDataUTC(DD_MM_AAAA_H_M_S)
+        val stringLocal = agoraUTCEmMillis.paradataLocal().formatarString(DD_MM_AAAA_H_M_S)
+        val agoraUTCEmMillisConvertido = stringLocal.conveterLongMillis(DD_MM_AAAA_H_M_S)?.emUTC()
 
         TestCase.assertEquals(agoraUTCEmMillisConvertido, agoraUTCEmMillis)
 
     }
+
+    @Test
+    fun conveterEmDataUTCTest2() {
+
+        val dia = 10
+        val mes = 10
+        val ano = 2023
+
+        var stringLocal = "$dia/$mes/$ano"
+        var agoraUTCEmMillisConvertido = stringLocal.conveterLongMillis(DD_MM_AAAA)
+        val data = DateTime.now(DateTimeZone.UTC).withMillis(agoraUTCEmMillisConvertido!!)
+
+        Log.d("USUK", "DatasTest.conveterEmDataUTCTest2: $agoraUTCEmMillisConvertido, $data")
+
+        TestCase.assertEquals(dia, data.dayOfMonth)
+        TestCase.assertEquals(mes, data.monthOfYear)
+        TestCase.assertEquals(ano, data.year)
+
+        var dataInvalida = "13/16/"
+
+        TestCase.assertEquals(null, dataInvalida.conveterLongMillis(DD_MM_AAAA))
+
+
+    }
+
 
 }

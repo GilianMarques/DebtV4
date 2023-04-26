@@ -19,8 +19,8 @@ import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
 import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.entidades.Recorrencia.Companion.LIMITE_RECORRENCIA_INDEFINIDO
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.conveterEmDataUTC
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarDataEmUtcParaStringLocal
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.conveterLongMillis
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarString
 import gmarques.debtv4.domain.extension_functions.Datas.Mascaras.*
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emDouble
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoedaSemSimbolo
@@ -103,7 +103,7 @@ class FragAddDespesa : CustomFrag() {
                     ?: MaterialDatePicker.todayInUtcMilliseconds()
 
                 mostrarDataPicker(dataInicial) { dataEmUTC ->
-                    val dataLocalFormatada = dataEmUTC.formatarDataEmUtcParaStringLocal(DD_MM_AAAA)
+                    val dataLocalFormatada = dataEmUTC.formatarString(DD_MM_AAAA)
 
                     binding.dataDespPaga.setText(dataLocalFormatada)
                     binding.dataDespPaga.setSelection(dataLocalFormatada.length)
@@ -113,17 +113,20 @@ class FragAddDespesa : CustomFrag() {
 
         binding.dataDespPaga.addTextChangedListener {
             // o valor setado será null até que seja digitada uma data valida
-            viewModel.dataEmQueDespesaFoiPagaUTC = it.toString().conveterEmDataUTC(DD_MM_AAAA)
+            viewModel.dataEmQueDespesaFoiPagaUTC = it.toString().conveterLongMillis(DD_MM_AAAA)
         }
     }
 
     private fun initSwitchDespesaPaga() {
         binding.despesaPaga.setOnCheckedChangeListener { _: CompoundButton, checado: Boolean ->
 
+            viewModel.despesaPaga = checado
+
             if (checado) {
                 binding.containerDataDespesaPaga.visibility = VISIBLE
-                binding.dataDespPaga.setText(System.currentTimeMillis().formatarDataEmUtcParaStringLocal(DD_MM_AAAA))
+                binding.dataDespPaga.setText(System.currentTimeMillis().formatarString(DD_MM_AAAA))
                 viewModel.dataEmQueDespesaFoiPagaUTC = MaterialDatePicker.todayInUtcMilliseconds()
+
             } else {
                 binding.containerDataDespesaPaga.visibility = GONE
                 binding.dataDespPaga.setText("")
@@ -134,40 +137,42 @@ class FragAddDespesa : CustomFrag() {
 
     private fun initCampoDataLimiteRepeticao() {
 
+        val compMaximMascara = 7
         val indeterm = getString(R.string.Indeterminadamente)
         binding.ivRecorrente.setOnClickListener {
+            binding.dataLimiteRepetir.filters = arrayOf(InputFilter.LengthFilter(indeterm.length))
+
             binding.dataLimiteRepetir.setText(indeterm)
             binding.dataLimiteRepetir.clearFocus()
         }
 
         binding.dataLimiteRepetir.addTextChangedListener {
 
+
             if (indeterm == it.toString()) {
                 viewModel.dataLimiteDaRepeticaoUTC = LIMITE_RECORRENCIA_INDEFINIDO
             } else {
                 // o valor setado será null até que seja digitada uma data valida
-                viewModel.dataLimiteDaRepeticaoUTC = it.toString().conveterEmDataUTC(MM_AAAA)
+                viewModel.dataLimiteDaRepeticaoUTC = it.toString().conveterLongMillis(MM_AAAA)
             }
+            if (it.toString().length <= compMaximMascara) binding.dataLimiteRepetir.filters = arrayOf(InputFilter.LengthFilter(compMaximMascara))
         }
 
         binding.dataLimiteRepetir.addTextChangedListener(MascaraData.mascaraDataMeseAno())
+
 
     }
 
     private fun initCampoRepetir() {
         binding.edtRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
-            if (b) mostrarBottomSheetRepetir { qtdRepeticoes: Int, tipoRecorrencia: Recorrencia.Tipo?, dica: String ->
+            if (b) mostrarBottomSheetRepetir { qtdRepeticoes: Long?, tipoRecorrencia: Recorrencia.Tipo?, dica: String ->
 
-                // qtdRepeticoes = -1 sempre que o usuario clica em 'nao repetir' no bottomsheet
-                if (qtdRepeticoes >= 0) {
-                    viewModel.qtdRepeticoes = qtdRepeticoes
-                    viewModel.tipoRecorrencia = tipoRecorrencia
-                    despesaSeRepete(dica)
-                } else {
-                    viewModel.qtdRepeticoes = null
-                    viewModel.tipoRecorrencia = null
-                    despesaNaoSeRepete(dica)
-                }
+                viewModel.qtdRepeticoes = qtdRepeticoes
+                viewModel.tipoRecorrencia = tipoRecorrencia
+
+                if (tipoRecorrencia != null) despesaSeRepete(dica)
+                else despesaNaoSeRepete(dica)
+
             }
         }
     }
@@ -221,7 +226,7 @@ class FragAddDespesa : CustomFrag() {
                     ?: MaterialDatePicker.todayInUtcMilliseconds()
 
                 mostrarDataPicker(dataInicial) { dataEmUTC ->
-                    val dataLocalFormatada = dataEmUTC.formatarDataEmUtcParaStringLocal(DD_MM_AAAA)
+                    val dataLocalFormatada = dataEmUTC.formatarString(DD_MM_AAAA)
 
                     binding.dataPagamento.setText(dataLocalFormatada)
                     binding.dataPagamento.setSelection(dataLocalFormatada.length)
@@ -231,7 +236,7 @@ class FragAddDespesa : CustomFrag() {
 
         binding.dataPagamento.addTextChangedListener {
             // o valor setado será null até que seja digitada uma data valida
-            viewModel.dataDePagamentoDaDespesaUTC = it.toString().conveterEmDataUTC(DD_MM_AAAA)
+            viewModel.dataDePagamentoDaDespesaUTC = it.toString().conveterLongMillis(DD_MM_AAAA)
         }
 
     }

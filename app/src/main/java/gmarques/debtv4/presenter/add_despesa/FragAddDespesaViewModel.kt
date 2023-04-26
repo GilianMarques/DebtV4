@@ -14,15 +14,17 @@ import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
 import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class FragAddDespesaViewModel : ViewModel() {
 
+    var despesaPaga: Boolean = false
     var valorDespesa: String = "0"
     var nomeDespesa: String? = null
     var dataDePagamentoDaDespesaUTC: Long? = null
     var dataEmQueDespesaFoiPagaUTC: Long? = null
     var tipoRecorrencia: Recorrencia.Tipo? = null
-    var qtdRepeticoes: Int? = null
+    var qtdRepeticoes: Long? = null
     var dataLimiteDaRepeticaoUTC: Long? = null
     var observacoes: String? = null
     private val context = App.inst
@@ -42,6 +44,10 @@ class FragAddDespesaViewModel : ViewModel() {
     fun validarEntradasDoUsuario() = viewModelScope.launch {
         if (!validarValor()) return@launch
         if (!validarNome()) return@launch
+        if (!validarDataDePagamento()) return@launch
+        if (!validarDataEmQueDespesaFoiPaga()) return@launch
+        if (!validarRecorrencia()) return@launch
+        if (!validarDataLimiteRecorrencia()) return@launch
 
     }
 
@@ -65,23 +71,61 @@ class FragAddDespesaViewModel : ViewModel() {
         return true
     }
 
+    /**
+     * Se o usuario selecionar a data pelo datapicker, ela sera automaticamente uma data valida, se ele
+     * optar por digitar a data, [dataDePagamentoDaDespesaUTC]  será nulo enquanto a data for invalida
+     */
     private fun validarDataDePagamento(): Boolean {
         if (dataDePagamentoDaDespesaUTC == null) return erroDeValidacao(context.getString(R.string.Verifique_a_data_de_pagamento_da_despesa))
         return true
     }
 
-    private fun validarRecorrencia(): Boolean {
-        when (tipoRecorrencia) {
-            Recorrencia.Tipo.MESES -> TODO()
-            Recorrencia.Tipo.DIAS  -> TODO()
-            null                   -> TODO()
-// TODO: continuar aqui
-        }
+    /**
+     * Se o usuario selecionar a data pelo datapicker, ela sera automaticamente uma data valida, se ele
+     * optar por digitar a data, [dataEmQueDespesaFoiPagaUTC]  será nulo enquanto a data for invalida
+     */
+    private fun validarDataEmQueDespesaFoiPaga(): Boolean {
+        if (despesaPaga && dataEmQueDespesaFoiPagaUTC == null) return erroDeValidacao(context.getString(R.string.Verifique_a_data_em_que_a_despesa_foi_paga))
         return true
     }
 
+    /**
+     * Valida o tipo e quantidade de repetiçoes da despesa com base no tipo de recorrencia escolhida.
+     * O dialogo que faz a coleta dos dados ja impoe as regras de repetiçao pro
+     * usuario, essa verificação é mais por desencargo mesmo.
+     *
+     * @return true se o usuario nao selecionou nenhum tipo de recorencia, ou se selecionou e o valor
+     * das repetiçoes é valido para o tipo de repetiçao
+     */
+    private fun validarRecorrencia(): Boolean {
+        return when (tipoRecorrencia) {
+            Recorrencia.Tipo.MESES -> validarRepeticaoMeses()
+            Recorrencia.Tipo.DIAS  -> validarRepeticaoDias()
+            null                   -> true
+        }
+    }
+
+    private fun validarRepeticaoMeses(): Boolean {
+        return if (qtdRepeticoes == null) throw Exception("A quantidade de repetiçoes nao pode ser nula se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
+        else if (qtdRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_meses))
+        else if (qtdRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_meses))
+        else true
+    }
+
+    private fun validarRepeticaoDias(): Boolean {
+        return if (qtdRepeticoes == null) throw Exception("A quantidade de repetiçoes nao pode ser nula se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
+        else if (qtdRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_dias))
+        else if (qtdRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_dias))
+        else true
+    }
+
+    // TODO: joga exception?
     private fun validarDataLimiteRecorrencia(): Boolean {
-        return true
+
+        // usuario esqueceu de selecionar a data limite da recorrencia
+        return if (tipoRecorrencia != null && dataLimiteDaRepeticaoUTC == null) erroDeValidacao(context.getString(R.string.Selecione_a_data_limite_da_recorr_ncia))
+        else if (dataLimiteDaRepeticaoUTC == Recorrencia.LIMITE_RECORRENCIA_INDEFINIDO) true
+        else true
     }
 
     /**
