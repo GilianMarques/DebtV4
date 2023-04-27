@@ -34,6 +34,11 @@ class Recorrencia {
          * O objeto que tem esse valor como data limite de repetição se repete indeterminadamente
          */
         const val LIMITE_RECORRENCIA_INDEFINIDO = -1L
+
+        /** a contar da data atual, a quantidade de anos pra frente ou pra tras em que o usuario pode
+         * adicionar despesas*/
+        const val VARIACAO_MAXIMA_DATA = 10
+
     }
 
     var uid: String = UUID.randomUUID().toString()

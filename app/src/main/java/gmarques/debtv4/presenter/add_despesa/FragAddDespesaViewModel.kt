@@ -21,11 +21,11 @@ class FragAddDespesaViewModel : ViewModel() {
     var despesaPaga: Boolean = false
     var valorDespesa: String = "0"
     var nomeDespesa: String? = null
-    var dataDePagamentoDaDespesaUTC: Long? = null
-    var dataEmQueDespesaFoiPagaUTC: Long? = null
+    var dataDePagamentoDaDespesa: Long? = null
+    var dataEmQueDespesaFoiPaga: Long? = null
     var tipoRecorrencia: Recorrencia.Tipo? = null
     var qtdRepeticoes: Long? = null
-    var dataLimiteDaRepeticaoUTC: Long? = null
+    var dataLimiteDaRepeticao: Long? = null
     var observacoes: String? = null
     private val context = App.inst
 
@@ -73,19 +73,19 @@ class FragAddDespesaViewModel : ViewModel() {
 
     /**
      * Se o usuario selecionar a data pelo datapicker, ela sera automaticamente uma data valida, se ele
-     * optar por digitar a data, [dataDePagamentoDaDespesaUTC]  será nulo enquanto a data for invalida
+     * optar por digitar a data, [dataDePagamentoDaDespesa]  será nulo enquanto a data for invalida
      */
     private fun validarDataDePagamento(): Boolean {
-        if (dataDePagamentoDaDespesaUTC == null) return erroDeValidacao(context.getString(R.string.Verifique_a_data_de_pagamento_da_despesa))
+        if (dataDePagamentoDaDespesa == null) return erroDeValidacao(context.getString(R.string.Verifique_a_data_de_pagamento_da_despesa))
         return true
     }
 
     /**
      * Se o usuario selecionar a data pelo datapicker, ela sera automaticamente uma data valida, se ele
-     * optar por digitar a data, [dataEmQueDespesaFoiPagaUTC]  será nulo enquanto a data for invalida
+     * optar por digitar a data, [dataEmQueDespesaFoiPaga]  será nulo enquanto a data for invalida
      */
     private fun validarDataEmQueDespesaFoiPaga(): Boolean {
-        if (despesaPaga && dataEmQueDespesaFoiPagaUTC == null) return erroDeValidacao(context.getString(R.string.Verifique_a_data_em_que_a_despesa_foi_paga))
+        if (despesaPaga && dataEmQueDespesaFoiPaga == null) return erroDeValidacao(context.getString(R.string.Verifique_a_data_em_que_a_despesa_foi_paga))
         return true
     }
 
@@ -123,8 +123,8 @@ class FragAddDespesaViewModel : ViewModel() {
     private fun validarDataLimiteRecorrencia(): Boolean {
 
         // usuario esqueceu de selecionar a data limite da recorrencia
-        return if (tipoRecorrencia != null && dataLimiteDaRepeticaoUTC == null) erroDeValidacao(context.getString(R.string.Selecione_a_data_limite_da_recorr_ncia))
-        else if (dataLimiteDaRepeticaoUTC == Recorrencia.LIMITE_RECORRENCIA_INDEFINIDO) true
+        return if (tipoRecorrencia != null && dataLimiteDaRepeticao == null) erroDeValidacao(context.getString(R.string.Selecione_a_data_limite_da_recorr_ncia))
+        else if (dataLimiteDaRepeticao == Recorrencia.LIMITE_RECORRENCIA_INDEFINIDO) true
         else true
     }
 

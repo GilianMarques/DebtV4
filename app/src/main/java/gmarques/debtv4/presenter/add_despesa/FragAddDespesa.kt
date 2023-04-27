@@ -19,7 +19,8 @@ import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
 import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.entidades.Recorrencia.Companion.LIMITE_RECORRENCIA_INDEFINIDO
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.conveterLongMillis
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterDDMMAAAAparaMillis
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarString
 import gmarques.debtv4.domain.extension_functions.Datas.Mascaras.*
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emDouble
@@ -99,21 +100,19 @@ class FragAddDespesa : CustomFrag() {
             override fun onClick(view: View) {
                 super.onClick(view)
 
-                val dataInicial = viewModel.dataEmQueDespesaFoiPagaUTC
+                val dataInicial = viewModel.dataEmQueDespesaFoiPaga
                     ?: MaterialDatePicker.todayInUtcMilliseconds()
 
-                mostrarDataPicker(dataInicial) { dataEmUTC ->
-                    val dataLocalFormatada = dataEmUTC.formatarString(DD_MM_AAAA)
-
-                    binding.dataDespPaga.setText(dataLocalFormatada)
-                    binding.dataDespPaga.setSelection(dataLocalFormatada.length)
+                mostrarDataPicker(dataInicial) { dataEmUTC: Long, dataFormatada: String ->
+                    binding.dataDespPaga.setText(dataFormatada)
+                    binding.dataDespPaga.setSelection(dataFormatada.length)
                 }
             }
         })
 
         binding.dataDespPaga.addTextChangedListener {
             // o valor setado será null até que seja digitada uma data valida
-            viewModel.dataEmQueDespesaFoiPagaUTC = it.toString().conveterLongMillis(DD_MM_AAAA)
+            viewModel.dataEmQueDespesaFoiPaga = it.toString().converterDDMMAAAAparaMillis()
         }
     }
 
@@ -125,12 +124,12 @@ class FragAddDespesa : CustomFrag() {
             if (checado) {
                 binding.containerDataDespesaPaga.visibility = VISIBLE
                 binding.dataDespPaga.setText(System.currentTimeMillis().formatarString(DD_MM_AAAA))
-                viewModel.dataEmQueDespesaFoiPagaUTC = MaterialDatePicker.todayInUtcMilliseconds()
+                viewModel.dataEmQueDespesaFoiPaga = MaterialDatePicker.todayInUtcMilliseconds()
 
             } else {
                 binding.containerDataDespesaPaga.visibility = GONE
                 binding.dataDespPaga.setText("")
-                viewModel.dataEmQueDespesaFoiPagaUTC = null
+                viewModel.dataEmQueDespesaFoiPaga = null
             }
         }
     }
@@ -150,16 +149,15 @@ class FragAddDespesa : CustomFrag() {
 
 
             if (indeterm == it.toString()) {
-                viewModel.dataLimiteDaRepeticaoUTC = LIMITE_RECORRENCIA_INDEFINIDO
+                viewModel.dataLimiteDaRepeticao = LIMITE_RECORRENCIA_INDEFINIDO
             } else {
                 // o valor setado será null até que seja digitada uma data valida
-                viewModel.dataLimiteDaRepeticaoUTC = it.toString().conveterLongMillis(MM_AAAA)
+                viewModel.dataLimiteDaRepeticao = it.toString().converterMMAAAAparaMillis()
             }
             if (it.toString().length <= compMaximMascara) binding.dataLimiteRepetir.filters = arrayOf(InputFilter.LengthFilter(compMaximMascara))
         }
 
         binding.dataLimiteRepetir.addTextChangedListener(MascaraData.mascaraDataMeseAno())
-
 
     }
 
@@ -222,21 +220,20 @@ class FragAddDespesa : CustomFrag() {
             override fun onClick(view: View) {
                 super.onClick(view)
 
-                val dataInicial = viewModel.dataDePagamentoDaDespesaUTC
+                val dataInicial = viewModel.dataDePagamentoDaDespesa
                     ?: MaterialDatePicker.todayInUtcMilliseconds()
 
-                mostrarDataPicker(dataInicial) { dataEmUTC ->
-                    val dataLocalFormatada = dataEmUTC.formatarString(DD_MM_AAAA)
+                mostrarDataPicker(dataInicial) { _: Long, dataFormatada: String ->
 
-                    binding.dataPagamento.setText(dataLocalFormatada)
-                    binding.dataPagamento.setSelection(dataLocalFormatada.length)
+                    binding.dataPagamento.setText(dataFormatada)
+                    binding.dataPagamento.setSelection(dataFormatada.length)
                 }
             }
         })
 
         binding.dataPagamento.addTextChangedListener {
             // o valor setado será null até que seja digitada uma data valida
-            viewModel.dataDePagamentoDaDespesaUTC = it.toString().conveterLongMillis(DD_MM_AAAA)
+            viewModel.dataDePagamentoDaDespesa = it.toString().converterDDMMAAAAparaMillis()
         }
 
     }

@@ -10,9 +10,7 @@ class Despesa {
         const val COMPRIMENTO_MAXIMO_NOME = 35
         const val COMPRIMENTO_MAXIMO_OBSERVACOES = 250
 
-        /** a contar da data atual, a quantidade de anos pra frente ou pra tras em que o usuario pode
-         * adicionar despesas*/
-        const val VARIACAO_MAXIMA_DATA = 10
+
     }
 
     var uid = UUID.randomUUID()

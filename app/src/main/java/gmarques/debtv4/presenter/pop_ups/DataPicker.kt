@@ -1,11 +1,15 @@
 package gmarques.debtv4.presenter.pop_ups
 
+import android.util.Log
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
-import gmarques.debtv4.domain.entidades.Despesa
+import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.Datas
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * @Author: Gilian Marques
@@ -21,19 +25,30 @@ class DataPicker(dataInicial: Long, parentFragmentManager: FragmentManager, call
             .setCalendarConstraints(criarLimites())
             .build()
 
-
         picker.addOnPositiveButtonClickListener { dataEmUTC ->
 
-            callback.dataEscolhida(Datas.ajustarDataDoPicker(dataEmUTC))
+            val dataFormatada = formatarString(dataEmUTC)
+            callback.dataEscolhida(dataEmUTC, dataFormatada)
+
+            Log.d("USUK", "DataPicker.$dataEmUTC, $dataFormatada: ")
         }
 
         picker.show(parentFragmentManager, "tag");
     }
 
+    /**
+     * converte o long para dd/mm/aaaa
+     */
+    private fun formatarString(dataEmUTC: Long): String {
+        val dataFormat = SimpleDateFormat(Datas.Mascaras.DD_MM_AAAA.tipo, Locale.getDefault())
+        return dataFormat.format(Datas.aplicarOffset(dataEmUTC))
+    }
+
+
     private fun criarLimites(): CalendarConstraints {
 
-        val max = DateTime.now().plusYears(Despesa.VARIACAO_MAXIMA_DATA).millis
-        val min = DateTime.now().minusYears(Despesa.VARIACAO_MAXIMA_DATA).millis
+        val max = DateTime.now().plusYears(Recorrencia.VARIACAO_MAXIMA_DATA).millis
+        val min = DateTime.now().minusYears(Recorrencia.VARIACAO_MAXIMA_DATA).millis
 
         return CalendarConstraints.Builder()
             .setStart(min)
@@ -42,6 +57,6 @@ class DataPicker(dataInicial: Long, parentFragmentManager: FragmentManager, call
     }
 
     fun interface DataPickerCallback {
-        fun dataEscolhida(dataEmUTC: Long)
+        fun dataEscolhida(dataEmUTC: Long, dataFormatada: String)
     }
 }
