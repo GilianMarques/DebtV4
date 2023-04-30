@@ -11,8 +11,11 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.datepicker.MaterialDatePicker
+import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
@@ -38,14 +41,15 @@ import java.util.Currency
 import java.util.Locale
 import kotlin.math.abs
 
+@AndroidEntryPoint
 class FragAddDespesa : CustomFrag() {
 
+    // para injetar com hilt ao inves de usar @Inject. É assim que se injeta viewModels
+    private val viewModel: FragAddDespesaViewModel by viewModels()
 
-    private lateinit var viewModel: FragAddDespesaViewModel
     private lateinit var binding: FragAddDespesaBinding
     private val animsAtualizadasPeloAppBar = ArrayList<ValueAnimator>()
 
-    // TODO: testar tudo oque foi feito até aqui
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -56,7 +60,6 @@ class FragAddDespesa : CustomFrag() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this)[FragAddDespesaViewModel::class.java]
         init()
 
     }
@@ -76,6 +79,13 @@ class FragAddDespesa : CustomFrag() {
         initCampoDataEmQueDespesaFoiPaga()
         initBtnConcluir()
         observarErros()
+        observarFecharFragmento()
+    }
+
+    private fun observarFecharFragmento() {
+        viewModel.fecharFragmento.observe(viewLifecycleOwner) {
+            if (it) findNavController().navigateUp()
+        }
     }
 
     private fun observarErros() {
@@ -163,9 +173,9 @@ class FragAddDespesa : CustomFrag() {
 
     private fun initCampoRepetir() {
         binding.edtRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
-            if (b) mostrarBottomSheetRepetir { qtdRepeticoes: Long?, tipoRecorrencia: Recorrencia.Tipo?, dica: String ->
+            if (b) mostrarBottomSheetRepetir { intervaloRepeticoes: Long?, tipoRecorrencia: Recorrencia.Tipo?, dica: String ->
 
-                viewModel.qtdRepeticoes = qtdRepeticoes
+                viewModel.intervaloRepeticoes = intervaloRepeticoes
                 viewModel.tipoRecorrencia = tipoRecorrencia
 
                 if (tipoRecorrencia != null) despesaSeRepete(dica)
@@ -208,7 +218,7 @@ class FragAddDespesa : CustomFrag() {
      * o usuario é notificado para corrigir o que for necessario
      */
     private fun mostrarBottomSheetRepetir(callback: BottomSheetRepetir.Callback) {
-        BottomSheetRepetir(callback, this@FragAddDespesa, viewModel.qtdRepeticoes
+        BottomSheetRepetir(callback, this@FragAddDespesa, viewModel.intervaloRepeticoes
             ?: 0, viewModel.tipoRecorrencia ?: Recorrencia.Tipo.MESES).mostrar()
     }
 
@@ -260,7 +270,7 @@ class FragAddDespesa : CustomFrag() {
         binding.tilObservacoes.counterMaxLength = Despesa.COMPRIMENTO_MAXIMO_OBSERVACOES
         binding.observacoes.filters = arrayOf(InputFilter.LengthFilter(Despesa.COMPRIMENTO_MAXIMO_OBSERVACOES))
         binding.observacoes.addTextChangedListener {
-            viewModel.observacoes = it.toString()
+            viewModel.observacoesDespesa = it.toString()
         }
     }
 

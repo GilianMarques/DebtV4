@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 class BottomSheetRepetir(
     private val callback: Callback,
     private val fragmento: CustomFrag,
-    private var qtdRepeticoes: Long = 0L,
+    private var intervaloRepeticoes: Long = 0L,
     private var tipoRecorrencia: Recorrencia.Tipo? = MESES,
 ) {
 
@@ -42,40 +42,40 @@ class BottomSheetRepetir(
     }
 
     /**
-     * Atualiza as variaveis [tipoRecorrencia] e [qtdRepeticoes] sempre que um botao de tipo é selecionado
+     * Atualiza as variaveis [tipoRecorrencia] e [intervaloRepeticoes] sempre que um botao de tipo é selecionado
      *  e atualiza a interface caso o valor de repetiçoes esteja fora da area adequada para cada tipo de recorrencia
      */
     private fun initBotoesTipoRecorrencia() {
 
         binding.toggleButton.addOnButtonCheckedListener { a: MaterialButtonToggleGroup, _: Int, _: Boolean ->
 
-            qtdRepeticoes = binding.edtRepetir.text.toString().ifEmpty { "0" }.toLong()
+            intervaloRepeticoes = binding.edtRepetir.text.toString().ifEmpty { "0" }.toLong()
 
             when (a.checkedButtonId) {
                 R.id.meses -> {
                     tipoRecorrencia = MESES
-                    if (qtdRepeticoes > INTERVALO_MAX_REPETICAO_MESES) qtdRepeticoes = INTERVALO_MAX_REPETICAO_MESES
+                    if (intervaloRepeticoes > INTERVALO_MAX_REPETICAO_MESES) intervaloRepeticoes = INTERVALO_MAX_REPETICAO_MESES
                 }
 
                 R.id.dias  -> {
                     tipoRecorrencia = DIAS
-                    qtdRepeticoes = if (qtdRepeticoes > INTERVALO_MAX_REPETICAO_DIAS) INTERVALO_MAX_REPETICAO_DIAS
-                    else if (qtdRepeticoes < INTERVALO_MIN_REPETICAO_DIAS) INTERVALO_MIN_REPETICAO_DIAS
-                    else qtdRepeticoes
+                    intervaloRepeticoes = if (intervaloRepeticoes > INTERVALO_MAX_REPETICAO_DIAS) INTERVALO_MAX_REPETICAO_DIAS
+                    else if (intervaloRepeticoes < INTERVALO_MIN_REPETICAO_DIAS) INTERVALO_MIN_REPETICAO_DIAS
+                    else intervaloRepeticoes
 
                 }
             }
             // chama a atualização da dica pelo 'addTextChangedListener'
-            binding.edtRepetir.setText(qtdRepeticoes.toString())
+            binding.edtRepetir.setText(intervaloRepeticoes.toString())
         }
     }
 
     /**
-     * Atualiza a variavel [qtdRepeticoes] sempre que o usuario atualiza o valor na tela
+     * Atualiza a variavel [intervaloRepeticoes] sempre que o usuario atualiza o valor na tela
      */
     private fun initEdtIntervalo() {
         binding.edtRepetir.addTextChangedListener {
-            qtdRepeticoes = it.toString().ifEmpty { "0" }.toLong()
+            intervaloRepeticoes = it.toString().ifEmpty { "0" }.toLong()
             atualizarDica()
         }
     }
@@ -88,15 +88,15 @@ class BottomSheetRepetir(
         val texto = when (tipoRecorrencia) {
 
             MESES -> {
-                when (qtdRepeticoes) {
+                when (intervaloRepeticoes) {
                     0L    -> fragmento.getString(R.string.A_despesa_se_repete_todos_os_meses)
                     1L    -> fragmento.getString(R.string.A_despesa_se_repete_mes_sim_e_mes_nao)
-                    else -> String.format(fragmento.getString(R.string.A_despesa_se_repete_a_cada_x_meses), qtdRepeticoes)
+                    else -> String.format(fragmento.getString(R.string.A_despesa_se_repete_a_cada_x_meses), intervaloRepeticoes)
                 }
             }
 
             DIAS  -> {
-                String.format(fragmento.getString(R.string.A_despesa_se_repete_a_cada_x_dias), qtdRepeticoes)
+                String.format(fragmento.getString(R.string.A_despesa_se_repete_a_cada_x_dias), intervaloRepeticoes)
             }
 
             null  -> fragmento.getString(R.string.Selecione_um_tipo_de_recorrencia)
@@ -112,11 +112,11 @@ class BottomSheetRepetir(
     private fun carregarViewsComDadosRecebidos() {
 
         /**
-         * Quando um dos botoes de tipo de recorrencia é checado, o valor de [qtdRepeticoes] pode ser alterado
+         * Quando um dos botoes de tipo de recorrencia é checado, o valor de [intervaloRepeticoes] pode ser alterado
          * de acordo com as limitações de cada tipo de recorrencia, por isso é necessario preservar
          * o valor recebido como inicial nessa variavel antes de configurar os botoes
          */
-        val rep = qtdRepeticoes
+        val rep = intervaloRepeticoes
 
         when (tipoRecorrencia) {
             null  -> binding.toggleButton.check(binding.meses.id)
@@ -162,7 +162,7 @@ class BottomSheetRepetir(
         if (!qtdValida) return
 
 
-        callback.concluido(qtdRepeticoes, tipoRecorrencia, binding.tvDica.text.toString())
+        callback.concluido(intervaloRepeticoes, tipoRecorrencia, binding.tvDica.text.toString())
         dialogo.dismiss()
     }
 
@@ -197,7 +197,7 @@ class BottomSheetRepetir(
     }
 
     private fun validarQtdRepeticoesMes(): Boolean {
-        if (qtdRepeticoes > INTERVALO_MAX_REPETICAO_MESES) {
+        if (intervaloRepeticoes > INTERVALO_MAX_REPETICAO_MESES) {
             fragmento.notificarErro(binding.edtRepetir, String.format(fragmento.getString(R.string.Intervalo_entre_meses_nao_pode_ser_maior_que_x), INTERVALO_MAX_REPETICAO_MESES))
             return false
         }
@@ -206,10 +206,10 @@ class BottomSheetRepetir(
 
     private fun validarQtdRepeticoesDia(): Boolean {
 
-        if (qtdRepeticoes > INTERVALO_MAX_REPETICAO_DIAS) {
+        if (intervaloRepeticoes > INTERVALO_MAX_REPETICAO_DIAS) {
             fragmento.notificarErro(binding.edtRepetir, String.format(fragmento.getString(R.string.Intervalo_entre_dias_nao_pode_ser_maior_que_x), INTERVALO_MAX_REPETICAO_DIAS))
             return false
-        } else if (qtdRepeticoes < INTERVALO_MIN_REPETICAO_DIAS) {
+        } else if (intervaloRepeticoes < INTERVALO_MIN_REPETICAO_DIAS) {
             fragmento.notificarErro(binding.edtRepetir, String.format(fragmento.getString(R.string.Intervalo_entre_dias_nao_pode_ser_menor_que_x), INTERVALO_MIN_REPETICAO_DIAS))
             return false
         }
@@ -228,6 +228,6 @@ class BottomSheetRepetir(
     }
 
     fun interface Callback {
-        fun concluido(qtdRepeticoes: Long?, tipoRecorrencia: Recorrencia.Tipo?, dica: String)
+        fun concluido(intervaloRepeticoes: Long?, tipoRecorrencia: Recorrencia.Tipo?, dica: String)
     }
 }

@@ -3,9 +3,10 @@ package gmarques.debtv4.domain.entidades
 import java.util.UUID
 
 
-class Recorrencia {
+class Recorrencia(tipo: Tipo, intervaloDasRepeticoes: Long, dataLimiteRepeticao: Long) {
 
-    enum class Tipo() {
+
+    enum class Tipo {
         MESES, DIAS
     }
 
@@ -47,16 +48,22 @@ class Recorrencia {
     /**
      * O tipo de intervalo em que o objeto se repete
      */
-    lateinit var tipo: Tipo
+    var tipo: Tipo
+        private set
 
     /**
      * deve ser um inteiro >0 ou [INTERVALO_MIN_REPETICAO_MESES]
      */
-    val intervaloDasRepeticoes = INTERVALO_MIN_REPETICAO_MESES
+    var intervaloDasRepeticoes = INTERVALO_MIN_REPETICAO_MESES
 
     /**
-     * deve ser uma data no futuro ou [LIMITE_RECORRENCIA_INDEFINIDO]
+     * deve ser uma data no futuro (dentro do limite especificado) ou [LIMITE_RECORRENCIA_INDEFINIDO]
      */
-    val dataLimiteRepeticao: Long = LIMITE_RECORRENCIA_INDEFINIDO
+    var dataLimiteRepeticao: Long = LIMITE_RECORRENCIA_INDEFINIDO
 
+    init {
+        this.tipo = tipo
+        this.intervaloDasRepeticoes = intervaloDasRepeticoes
+        this.dataLimiteRepeticao = dataLimiteRepeticao
+    }
 }

@@ -1,4 +1,4 @@
-package gmarques.debtv4.domain.di
+package gmarques.debtv4.domain.modulos_hilt
 
 import android.content.Context
 import androidx.room.Room
@@ -17,7 +17,7 @@ import javax.inject.Singleton
 class RoomModule {
 
     @Provides
-    fun provideNoteDao(db: AppDatabase): DespesaDao {
+    fun provideDespesaDao(db: AppDatabase): DespesaDao {
         return db.getDespesaDao()
     }
 

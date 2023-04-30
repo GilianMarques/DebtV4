@@ -16,6 +16,7 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.snackbar.Snackbar
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.LayoutTecladoCalculadoraBinding
+import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.apenasNumeros
 import gmarques.debtv4.presenter.outros.AnimatedClickListener
 import gmarques.debtv4.presenter.outros.UIUtils
 import java.math.MathContext
@@ -71,7 +72,7 @@ class TecladoCalculadora : DialogFragment() {
     }
 
     /**
-     * Aplica os parametros necessarias para garantir que este dialogo sera exibido em tela cheia
+     * Aplica os parametros necessarios para garantir que este dialogo sera exibido em tela cheia
      */
     override fun onStart() {
         super.onStart()
@@ -183,6 +184,8 @@ class TecladoCalculadora : DialogFragment() {
         binding.edtValor.showSoftInputOnFocus = false
         binding.edtValor.setText(valorInicial)
         binding.edtValor.requestFocus()
+
+        if (valorInicial.toFloat() <= 0) binding.edtValor.selectAll()
 
     }
 

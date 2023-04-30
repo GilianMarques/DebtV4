@@ -7,7 +7,6 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.Datas
 import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -43,7 +42,6 @@ class DataPicker(dataInicial: Long, parentFragmentManager: FragmentManager, call
         val dataFormat = SimpleDateFormat(Datas.Mascaras.DD_MM_AAAA.tipo, Locale.getDefault())
         return dataFormat.format(Datas.aplicarOffset(dataEmUTC))
     }
-
 
     private fun criarLimites(): CalendarConstraints {
 

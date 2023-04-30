@@ -33,12 +33,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     buildFeatures {
@@ -81,15 +81,22 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:31.3.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
 
     // botao selecionavel
     implementation 'nl.bryanderidder:themed-toggle-button-group:1.4.1'
 
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
-    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // Alternativa ao Gson que respeita os tipos nao nulaveios do kotlin
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1'
 
     implementation 'joda-time:joda-time:2.10.2'
+
+    // permite usar livedatas em setups de teste
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
+    androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

@@ -1,12 +1,13 @@
 package gmarques.debtv4.presenter.add_despesa
 
-import android.view.View
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import gmarques.debtv4.App
 import gmarques.debtv4.R
+import gmarques.debtv4.data.repositorios.DespesaRepository
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.COMPRIMENTO_MAXIMO_NOME
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MAXIMO
@@ -14,9 +15,13 @@ import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
 import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
 import kotlinx.coroutines.launch
-import java.lang.Exception
+import javax.inject.Inject
 
-class FragAddDespesaViewModel : ViewModel() {
+@HiltViewModel
+class FragAddDespesaViewModel @Inject constructor(
+    private val despesaRepo: DespesaRepository,
+) : ViewModel() {
+
 
     var despesaPaga: Boolean = false
     var valorDespesa: String = "0"
@@ -24,22 +29,20 @@ class FragAddDespesaViewModel : ViewModel() {
     var dataDePagamentoDaDespesa: Long? = null
     var dataEmQueDespesaFoiPaga: Long? = null
     var tipoRecorrencia: Recorrencia.Tipo? = null
-    var qtdRepeticoes: Long? = null
+    var intervaloRepeticoes: Long? = null
     var dataLimiteDaRepeticao: Long? = null
-    var observacoes: String? = null
+    var observacoesDespesa = ""
     private val context = App.inst
 
-    val recorrencia = Recorrencia()
-    val despesa = Despesa()
+    private lateinit var recorrencia: Recorrencia
+    private lateinit var despesa: Despesa
 
     private val _msgErro: MutableLiveData<String> = MutableLiveData()
     val msgErro get() = _msgErro
 
-    private val _viewComErro: MutableLiveData<View> = MutableLiveData()
-    val viewComErro get() = _viewComErro
 
-
-    fun usuarioLogado() = FirebaseAuth.getInstance().currentUser != null
+    private val _fecharFragmento: MutableLiveData<Boolean> = MutableLiveData()
+    val fecharFragmento get() = _fecharFragmento
 
     fun validarEntradasDoUsuario() = viewModelScope.launch {
         if (!validarValor()) return@launch
@@ -48,6 +51,24 @@ class FragAddDespesaViewModel : ViewModel() {
         if (!validarDataEmQueDespesaFoiPaga()) return@launch
         if (!validarRecorrencia()) return@launch
         if (!validarDataLimiteRecorrencia()) return@launch
+        addDespesa()
+    }
+
+    private suspend fun addDespesa() {
+        despesa = Despesa().apply {
+            this.nome = nomeDespesa!!
+            this.valor = valorDespesa.toDouble()
+            this.dataDoPagamento = dataDePagamentoDaDespesa!!
+            dataEmQueFoiPaga.let { this.dataEmQueFoiPaga = it }
+            despesaPaga.let { this.paga = it }
+            observacoesDespesa.let { this.observacoes = it }
+
+        }
+
+        if (tipoRecorrencia != null) recorrencia = Recorrencia(tipoRecorrencia!!, intervaloRepeticoes!!, dataLimiteDaRepeticao!!)
+
+        despesaRepo.addDespesa(despesa)
+        fecharFragmento.postValue(true)
 
     }
 
@@ -106,20 +127,19 @@ class FragAddDespesaViewModel : ViewModel() {
     }
 
     private fun validarRepeticaoMeses(): Boolean {
-        return if (qtdRepeticoes == null) throw Exception("A quantidade de repetiçoes nao pode ser nula se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
-        else if (qtdRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_meses))
-        else if (qtdRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_meses))
+        return if (intervaloRepeticoes == null) throw Exception("O intervalo das repetiçoes nao pode ser nulo se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
+        else if (intervaloRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_meses))
+        else if (intervaloRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_meses))
         else true
     }
 
     private fun validarRepeticaoDias(): Boolean {
-        return if (qtdRepeticoes == null) throw Exception("A quantidade de repetiçoes nao pode ser nula se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
-        else if (qtdRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_dias))
-        else if (qtdRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_dias))
+        return if (intervaloRepeticoes == null) throw Exception("O intervalo das repetiçoes nao pode ser nulo se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
+        else if (intervaloRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_dias))
+        else if (intervaloRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_dias))
         else true
     }
 
-    // TODO: joga exception?
     private fun validarDataLimiteRecorrencia(): Boolean {
 
         // usuario esqueceu de selecionar a data limite da recorrencia
