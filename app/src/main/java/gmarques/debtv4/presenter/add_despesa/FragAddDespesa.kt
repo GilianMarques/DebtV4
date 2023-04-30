@@ -12,7 +12,7 @@ import android.widget.CompoundButton
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.datepicker.MaterialDatePicker
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,8 +20,8 @@ import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
-import gmarques.debtv4.domain.entidades.Recorrencia
-import gmarques.debtv4.domain.entidades.Recorrencia.Companion.LIMITE_RECORRENCIA_INDEFINIDO
+import gmarques.debtv4.domain.entidades.DespesaRecorrente
+import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterDDMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarString
@@ -37,9 +37,12 @@ import gmarques.debtv4.presenter.outros.UIUtils
 import gmarques.debtv4.presenter.pop_ups.DataPicker
 import gmarques.debtv4.presenter.pop_ups.DataPicker.*
 import gmarques.debtv4.presenter.pop_ups.TecladoCalculadora
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Currency
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.random.Random
 
 @AndroidEntryPoint
 class FragAddDespesa : CustomFrag() {
@@ -80,6 +83,14 @@ class FragAddDespesa : CustomFrag() {
         initBtnConcluir()
         observarErros()
         observarFecharFragmento()
+        initDebug()
+    }
+
+    private fun initDebug() = lifecycleScope.launch {
+        delay(300)
+        binding.edtNome.setText("Despesa #${Random.nextInt(9999)}")
+        binding.dataPagamento.setText("10/04/2023")
+        binding.edtRepetir.requestFocus()
     }
 
     private fun observarFecharFragmento() {
@@ -173,12 +184,12 @@ class FragAddDespesa : CustomFrag() {
 
     private fun initCampoRepetir() {
         binding.edtRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
-            if (b) mostrarBottomSheetRepetir { intervaloRepeticoes: Long?, tipoRecorrencia: Recorrencia.Tipo?, dica: String ->
+            if (b) mostrarBottomSheetRepetir { intervaloDasRepeticoes: Int?, tipoDeRecorrencia: DespesaRecorrente.Tipo?, dica: String ->
 
-                viewModel.intervaloRepeticoes = intervaloRepeticoes
-                viewModel.tipoRecorrencia = tipoRecorrencia
+                viewModel.intervaloDasRepeticoes = intervaloDasRepeticoes
+                viewModel.tipoDeRecorrencia = tipoDeRecorrencia
 
-                if (tipoRecorrencia != null) despesaSeRepete(dica)
+                if (tipoDeRecorrencia != null) despesaSeRepete(dica)
                 else despesaNaoSeRepete(dica)
 
             }
@@ -218,8 +229,8 @@ class FragAddDespesa : CustomFrag() {
      * o usuario é notificado para corrigir o que for necessario
      */
     private fun mostrarBottomSheetRepetir(callback: BottomSheetRepetir.Callback) {
-        BottomSheetRepetir(callback, this@FragAddDespesa, viewModel.intervaloRepeticoes
-            ?: 0, viewModel.tipoRecorrencia ?: Recorrencia.Tipo.MESES).mostrar()
+        BottomSheetRepetir(callback, this@FragAddDespesa, viewModel.intervaloDasRepeticoes
+            ?: 1, viewModel.tipoDeRecorrencia ?: DespesaRecorrente.Tipo.MESES).mostrar()
     }
 
     private fun initCampoData() {

@@ -11,18 +11,17 @@ import androidx.room.PrimaryKey
  */
 data class DespesaEntidade(
 
-    // TODO: tudo aqui deve ser val
-    @PrimaryKey @ColumnInfo(name = "uid") var uid: String,
+    @PrimaryKey @ColumnInfo(name = "uid") val uid: String,
 
-    @ColumnInfo(name = "nome") var nome: String,
+    @ColumnInfo(name = "nome") val nome: String,
 
-    @ColumnInfo(name = "valor") var valor: Double,
+    @ColumnInfo(name = "valor") val valor: Double,
 
-    @ColumnInfo(name = "paga") var paga: Boolean,
+    @ColumnInfo(name = "esta_paga") val estaPaga: Boolean,
 
-    @ColumnInfo(name = "data_do_pagamento") var dataDoPagamento:Long,
+    @ColumnInfo(name = "data_do_pagamento") val dataDoPagamento:Long,
 
-    @ColumnInfo(name = "data_em_que_foi_paga") var dataEmQueFoiPaga:Long,
+    @ColumnInfo(name = "data_em_que_foi_paga") val dataEmQueFoiPaga:Long,
 
-    @ColumnInfo(name = "observacoes") var observacoes: String,
+    @ColumnInfo(name = "observacoes") val observacoes: String,
 )

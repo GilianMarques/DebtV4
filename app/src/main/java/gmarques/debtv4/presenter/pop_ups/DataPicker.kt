@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
-import gmarques.debtv4.domain.entidades.Recorrencia
+import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.extension_functions.Datas
 import org.joda.time.DateTime
 import java.text.SimpleDateFormat
@@ -45,8 +45,8 @@ class DataPicker(dataInicial: Long, parentFragmentManager: FragmentManager, call
 
     private fun criarLimites(): CalendarConstraints {
 
-        val max = DateTime.now().plusYears(Recorrencia.VARIACAO_MAXIMA_DATA).millis
-        val min = DateTime.now().minusYears(Recorrencia.VARIACAO_MAXIMA_DATA).millis
+        val max = DateTime.now().plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
+        val min = DateTime.now().minusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
 
         return CalendarConstraints.Builder()
             .setStart(min)

@@ -1,10 +1,11 @@
 package gmarques.debtv4.domain.entidades
 
-import java.util.UUID
-
-
-class Recorrencia(tipo: Tipo, intervaloDasRepeticoes: Long, dataLimiteRepeticao: Long) {
-
+/**
+ * Um subtipo de despesa que herda todos os seu atributos alem de adicionar novos, necessarios
+ * para a aplicação da recorrencia na despesa
+ * @see Despesa
+ */
+class DespesaRecorrente() : Despesa() {
 
     enum class Tipo {
         MESES, DIAS
@@ -14,22 +15,22 @@ class Recorrencia(tipo: Tipo, intervaloDasRepeticoes: Long, dataLimiteRepeticao:
         /**
          * intervalo entre as repeticoes nao pode ser maior que esse valor para dias
          */
-        const val INTERVALO_MAX_REPETICAO_DIAS = 90L
+        const val INTERVALO_MAX_REPETICAO_DIAS = 90
 
         /**
          * intervalo entre as repeticoes nao pode ser menor que esse valor para dias
          */
-        const val INTERVALO_MIN_REPETICAO_DIAS = 31L
+        const val INTERVALO_MIN_REPETICAO_DIAS = 7
 
         /**
          * intervalo entre as repeticoes nao pode ser maior que esse valor para meses
          */
-        const val INTERVALO_MAX_REPETICAO_MESES = 24L
+        const val INTERVALO_MAX_REPETICAO_MESES = 24
 
         /**
          * esse intervalo repete o objeto todos os meses
          */
-        const val INTERVALO_MIN_REPETICAO_MESES = 0L
+        const val INTERVALO_MIN_REPETICAO_MESES = 0
 
         /**
          * O objeto que tem esse valor como data limite de repetição se repete indeterminadamente
@@ -37,33 +38,27 @@ class Recorrencia(tipo: Tipo, intervaloDasRepeticoes: Long, dataLimiteRepeticao:
         const val LIMITE_RECORRENCIA_INDEFINIDO = -1L
 
         /** a contar da data atual, a quantidade de anos pra frente ou pra tras em que o usuario pode
-         * adicionar despesas*/
-        const val VARIACAO_MAXIMA_DATA = 10
+         * adicionar dados, tambem define um limite para a auto-importação de despesas e receitas no 
+         * ato de sua criação
+         * */
+        const val DATA_LIMITE_IMPORATACAO = 2
 
     }
-
-    var uid: String = UUID.randomUUID().toString()
-        private set
 
     /**
      * O tipo de intervalo em que o objeto se repete
      */
-    var tipo: Tipo
-        private set
+    var tipoDeRecorrencia: Tipo = Tipo.MESES
 
     /**
      * deve ser um inteiro >0 ou [INTERVALO_MIN_REPETICAO_MESES]
      */
-    var intervaloDasRepeticoes = INTERVALO_MIN_REPETICAO_MESES
+    var intervaloDasRepeticoes: Int = INTERVALO_MIN_REPETICAO_MESES.toInt()
 
     /**
      * deve ser uma data no futuro (dentro do limite especificado) ou [LIMITE_RECORRENCIA_INDEFINIDO]
      */
-    var dataLimiteRepeticao: Long = LIMITE_RECORRENCIA_INDEFINIDO
+    var dataLimiteDaRecorrencia: Long = LIMITE_RECORRENCIA_INDEFINIDO
 
-    init {
-        this.tipo = tipo
-        this.intervaloDasRepeticoes = intervaloDasRepeticoes
-        this.dataLimiteRepeticao = dataLimiteRepeticao
-    }
+
 }

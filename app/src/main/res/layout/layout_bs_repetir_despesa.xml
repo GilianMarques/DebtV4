@@ -28,13 +28,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/vec_repetir"
-            android:hint="@string/Intervalo_das_repeticoes"
+            android:hint="@string/Repetir_a_cada"
             android:imeOptions="actionNext"
             android:inputType="number"
             android:maxLength="2"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:text="@string/_0" />
+            android:text="@string/_1" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

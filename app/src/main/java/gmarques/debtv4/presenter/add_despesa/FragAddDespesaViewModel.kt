@@ -1,25 +1,27 @@
 package gmarques.debtv4.presenter.add_despesa
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gmarques.debtv4.App
 import gmarques.debtv4.R
-import gmarques.debtv4.data.repositorios.DespesaRepository
+import gmarques.debtv4.data.Mapper
+import gmarques.debtv4.domain.controllers.DespesaController
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.COMPRIMENTO_MAXIMO_NOME
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MAXIMO
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
-import gmarques.debtv4.domain.entidades.Recorrencia
+import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FragAddDespesaViewModel @Inject constructor(
-    private val despesaRepo: DespesaRepository,
+    private val despesaController: DespesaController,
+    private val mapper: Mapper,
 ) : ViewModel() {
 
 
@@ -28,13 +30,13 @@ class FragAddDespesaViewModel @Inject constructor(
     var nomeDespesa: String? = null
     var dataDePagamentoDaDespesa: Long? = null
     var dataEmQueDespesaFoiPaga: Long? = null
-    var tipoRecorrencia: Recorrencia.Tipo? = null
-    var intervaloRepeticoes: Long? = null
+    var tipoDeRecorrencia: DespesaRecorrente.Tipo? = null
+    var intervaloDasRepeticoes: Int? = null
     var dataLimiteDaRepeticao: Long? = null
     var observacoesDespesa = ""
     private val context = App.inst
 
-    private lateinit var recorrencia: Recorrencia
+    private var despesaRecorrente: DespesaRecorrente? = null
     private lateinit var despesa: Despesa
 
     private val _msgErro: MutableLiveData<String> = MutableLiveData()
@@ -44,7 +46,7 @@ class FragAddDespesaViewModel @Inject constructor(
     private val _fecharFragmento: MutableLiveData<Boolean> = MutableLiveData()
     val fecharFragmento get() = _fecharFragmento
 
-    fun validarEntradasDoUsuario() = viewModelScope.launch {
+    fun validarEntradasDoUsuario() = viewModelScope.launch(IO) {
         if (!validarValor()) return@launch
         if (!validarNome()) return@launch
         if (!validarDataDePagamento()) return@launch
@@ -54,20 +56,29 @@ class FragAddDespesaViewModel @Inject constructor(
         addDespesa()
     }
 
+
     private suspend fun addDespesa() {
+
         despesa = Despesa().apply {
+
             this.nome = nomeDespesa!!
             this.valor = valorDespesa.toDouble()
             this.dataDoPagamento = dataDePagamentoDaDespesa!!
-            dataEmQueFoiPaga.let { this.dataEmQueFoiPaga = it }
-            despesaPaga.let { this.paga = it }
-            observacoesDespesa.let { this.observacoes = it }
+            this.estaPaga = despesaPaga
+            this.observacoes = observacoesDespesa
+
+            dataEmQueFoiPaga?.let { this.dataEmQueFoiPaga = it }
 
         }
 
-        if (tipoRecorrencia != null) recorrencia = Recorrencia(tipoRecorrencia!!, intervaloRepeticoes!!, dataLimiteDaRepeticao!!)
+        if (tipoDeRecorrencia != null) {
+            despesaRecorrente = mapper.despesaRecorrente(despesa)
+            despesaRecorrente!!.intervaloDasRepeticoes = intervaloDasRepeticoes!!
+            despesaRecorrente!!.dataLimiteDaRecorrencia = dataLimiteDaRepeticao!!
+            despesaRecorrente!!.tipoDeRecorrencia = tipoDeRecorrencia!!
+        }
 
-        despesaRepo.addDespesa(despesa)
+        despesaController.addDespesa(despesa, despesaRecorrente)
         fecharFragmento.postValue(true)
 
     }
@@ -119,32 +130,32 @@ class FragAddDespesaViewModel @Inject constructor(
      * das repetiçoes é valido para o tipo de repetiçao
      */
     private fun validarRecorrencia(): Boolean {
-        return when (tipoRecorrencia) {
-            Recorrencia.Tipo.MESES -> validarRepeticaoMeses()
-            Recorrencia.Tipo.DIAS  -> validarRepeticaoDias()
-            null                   -> true
+        return when (tipoDeRecorrencia) {
+            DespesaRecorrente.Tipo.MESES -> validarRepeticaoMeses()
+            DespesaRecorrente.Tipo.DIAS  -> validarRepeticaoDias()
+            null                         -> true
         }
     }
 
     private fun validarRepeticaoMeses(): Boolean {
-        return if (intervaloRepeticoes == null) throw Exception("O intervalo das repetiçoes nao pode ser nulo se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
-        else if (intervaloRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_meses))
-        else if (intervaloRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_meses))
+        return if (intervaloDasRepeticoes == null) throw Exception("O intervalo das repetiçoes nao pode ser nulo se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
+        else if (intervaloDasRepeticoes!! < DespesaRecorrente.INTERVALO_MIN_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_meses))
+        else if (intervaloDasRepeticoes!! > DespesaRecorrente.INTERVALO_MAX_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_meses))
         else true
     }
 
     private fun validarRepeticaoDias(): Boolean {
-        return if (intervaloRepeticoes == null) throw Exception("O intervalo das repetiçoes nao pode ser nulo se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
-        else if (intervaloRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_dias))
-        else if (intervaloRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_dias))
+        return if (intervaloDasRepeticoes == null) throw Exception("O intervalo das repetiçoes nao pode ser nulo se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
+        else if (intervaloDasRepeticoes!! < DespesaRecorrente.INTERVALO_MIN_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_dias))
+        else if (intervaloDasRepeticoes!! > DespesaRecorrente.INTERVALO_MAX_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_dias))
         else true
     }
 
     private fun validarDataLimiteRecorrencia(): Boolean {
 
         // usuario esqueceu de selecionar a data limite da recorrencia
-        return if (tipoRecorrencia != null && dataLimiteDaRepeticao == null) erroDeValidacao(context.getString(R.string.Selecione_a_data_limite_da_recorr_ncia))
-        else if (dataLimiteDaRepeticao == Recorrencia.LIMITE_RECORRENCIA_INDEFINIDO) true
+        return if (tipoDeRecorrencia != null && dataLimiteDaRepeticao == null) erroDeValidacao(context.getString(R.string.Selecione_a_data_limite_da_recorr_ncia))
+        else if (dataLimiteDaRepeticao == DespesaRecorrente.LIMITE_RECORRENCIA_INDEFINIDO) true
         else true
     }
 

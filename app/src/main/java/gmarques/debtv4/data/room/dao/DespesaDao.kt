@@ -10,7 +10,7 @@ import gmarques.debtv4.data.room.entidades.DespesaEntidade
 interface DespesaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun save(despesas: List<DespesaEntidade>)
+    suspend fun addOuAtt(despesas:DespesaEntidade)
 
     @Query("SELECT * FROM despesas")
     fun findAll(): List<DespesaEntidade>

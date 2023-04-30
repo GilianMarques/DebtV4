@@ -47,7 +47,7 @@ class CustomBottomSheet : DialogFragment() {
      * , sem fundo e sem o dimmer padrao alem de corrigir a cor do navbar
      */
     private fun aplicarFlags() {
-        dialog?.window.let {
+        dialog?.window?.let {
             it?.requestFeature(Window.FEATURE_NO_TITLE)
             it?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             it?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND); // remove o dimmer

@@ -1,6 +1,6 @@
 package gmarques.debtv4.domain.extension_functions
 
-import gmarques.debtv4.domain.entidades.Recorrencia
+import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import java.text.SimpleDateFormat
@@ -56,7 +56,7 @@ class Datas {
             val mes = match.groups[2]!!.value.toInt()
             val ano = match.groups[3]!!.value.toInt()
 
-            if (dia < 1 || dia > 31 || mes < 1 || mes > 12 || ano > (anoAtual + Recorrencia.VARIACAO_MAXIMA_DATA) || ano < (anoAtual - Recorrencia.VARIACAO_MAXIMA_DATA)) return null
+            if (dia < 1 || dia > 31 || mes < 1 || mes > 12 || ano > (anoAtual + DespesaRecorrente.DATA_LIMITE_IMPORATACAO) || ano < (anoAtual - DespesaRecorrente.DATA_LIMITE_IMPORATACAO)) return null
 
             val data = criarData(1, mes, ano)
 
@@ -86,7 +86,7 @@ class Datas {
             val mes = match.groups[1]!!.value.toInt()
             val ano = match.groups[2]!!.value.toInt()
 
-            if (mes < 1 || mes > 12 || ano > (anoAtual + Recorrencia.VARIACAO_MAXIMA_DATA) || ano < (anoAtual - Recorrencia.VARIACAO_MAXIMA_DATA)) return null
+            if (mes < 1 || mes > 12 || ano > (anoAtual + DespesaRecorrente.DATA_LIMITE_IMPORATACAO) || ano < (anoAtual - DespesaRecorrente.DATA_LIMITE_IMPORATACAO)) return null
 
             return criarData(dia, mes, ano).millis
         }
@@ -112,6 +112,16 @@ class Datas {
 
         private fun criarData(dia: Int, mes: Int, ano: Int) =
             DateTime(DateTimeZone.UTC).withYear(ano).withMonthOfYear(mes).withDayOfMonth(dia).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
+
+        /**
+         * @return Um objeto de data com os exatos mesmos atributos do objeto atual a excessao do
+         * dia, que será sempre o ultimo do mes, ou seja 28, 29, 30 ou 31.
+         * Exemplo: chamando essa função em uma data 10/04/2023 resultara em uma data 30/04/2023 (o
+         * mes 04/2023 tem 30 dias)
+         */
+        fun DateTime.noUltimoDiaDoMes(): DateTime {
+            return this.plusMonths(1).withDayOfMonth(1).minusDays(1)
+        }
 
 
     }

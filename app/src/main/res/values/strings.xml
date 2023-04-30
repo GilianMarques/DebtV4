@@ -32,7 +32,7 @@
     <string name="Repetir_a_cada_x_y">Repetir a cada %1$s %2$s</string>
     <string name="Nao_repetir">Não repetir</string>
     <string name="Salvar">Salvar</string>
-    <string name="Intervalo_das_repeticoes">Intervalo das repetições</string>
+    <string name="Repetir_a_cada">Repetir a cada</string>
     <string name="Intervalo_entre_meses_nao_pode_ser_maior_que_x">O intervalo entre meses não pode ser maior que %1$s</string>
     <string name="Intervalo_entre_dias_nao_pode_ser_maior_que_x">O intervalo entre dias não pode ser maior que %1$s</string>
     <string name="Intervalo_entre_dias_nao_pode_ser_menor_que_x">O intervalo entre dias não pode ser menor que %1$s</string>
