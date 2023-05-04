@@ -32,7 +32,7 @@ class Datas {
 
         /**
          * Converte um long em uma string formatada de acordo com a mascara recebida
-         * Use para formatar longs em UTC por usuario
+         * Use para formatar longs em UTC pro usuario
          */
         fun Long.formatarStringComOffset(mascara: Mascaras): String {
             val dataFormat = SimpleDateFormat(mascara.tipo, Locale.getDefault())

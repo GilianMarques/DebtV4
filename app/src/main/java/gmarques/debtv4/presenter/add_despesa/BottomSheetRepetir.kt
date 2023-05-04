@@ -27,7 +27,7 @@ class BottomSheetRepetir(
     private val callback: Callback,
     private val fragmento: CustomFrag,
     private var intervaloDasRepeticoes: Int = 1,
-    private var tipoDeRecorrencia: DespesaRecorrente.Tipo? = MESES,
+    private var tipoDeRecorrencia: DespesaRecorrente.Tipo? = MES,
 ) {
 
     private var dialogo: CustomBottomSheet = CustomBottomSheet()
@@ -53,12 +53,12 @@ class BottomSheetRepetir(
 
             when (a.checkedButtonId) {
                 R.id.meses -> {
-                    tipoDeRecorrencia = MESES
+                    tipoDeRecorrencia = MES
                     if (intervaloDasRepeticoes > INTERVALO_MAX_REPETICAO_MESES) intervaloDasRepeticoes = INTERVALO_MAX_REPETICAO_MESES
                 }
 
                 R.id.dias  -> {
-                    tipoDeRecorrencia = DIAS
+                    tipoDeRecorrencia = DIA
                     intervaloDasRepeticoes = if (intervaloDasRepeticoes > INTERVALO_MAX_REPETICAO_DIAS) INTERVALO_MAX_REPETICAO_DIAS
                     else if (intervaloDasRepeticoes < INTERVALO_MIN_REPETICAO_DIAS) INTERVALO_MIN_REPETICAO_DIAS
                     else intervaloDasRepeticoes
@@ -87,7 +87,7 @@ class BottomSheetRepetir(
 
         val texto = when (tipoDeRecorrencia) {
 
-            MESES -> {
+            MES -> {
                 when (intervaloDasRepeticoes) {
                     1   -> fragmento.getString(R.string.A_despesa_se_repete_todos_os_meses)
                     2   -> fragmento.getString(R.string.A_despesa_se_repete_mes_sim_e_mes_nao)
@@ -95,7 +95,7 @@ class BottomSheetRepetir(
                 }
             }
 
-            DIAS  -> {
+            DIA -> {
                 String.format(fragmento.getString(R.string.A_despesa_se_repete_a_cada_x_dias), intervaloDasRepeticoes)
             }
 
@@ -119,9 +119,9 @@ class BottomSheetRepetir(
         val rep = intervaloDasRepeticoes
 
         when (tipoDeRecorrencia) {
-            null  -> binding.toggleButton.check(binding.meses.id)
-            MESES -> binding.toggleButton.check(binding.meses.id)
-            DIAS  -> binding.toggleButton.check(binding.dias.id)
+            null -> binding.toggleButton.check(binding.meses.id)
+            MES -> binding.toggleButton.check(binding.meses.id)
+            DIA -> binding.toggleButton.check(binding.dias.id)
 
         }
 
@@ -190,9 +190,9 @@ class BottomSheetRepetir(
         }
 
         return when (tipoDeRecorrencia) {
-            MESES -> validarQtdRepeticoesMes()
-            DIAS  -> validarQtdRepeticoesDia()
-            null  -> false/*Só vai chegar nessa função se o usuario  selecionou um tipo de recorrencia*/
+            MES  -> validarQtdRepeticoesMes()
+            DIA  -> validarQtdRepeticoesDia()
+            null -> false/*Só vai chegar nessa função se o usuario  selecionou um tipo de recorrencia*/
         }
     }
 

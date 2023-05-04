@@ -86,6 +86,7 @@ class FragAddDespesa : CustomFrag() {
         initDebug()
     }
 
+    // TODO: remover
     private fun initDebug() = lifecycleScope.launch {
         delay(300)
         binding.edtNome.setText("Despesa #${Random.nextInt(9999)}")
@@ -230,7 +231,7 @@ class FragAddDespesa : CustomFrag() {
      */
     private fun mostrarBottomSheetRepetir(callback: BottomSheetRepetir.Callback) {
         BottomSheetRepetir(callback, this@FragAddDespesa, viewModel.intervaloDasRepeticoes
-            ?: 1, viewModel.tipoDeRecorrencia ?: DespesaRecorrente.Tipo.MESES).mostrar()
+            ?: 1, viewModel.tipoDeRecorrencia ?: DespesaRecorrente.Tipo.MES).mostrar()
     }
 
     private fun initCampoData() {
@@ -287,6 +288,7 @@ class FragAddDespesa : CustomFrag() {
 
     private fun initCampoValor() {
         binding.tvValor.text = VALOR_MINIMO.toString().emMoedaSemSimbolo()
+        viewModel.valorDespesa = VALOR_MINIMO.toString()
         binding.tvMoeda.text = Currency.getInstance(Locale.getDefault()).symbol
         binding.tvValor.setOnClickListener {
             TecladoCalculadora.Builder().valorInicial(binding.tvValor.text.toString().emDouble()).callback { valor: String ->

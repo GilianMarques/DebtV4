@@ -6,8 +6,6 @@ import gmarques.debtv4.data.room.entidades.DespesaRecorrenteEntidade
 import gmarques.debtv4.domain._interfaces.JsonSerializador
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,7 +39,7 @@ class Mapper @Inject constructor(private val jsonSerializador: JsonSerializador)
         return jsonSerializador.fromJson(jsonString, Despesa::class.java)
     }
 
-     fun despesaRecorrente(despesa: Despesa): DespesaRecorrente {
+     fun getDespesaRecorrente(despesa: Despesa): DespesaRecorrente {
         val jsonString = JSONObject(jsonSerializador.toJSon(despesa))
             .toString()
 

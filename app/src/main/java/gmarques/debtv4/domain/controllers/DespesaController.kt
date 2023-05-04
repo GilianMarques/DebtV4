@@ -25,7 +25,7 @@ class DespesaController @Inject constructor(
     /**
      * Essa é a data limite que o app permite importações de objetos no futuro. despesas recorrentes
      * nao deverao ser importadas se suas datas excederem esse valor, nesse caso sua versao recorrente
-     * deverá ser salva no banco para que os novos meses criados  as importe no momento de sua criação
+     * deverá ser salva no banco para que os novos meses criados as importem no momento de sua criação
      */
     private val limiteMaximoDoApp = DateTime(DateTimeZone.UTC).plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO)
 
@@ -33,13 +33,14 @@ class DespesaController @Inject constructor(
         despesaRepo.addDespesa(despesa)
 
         if (despesaRecorrente != null) {
+
             if (manterCopiaRecorrente(despesaRecorrente)) {
                 despesaRecorrenteRepo.addDespesaRecorrente(despesaRecorrente)
             }
 
             when (despesaRecorrente.tipoDeRecorrencia) {
-                DespesaRecorrente.Tipo.MESES -> addDespesaRecorrentePorMes(despesa, despesaRecorrente)
-                DespesaRecorrente.Tipo.DIAS  -> addDespesaRecorrentePorDia(despesa, despesaRecorrente)
+                DespesaRecorrente.Tipo.MES -> addDespesaRecorrentePorMes(despesa, despesaRecorrente)
+                DespesaRecorrente.Tipo.DIA -> addDespesaRecorrentePorDia(despesa, despesaRecorrente)
             }
         }
     }
@@ -120,8 +121,8 @@ class DespesaController @Inject constructor(
     private fun manterCopiaRecorrente(despesaRecorrente: DespesaRecorrente): Boolean {
 
         if (despesaRecorrente.dataLimiteDaRecorrencia == LIMITE_RECORRENCIA_INDEFINIDO) return true
-
-        return DateTime(DateTimeZone.UTC).withMillis(despesaRecorrente.dataLimiteDaRecorrencia).isAfter(limiteMaximoDoApp)
+        val dataLimiteRecorrencia = DateTime(DateTimeZone.UTC).withMillis(despesaRecorrente.dataLimiteDaRecorrencia).noUltimoDiaDoMes()
+        return dataLimiteRecorrencia.isAfter(limiteMaximoDoApp)
     }
 
 

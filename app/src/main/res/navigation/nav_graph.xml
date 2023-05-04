@@ -19,6 +19,10 @@
             android:id="@+id/action_add_despesa"
             app:destination="@id/fragAddDespesa" />
 
+        <action
+            android:id="@+id/action_ver_despesas"
+            app:destination="@id/fragVerDespesas" />
+
     </fragment>
 
     <fragment
@@ -38,5 +42,9 @@
             android:id="@+id/action_fragMain"
             app:destination="@id/fragMain" />
     </fragment>
+    <fragment
+        android:id="@+id/fragVerDespesas"
+        android:name="gmarques.debtv4.presenter.ver_despesas.FragVerDespesas"
+        android:label="FragVerDespesas" />
 
 </navigation>

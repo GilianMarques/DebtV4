@@ -72,7 +72,8 @@ class FragAddDespesaViewModel @Inject constructor(
         }
 
         if (tipoDeRecorrencia != null) {
-            despesaRecorrente = mapper.despesaRecorrente(despesa)
+            despesaRecorrente = mapper.getDespesaRecorrente(despesa)
+            despesaRecorrente!!.estaPaga = false
             despesaRecorrente!!.intervaloDasRepeticoes = intervaloDasRepeticoes!!
             despesaRecorrente!!.dataLimiteDaRecorrencia = dataLimiteDaRepeticao!!
             despesaRecorrente!!.tipoDeRecorrencia = tipoDeRecorrencia!!
@@ -84,8 +85,8 @@ class FragAddDespesaViewModel @Inject constructor(
     }
 
     private fun validarValor(): Boolean {
-        if (valorDespesa.toFloat() > VALOR_MAXIMO) return erroDeValidacao(String.format(context.getString(R.string.O_valor_da_despesa_nao_pode_ser_maior_que_x), VALOR_MAXIMO.toString().emMoeda()))
-        if (valorDespesa.toFloat() < VALOR_MINIMO) return erroDeValidacao(String.format(context.getString(R.string.O_valor_da_despesa_nao_pode_ser_menor_que_x), VALOR_MINIMO.toString().emMoeda()))
+        if (valorDespesa.toDouble() > VALOR_MAXIMO) return erroDeValidacao(String.format(context.getString(R.string.O_valor_da_despesa_nao_pode_ser_maior_que_x), VALOR_MAXIMO.toString().emMoeda()))
+        if (valorDespesa.toDouble() < VALOR_MINIMO) return erroDeValidacao(String.format(context.getString(R.string.O_valor_da_despesa_nao_pode_ser_menor_que_x), VALOR_MINIMO.toString().emMoeda()))
         return true
     }
 
@@ -131,9 +132,9 @@ class FragAddDespesaViewModel @Inject constructor(
      */
     private fun validarRecorrencia(): Boolean {
         return when (tipoDeRecorrencia) {
-            DespesaRecorrente.Tipo.MESES -> validarRepeticaoMeses()
-            DespesaRecorrente.Tipo.DIAS  -> validarRepeticaoDias()
-            null                         -> true
+            DespesaRecorrente.Tipo.MES -> validarRepeticaoMeses()
+            DespesaRecorrente.Tipo.DIA -> validarRepeticaoDias()
+            null                       -> true
         }
     }
 

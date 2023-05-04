@@ -8,7 +8,7 @@ package gmarques.debtv4.domain.entidades
 class DespesaRecorrente() : Despesa() {
 
     enum class Tipo {
-        MESES, DIAS
+        MES, DIA
     }
 
     companion object {
@@ -48,7 +48,7 @@ class DespesaRecorrente() : Despesa() {
     /**
      * O tipo de intervalo em que o objeto se repete
      */
-    var tipoDeRecorrencia: Tipo = Tipo.MESES
+    var tipoDeRecorrencia: Tipo = Tipo.MES
 
     /**
      * deve ser um inteiro >0 ou [INTERVALO_MIN_REPETICAO_MESES]

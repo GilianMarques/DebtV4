@@ -13,7 +13,7 @@ open class Despesa {
 
     companion object {
         const val VALOR_MAXIMO = 9_999_999.99 // 10 milhoes -0,01R$
-        const val VALOR_MINIMO = 0.00
+        const val VALOR_MINIMO = 0.01
         const val COMPRIMENTO_MAXIMO_NOME = 35
         const val COMPRIMENTO_MAXIMO_OBSERVACOES = 250
     }
