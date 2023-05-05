@@ -20,7 +20,6 @@ import gmarques.debtv4.presenter.ver_despesas.adapter.DespesasAdapter
 import gmarques.debtv4.presenter.ver_despesas.adapter.DespesasAdapterCallback
 import kotlinx.coroutines.launch
 
-// TODO: sincronizar o app
 
 @AndroidEntryPoint
 class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
@@ -50,7 +49,6 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
         initRecyclerView()
     }
 
-    // TODO: ta aplicando multiplos listeners qdo o fragmento vai sendo reaberto? n ta n, sera?
     private fun initRecyclerView() {
 
         val layoutManager = FlexboxLayoutManager(requireContext())
@@ -64,10 +62,7 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
 
 
         lifecycleScope.launch {
-            viewModel.carregarDespesas().collect {
-                adapter.atualizarColecao(it)
-                Log.d("USUK", "FragVerDespesas.initRecyclerView: atualizado ${it.size}")
-            }
+
         }
 
 

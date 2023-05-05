@@ -22,6 +22,6 @@ class FragVerDespesasViewModel @Inject constructor(
     val fecharFragmento get() = _fecharFragmento
 
     suspend fun carregarDespesas(): Flow<ArrayList<Despesa>> {
-        return despesasRepo.carregarTodasAsDespesas()
+        return despesasRepo.observarDespesas()
     }
 }

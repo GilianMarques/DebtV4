@@ -30,7 +30,7 @@ class DespesaController @Inject constructor(
     private val limiteMaximoDoApp = DateTime(DateTimeZone.UTC).plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO)
 
     suspend fun addDespesa(despesa: Despesa, despesaRecorrente: DespesaRecorrente?) {
-        despesaRepo.addDespesa(despesa)
+        despesaRepo.addOuAtualizarDespesa(despesa)
 
         if (despesaRecorrente != null) {
 
@@ -60,7 +60,7 @@ class DespesaController @Inject constructor(
             novaDespesa.dataDoPagamento = proxData.millis
             novaDespesa.estaPaga = false
 
-            despesaRepo.addDespesa(novaDespesa)
+            despesaRepo.addOuAtualizarDespesa(novaDespesa)
             Log.d("USUK", "DespesaController.addDespesaRecorrentePorMes: ${novaDespesa.uid} ${DateTime(DateTimeZone.UTC).withMillis(novaDespesa.dataDoPagamento)}")
         }
 
@@ -89,7 +89,7 @@ class DespesaController @Inject constructor(
             novaDespesa.dataDoPagamento = proxData.millis
             novaDespesa.estaPaga = false
 
-            despesaRepo.addDespesa(novaDespesa)
+            despesaRepo.addOuAtualizarDespesa(novaDespesa)
             Log.d("USUK", "DespesaController.addDespesaRecorrentePorMes: ${novaDespesa.uid} ${DateTime(DateTimeZone.UTC).withMillis(novaDespesa.dataDoPagamento)}")
         }
 

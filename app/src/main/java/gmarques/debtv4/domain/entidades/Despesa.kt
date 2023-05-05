@@ -1,5 +1,6 @@
 package gmarques.debtv4.domain.entidades
 
+import gmarques.debtv4.data.sincronismo.api.Sincronizavel
 import java.util.UUID
 
 
@@ -9,10 +10,10 @@ import java.util.UUID
  * @see gmarques.debtv4.data.room.entidades.DespesaEntidade
  * @see DespesaRecorrente
  */
-open class Despesa {
+open class Despesa : Sincronizavel() {
 
     companion object {
-        const val VALOR_MAXIMO = 9_999_999.99 // 10 milhoes -0,01R$
+        const val VALOR_MAXIMO = 9_999_999.99 // 10 milhoes -R$0,01
         const val VALOR_MINIMO = 0.01
         const val COMPRIMENTO_MAXIMO_NOME = 35
         const val COMPRIMENTO_MAXIMO_OBSERVACOES = 250
@@ -26,4 +27,6 @@ open class Despesa {
     var dataDoPagamento = 0L //utc
     var dataEmQueFoiPaga: Long? = null //utc
     var observacoes = ""
+
+    override fun getUid() = uid
 }
