@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 /**
  * abstraçao para evitar a repetiçao de funçoes que sao padrao em todos os DAOS (até entao)
- * sao essas: addOuAtualizar, atualizar e remover*/
+ * sao essas: addOuAtualizar, atualizar e remover
+ */
 abstract class BaseDao<T> {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

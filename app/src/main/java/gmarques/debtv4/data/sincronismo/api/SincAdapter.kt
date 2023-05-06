@@ -1,22 +1,26 @@
 package gmarques.debtv4.data.sincronismo.api
 
+import androidx.annotation.VisibleForTesting
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import kotlin.reflect.KSuspendFunction1
 
-// TODO: testar essas funçoes
 /**
- * (importado de debt V3)
+ *
+ * Pacote importado de debtV3 e refatorado em 04/05/2023.
+ * Essa classe teve seu codigo migrado para kotlin (pela IDE), suas funções foram reescritas
+ * pensando em SOLID, DRY e testabilidade. Testes unitarios foram feitos.
+ *
  *  Classe criada com o objetivo de generificar a tarefa de sincronizar dados
  *
- *  PARA IMPLEMENTAR SINCRONISMO EM OUTROS APPS BASTA COPIAR ESTA PACOTE (api)
+ * PARA IMPLEMENTAR SINCRONISMO EM OUTROS APPS BASTA COPIAR ESTA PACOTE (api)
  * PARA O PROJETO EM QUESTAO E INSTANCIAR ESSA CLASSE PASSANDO O CALLBACK E IMPLEMENTANDO
  * OS METODOS NESSESSARIOS NELE                              .
  *
  * OS OBJETOS A SEREM SINCRONIZADOS DEVEM IMPLEMENTAR A INTERFACE Sincronizavel
  * USE A INTERFACE CallbackUI PARA ATUALIZAR A INTERFACE ENQUANTO O SINCRONIMSO É EXECUTRADO
  *
- * * * *  INSTRUÇOES PARA ADD UM NOVO OBJETO SINCRONIZAVEL A ESTE APP (DEBTV3)
+ * * * *  INSTRUÇOES PARA ADD UM NOVO OBJETO SINCRONIZAVEL A ESTE APP (DEBTV3) (n muda muita coisa de V3 pro v4...)
  *   #1 "herde o objeto de @Sincronizavel e implemente os metodos dessa interface corretamente, use como exemplo qqer outro objeto como receita ou despesa para ter certeza de que fez tudo certo.
  *   #2 em SincAdapterImpl no metodo getDadosLocal(); escreva o codigo pro realm carregar todos os objetos do tipo do banco de dados para fazer o sincronismo.
  *   #3 em FirebaseImpl no metodo getDados(); adicione o codigo para baixar os dados do objeto da nuvem para o sincronismo. e atualize a variavel 'tiposDeDados' sobre esse metodo
@@ -24,8 +28,8 @@ import kotlin.reflect.KSuspendFunction1
  *   #4 em MyRealm no metodo removerPermanentemente() adicione o codigo para remover permanentemente o objeto
  *
  *   #Dica: No geral é só implementar @Sincronizavel, e dar Crtl+C - Crtl+V nas classes citadas a cima, todas elas ja tem codigo pra sincronizar os objetos, é só copiar o metodo, renomear
- *  seguindo padrao de nomes da classe, mudar o objeto com que o metodo ta trabalhando e pronto. Sempre copie os metodos que sincroniza mas despesas, pois sao os que fazem
- * mais verificaçoes de segurança por conta das despesas dependerem das categorias etc... estes metodos vao garantir que o novo objeto seja sincronizado com sucesso
+ *    seguindo padrao de nomes da classe, mudar o objeto com que o metodo ta trabalhando e pronto. Sempre copie os metodos que sincroniza mas despesas, pois sao os que fazem
+ *    mais verificaçoes de segurança por conta das despesas dependerem das categorias etc... estes metodos vao garantir que o novo objeto seja sincronizado com sucesso
  *
  * */
 class SincAdapter(private val callback: Callback) {
@@ -38,7 +42,7 @@ class SincAdapter(private val callback: Callback) {
     private var localData = ArrayList<Sincronizavel>()
     private var nuvemData = ArrayList<Sincronizavel>()
 
-   suspend fun executar() {
+    suspend fun executar() {
 
         nuvemData = ordenarListas(callback.getDadosNuvem())
         localData = ordenarListas(callback.getDadosLocal())
@@ -57,8 +61,11 @@ class SincAdapter(private val callback: Callback) {
     /**
      * Se assegura de que os objetos removidos sejam os primeiros da lista
      */
-    private fun ordenarListas(lista: ArrayList<Sincronizavel>): ArrayList<Sincronizavel> {
-        val comparador = Comparator { o1: Sincronizavel, o2: Sincronizavel -> compareValuesBy(o1.foiRemovido, o2.foiRemovido) }
+    @VisibleForTesting
+    fun ordenarListas(lista: ArrayList<Sincronizavel>): ArrayList<Sincronizavel> {
+        val comparador = Comparator { o1: Sincronizavel, o2: Sincronizavel ->
+            o2.foiRemovida.compareTo(o1.foiRemovida)
+        }
         lista.sortWith(comparador)
         return lista
     }
@@ -70,14 +77,17 @@ class SincAdapter(private val callback: Callback) {
      * arrays para sincronismo de forma definitiva antes do começo dod sincronismo
      *
      */
-    private suspend fun removerObjetosExpirados(listaDeSincronizaveis: ArrayList<Sincronizavel>, removerObjetoDefinitivamente: KSuspendFunction1<Sincronizavel, Unit>): ArrayList<Sincronizavel> {
+    private suspend fun removerObjetosExpirados(
+        listaDeSincronizaveis: ArrayList<Sincronizavel>,
+        removerObjetoDefinitivamente: KSuspendFunction1<Sincronizavel, Unit>,
+    ): ArrayList<Sincronizavel> {
 
         // faço uma copia da lista original e a esvazio para receber apenas objetos validos
         val listaAlvo = ArrayList(listaDeSincronizaveis).also { listaDeSincronizaveis.clear() }
 
         listaAlvo.forEach {
             // se o obj n foi removido, ou se foi, porem ainda esta dentro da data de validade, ele é mantido no array
-            if (!it.foiRemovido || dataDeExpiracao.isBefore(it.ultimaAtualizacao)) listaDeSincronizaveis.add(it)
+            if (!it.foiRemovida || dataDeExpiracao.isBefore(it.ultimaAtualizacao)) listaDeSincronizaveis.add(it)
             else removerObjetoDefinitivamente(it)
         }
 
@@ -124,7 +134,7 @@ class SincAdapter(private val callback: Callback) {
      * na lista de dados da nuvem e vice-versa
      */
     private fun getRelativo(lista: List<Sincronizavel>, alvo: Sincronizavel): Sincronizavel? {
-        lista.forEach { if (alvo.getUid() === it.getUid()) return it }
+        lista.forEach { if (alvo.uid == it.uid) return it }
         return null
     }
 
@@ -133,7 +143,7 @@ class SincAdapter(private val callback: Callback) {
          * Objetos removidos ha mais de x dias devem ser
          * removidos permanentemente do banco de dados para liberar espaço
          *
-         *  x = data atual - esse valor
+         *  x = (data atual - esse valor)
          */
         const val VALIDADE_DADOS_REMOVIDOS = 365 // dias
     }

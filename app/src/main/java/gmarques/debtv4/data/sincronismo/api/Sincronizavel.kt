@@ -1,5 +1,10 @@
 package gmarques.debtv4.data.sincronismo.api
 
+import java.util.UUID
+
+/**
+ * Todos os objetos que serao sincronizados devem extender essa classe
+ */
 abstract class Sincronizavel {
 
     /**
@@ -8,9 +13,9 @@ abstract class Sincronizavel {
      */
     var ultimaAtualizacao: Long = 0
 
-    var foiRemovido = false
+    var foiRemovida = false
 
-    var origem: Long = 0
+    var uid = UUID.randomUUID().toString()
+        private set
 
-    abstract fun getUid(): String
 }

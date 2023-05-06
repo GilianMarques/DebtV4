@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gmarques.debtv4.App
 import gmarques.debtv4.R
 import gmarques.debtv4.data.Mapper
-import gmarques.debtv4.domain.controllers.DespesaController
+import gmarques.debtv4.domain.usecases.AddDespesasUsecase
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.COMPRIMENTO_MAXIMO_NOME
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MAXIMO
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FragAddDespesaViewModel @Inject constructor(
-    private val despesaController: DespesaController,
+    private val addDespesaUsecase: AddDespesasUsecase,
     private val mapper: Mapper,
 ) : ViewModel() {
 
@@ -79,7 +79,7 @@ class FragAddDespesaViewModel @Inject constructor(
             despesaRecorrente!!.tipoDeRecorrencia = tipoDeRecorrencia!!
         }
 
-        despesaController.addDespesa(despesa, despesaRecorrente)
+        addDespesaUsecase(despesa, despesaRecorrente)
         fecharFragmento.postValue(true)
 
     }

@@ -9,10 +9,13 @@ import kotlinx.coroutines.flow.Flow
 abstract class DespesaDaoRoom : BaseDao<DespesaEntidade>() {
 
     @Query("SELECT * FROM despesas")
-    abstract suspend fun observar(): Flow<List<DespesaEntidade>> // TODO: add filtro na query
+    abstract fun observar(): Flow<List<DespesaEntidade>> // TODO: add filtro na query
 
     @Query("SELECT * FROM despesas")
-    abstract suspend fun getTodosObjetos(): ArrayList<DespesaEntidade>
+    /**
+     * retorna todas as despesas, mesmo as marcadas como removidas
+     */
+    abstract suspend fun getTodosObjetos(): List<DespesaEntidade>
 
     @Query("SELECT COUNT(*) FROM despesas")
     abstract suspend fun contar(): Int

@@ -19,9 +19,13 @@ data class DespesaEntidade(
 
     @ColumnInfo(name = "esta_paga") val estaPaga: Boolean,
 
-    @ColumnInfo(name = "data_do_pagamento") val dataDoPagamento:Long,
+    @ColumnInfo(name = "data_do_pagamento") val dataDoPagamento: Long,
 
-    @ColumnInfo(name = "data_em_que_foi_paga") val dataEmQueFoiPaga:Long,
+    @ColumnInfo(name = "data_em_que_foi_paga") val dataEmQueFoiPaga: Long,
 
     @ColumnInfo(name = "observacoes") val observacoes: String,
+
+    @ColumnInfo(name = "foi_removida") val foiRemovida: Boolean,
+
+    @ColumnInfo(name = "ultima_atualizacao") val ultimaAtualizacao: Long,
 )

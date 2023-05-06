@@ -10,7 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import gmarques.debtv4.data.room.AppDatabase
 import gmarques.debtv4.data.room.DATABASE_NAME
-import gmarques.debtv4.data.room.dao.DespesaRecorrenteDao
+import gmarques.debtv4.data.room.dao.DespesaRecorrenteDaoRoom
 import javax.inject.Singleton
 
 @Module // indica que a classe é um modulo hilt
@@ -22,7 +22,7 @@ class RoomModule {
         return db.getDespesaDao()
     }
     @Provides
-    fun provideDespesaRecorrenteDao(db: AppDatabase): DespesaRecorrenteDao {
+    fun provideDespesaRecorrenteDao(db: AppDatabase): DespesaRecorrenteDaoRoom {
         return db.getDespesaRecorrenteDao()
     }
 

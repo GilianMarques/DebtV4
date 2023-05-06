@@ -19,8 +19,6 @@ open class Despesa : Sincronizavel() {
         const val COMPRIMENTO_MAXIMO_OBSERVACOES = 250
     }
 
-    var uid = UUID.randomUUID().toString()
-        private set
     var nome = ""
     var valor = 0.0
     var estaPaga = false
@@ -28,5 +26,4 @@ open class Despesa : Sincronizavel() {
     var dataEmQueFoiPaga: Long? = null //utc
     var observacoes = ""
 
-    override fun getUid() = uid
 }

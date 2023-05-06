@@ -1,24 +1,32 @@
-package gmarques.debtv4.domain.controllers
+package gmarques.debtv4.domain.usecases
 
 import android.util.Log
 import gmarques.debtv4.data.Mapper
-import gmarques.debtv4.data.repositorios.DespesaRecorrenteRepository
-import gmarques.debtv4.data.repositorios.DespesaRepository
+import gmarques.debtv4.data.firebase.cloud_firestore.DespesaDaoFireBase
+import gmarques.debtv4.data.firebase.cloud_firestore.DespesaRecorrenteDaoFireBase
+import gmarques.debtv4.data.room.dao.DespesaDaoRoom
+import gmarques.debtv4.data.room.dao.DespesaRecorrenteDaoRoom
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.noUltimoDiaDoMes
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import javax.inject.Inject
+
+// TODO: aplicar alteraçoes do keep
 
 /**
  * @Author: Gilian Marques
  * @Date: sábado, 29 de abril de 2023 às 23:49
  */
-class DespesaController @Inject constructor(
-    private val despesaRepo: DespesaRepository,
-    private val despesaRecorrenteRepo: DespesaRecorrenteRepository,
+class AddDespesasUsecase @Inject constructor(
+    private val despesaDaoRoom: DespesaDaoRoom,
+    private val despesaDaoFirebase: DespesaDaoFireBase,
+    private val despesaRecorrenteDaoRoom: DespesaRecorrenteDaoRoom,
+    private val despesaRecorrenteDaoFirebase: DespesaRecorrenteDaoFireBase,
     private val mapper: Mapper,
 ) {
 
@@ -28,14 +36,16 @@ class DespesaController @Inject constructor(
      * deverá ser salva no banco para que os novos meses criados as importem no momento de sua criação
      */
     private val limiteMaximoDoApp = DateTime(DateTimeZone.UTC).plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO)
+    private var dataLimiteDaRecorrencia: DateTime? = null
 
-    suspend fun addDespesa(despesa: Despesa, despesaRecorrente: DespesaRecorrente?) {
-        despesaRepo.addOuAtualizarDespesa(despesa)
+    suspend operator fun invoke(despesa: Despesa, despesaRecorrente: DespesaRecorrente? = null) {
+        addOuAtualizarDespesa(despesa)
 
         if (despesaRecorrente != null) {
+            dataLimiteDaRecorrencia = calcularDataLimiteDaRecorrencia(despesaRecorrente)
 
             if (manterCopiaRecorrente(despesaRecorrente)) {
-                despesaRecorrenteRepo.addDespesaRecorrente(despesaRecorrente)
+                addDespesaRecorrente(despesaRecorrente)
             }
 
             when (despesaRecorrente.tipoDeRecorrencia) {
@@ -46,8 +56,6 @@ class DespesaController @Inject constructor(
     }
 
     private suspend fun addDespesaRecorrentePorDia(despesa: Despesa, despesaRecorrente: DespesaRecorrente) {
-
-        val dataLimiteDaRecorrencia = calcularDataLimiteDaRecorrencia(despesaRecorrente)
 
         var proxData = DateTime(DateTimeZone.UTC).withMillis(despesa.dataDoPagamento)
 
@@ -60,16 +68,13 @@ class DespesaController @Inject constructor(
             novaDespesa.dataDoPagamento = proxData.millis
             novaDespesa.estaPaga = false
 
-            despesaRepo.addOuAtualizarDespesa(novaDespesa)
+            addOuAtualizarDespesa(novaDespesa)
             Log.d("USUK", "DespesaController.addDespesaRecorrentePorMes: ${novaDespesa.uid} ${DateTime(DateTimeZone.UTC).withMillis(novaDespesa.dataDoPagamento)}")
         }
 
     }
 
     private suspend fun addDespesaRecorrentePorMes(despesa: Despesa, despesaRecorrente: DespesaRecorrente) {
-
-
-        val dataLimiteDaRecorrencia = calcularDataLimiteDaRecorrencia(despesaRecorrente)
 
         var proxData = DateTime(DateTimeZone.UTC).withMillis(despesa.dataDoPagamento)
         val diaPgtoDespesa = proxData.dayOfMonth // isolo o dia para futuras verificações
@@ -89,7 +94,7 @@ class DespesaController @Inject constructor(
             novaDespesa.dataDoPagamento = proxData.millis
             novaDespesa.estaPaga = false
 
-            despesaRepo.addOuAtualizarDespesa(novaDespesa)
+            addOuAtualizarDespesa(novaDespesa)
             Log.d("USUK", "DespesaController.addDespesaRecorrentePorMes: ${novaDespesa.uid} ${DateTime(DateTimeZone.UTC).withMillis(novaDespesa.dataDoPagamento)}")
         }
 
@@ -125,5 +130,25 @@ class DespesaController @Inject constructor(
         return dataLimiteRecorrencia.isAfter(limiteMaximoDoApp)
     }
 
+    /**
+     * Adiciona a despesa nos bancos de dados local e da nuvem, não tem problema se por algum
+     * motivo o envio da despesa pra nuvem falhar, posteriormente quando o app sincronizar
+     * as pendecias serao resolvidas
+     */
+    private suspend fun addOuAtualizarDespesa(despesa: Despesa) = withContext(Dispatchers.IO) {
+        val entidade = mapper.getDespesaEntidade(despesa)
+        despesaDaoFirebase.addOuAtualizar(despesa)
+        despesaDaoRoom.addOuAtualizar(entidade)
+    }
+    /**
+     * Adiciona a despesa recorrente nos bancos de dados local e da nuvem, não tem problema se por algum
+     * motivo o envio da despesa recorrente pra nuvem falhar, posteriormente quando o app sincronizar
+     * as pendecias serao resolvidas
+     */
+    private suspend fun addDespesaRecorrente(despesa: DespesaRecorrente) = withContext(Dispatchers.IO) {
+        val entidade = mapper.getDespesaRecorrenteEntidade(despesa)
+        despesaRecorrenteDaoFirebase.addDespesaRecorrente(entidade)
+        despesaRecorrenteDaoRoom.addOuAtualizar(entidade)
+    }
 
 }

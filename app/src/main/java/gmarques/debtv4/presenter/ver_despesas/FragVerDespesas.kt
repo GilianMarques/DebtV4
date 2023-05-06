@@ -62,7 +62,10 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
 
 
         lifecycleScope.launch {
-
+            viewModel.carregarDespesas().collect {
+                adapter.atualizarColecao(it)
+                Log.d("USUK", "FragVerDespesas.initRecyclerView: atualizado ${it.size}")
+            }
         }
 
 
