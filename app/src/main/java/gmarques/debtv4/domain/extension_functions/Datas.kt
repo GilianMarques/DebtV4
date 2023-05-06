@@ -25,7 +25,7 @@ class Datas {
          * Converte um long em uma string formatada de acordo com a mascara recebida
          * Use com System.currentTimeMillis
          */
-        fun Long.formatarString(mascara: Mascaras): String {
+        fun Long.dataFormatada(mascara: Mascaras): String {
             val dataFormat = SimpleDateFormat(mascara.tipo, Locale.getDefault())
             return dataFormat.format(this)
         }
@@ -34,7 +34,7 @@ class Datas {
          * Converte um long em uma string formatada de acordo com a mascara recebida
          * Use para formatar longs em UTC pro usuario
          */
-        fun Long.formatarStringComOffset(mascara: Mascaras): String {
+        fun Long.dataFormatadaComOffset(mascara: Mascaras): String {
             val dataFormat = SimpleDateFormat(mascara.tipo, Locale.getDefault())
             return dataFormat.format(aplicarOffset(this))
         }
@@ -114,15 +114,40 @@ class Datas {
             DateTime(DateTimeZone.UTC).withYear(ano).withMonthOfYear(mes).withDayOfMonth(dia).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
 
         /**
-         * @return Um objeto de data com os exatos mesmos atributos do objeto atual a excessao do
-         * dia, que será sempre o ultimo do mes, ou seja 28, 29, 30 ou 31.
-         * Exemplo: chamando essa função em uma data 10/04/2023 resultara em uma data 30/04/2023 (o
-         * mes 04/2023 tem 30 dias)
+         * Retorna uma instância de `DateTime` correspondente ao último momento do último dia do mês
+         * ao qual a data original pertence.
+         *
+         * @return instância de `DateTime` correspondente ao último momento do último dia do mês
+         *
+         * Exemplo de uso:
+         * ```
+         * val data = DateTime(2023, 5, 10, 15, 30, 0, 0)
+         * val ultimoDiaDoMes = data.finalDoMes() // resultado: 2023-05-31T23:59:59.999-03:00
+         * ```
          */
-        fun DateTime.noUltimoDiaDoMes(): DateTime {
-            return this.plusMonths(1).withDayOfMonth(1).minusDays(1)
+        fun DateTime.finalDoMes(): DateTime {
+            return this.dayOfMonth().withMaximumValue()
+                .withHourOfDay(23)
+                .withMinuteOfHour(59)
+                .withSecondOfMinute(59)
+                .withMillisOfSecond(999)
         }
 
+
+        /**
+         * Retorna um objeto DateTime representando o primeiro dia do mês da data atual, no início do dia.
+         *
+         * @return o primeiro dia do mês no início do dia.
+         *
+         * Exemplo de uso:
+         * ```
+         * val agora = DateTime.now()
+         * val inicioDoMes = agora.inicioDoMes() // exemplo: "2023-05-01T00:00:00.000-03:00"
+         * ```
+         */
+        fun DateTime.inicioDoMes(): DateTime {
+            return this.withDayOfMonth(1).withTimeAtStartOfDay()
+        }
 
     }
 }

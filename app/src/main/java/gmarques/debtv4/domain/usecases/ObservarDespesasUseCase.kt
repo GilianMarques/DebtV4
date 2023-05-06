@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.transform
 import javax.inject.Inject
 
 // para injetar dependencias que sao interfaces, é necessario criar modulos para ensinar ao hilt como instanciar um objeto
-// TODO: implementar
 /**
- *Observa as despesas dentro de um prazo especifico
+ * Observa as despesas dentro de um intervalo de data especifico
  */
 class ObservarDespesasUseCase @Inject constructor(
     private val roomDao: DespesaDaoRoom,
@@ -18,7 +17,7 @@ class ObservarDespesasUseCase @Inject constructor(
 ) {
 
     operator fun invoke(inicioPeriodo: Long, finalPeriodo: Long): Flow<ArrayList<Despesa>> {
-        return roomDao.observar().transform { lista ->
+        return roomDao.observar(inicioPeriodo,finalPeriodo).transform { lista ->
             val despesas = ArrayList<Despesa>()
             lista.forEach { despesas.add(mapper.getDespesa(it)) }
             this.emit(despesas)

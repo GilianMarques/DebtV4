@@ -9,7 +9,7 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import gmarques.debtv4.databinding.RvDespesasBinding
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.extension_functions.Datas
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarStringComOffset
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
 import gmarques.debtv4.presenter.ver_despesas.FragVerDespesas
 
@@ -65,7 +65,7 @@ class DespesasAdapter(
 
             bindingView.tvNome.text = despesa.nome
             bindingView.tvValor.text = despesa.valor.toString().emMoeda()
-            bindingView.tvDataPgto.text = despesa.dataDoPagamento.formatarStringComOffset(Datas.Mascaras.DD_MM_AAAA)
+            bindingView.tvDataPgto.text = despesa.dataDoPagamento.dataFormatadaComOffset(Datas.Mascaras.DD_MM_AAAA)
             bindingView.parentCv.setOnClickListener {
                 callback.mostrarBottomSheetResumo(despesa)
             }

@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class DespesaDaoRoom : BaseDao<DespesaEntidade>() {
 
-    @Query("SELECT * FROM despesas")
-    abstract fun observar(): Flow<List<DespesaEntidade>> // TODO: add filtro na query
+    @Query("SELECT * FROM despesas WHERE foi_removida = 0 AND data_do_pagamento >= :inicioPeriodo AND data_do_pagamento <= :finalPeriodo")
+    abstract fun observar(inicioPeriodo: Long, finalPeriodo: Long): Flow<List<DespesaEntidade>> // TODO: add filtro na query
 
     @Query("SELECT * FROM despesas")
     /**

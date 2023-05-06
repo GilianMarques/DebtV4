@@ -3,7 +3,7 @@ package gmarques.debtv4.domain.extension_functions
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterDDMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterMMAAAAparaMillis
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarStringComOffset
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
 import gmarques.debtv4.domain.extension_functions.Datas.Mascaras.*
 import junit.framework.TestCase
 import org.joda.time.LocalDateTime
@@ -14,7 +14,7 @@ internal class DatasTest {
 
     @Test
     fun formatarString() {
-        val data = 1682467200000.formatarStringComOffset(DD_MM_AAAA)
+        val data = 1682467200000.dataFormatadaComOffset(DD_MM_AAAA)
         TestCase.assertEquals("26/04/2023", data)
     }
 

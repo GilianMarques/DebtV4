@@ -9,7 +9,7 @@ import gmarques.debtv4.data.room.dao.DespesaRecorrenteDaoRoom
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.noUltimoDiaDoMes
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.joda.time.DateTime
@@ -85,7 +85,7 @@ class AddDespesasUsecase @Inject constructor(
         * tiver que ser adicionada em um mes com 28, 29 ou 30 dias o seu dia de pagamento sera decrementado para o ultimo
         * dia desse mes, assim evitando que a despesa acabe caindo no mes seguinte
         * */
-            proxData = proxData.plusMonths(despesaRecorrente.intervaloDasRepeticoes).noUltimoDiaDoMes()
+            proxData = proxData.plusMonths(despesaRecorrente.intervaloDasRepeticoes).finalDoMes()
             proxData = proxData.withDayOfMonth(diaPgtoDespesa.coerceAtMost(proxData.dayOfMonth))
 
             if (proxData.isAfter(dataLimiteDaRecorrencia)) break
@@ -113,7 +113,7 @@ class AddDespesasUsecase @Inject constructor(
         else if (limiteMaximoDoApp.isAfter(despesaRecorrente.dataLimiteDaRecorrencia)) DateTime(DateTimeZone.UTC).withMillis(despesaRecorrente.dataLimiteDaRecorrencia)
         else limiteMaximoDoApp
 
-        return dataLimiteDaRecorrencia.noUltimoDiaDoMes()
+        return dataLimiteDaRecorrencia.finalDoMes()
     }
 
     /**
@@ -126,7 +126,7 @@ class AddDespesasUsecase @Inject constructor(
     private fun manterCopiaRecorrente(despesaRecorrente: DespesaRecorrente): Boolean {
 
         if (despesaRecorrente.dataLimiteDaRecorrencia == LIMITE_RECORRENCIA_INDEFINIDO) return true
-        val dataLimiteRecorrencia = DateTime(DateTimeZone.UTC).withMillis(despesaRecorrente.dataLimiteDaRecorrencia).noUltimoDiaDoMes()
+        val dataLimiteRecorrencia = DateTime(DateTimeZone.UTC).withMillis(despesaRecorrente.dataLimiteDaRecorrencia).finalDoMes()
         return dataLimiteRecorrencia.isAfter(limiteMaximoDoApp)
     }
 

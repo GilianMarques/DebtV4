@@ -24,7 +24,7 @@ import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterDDMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterMMAAAAparaMillis
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.formatarString
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.domain.extension_functions.Datas.Mascaras.*
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emDouble
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoedaSemSimbolo
@@ -145,7 +145,7 @@ class FragAddDespesa : CustomFrag() {
 
             if (checado) {
                 binding.containerDataDespesaPaga.visibility = VISIBLE
-                binding.dataDespPaga.setText(System.currentTimeMillis().formatarString(DD_MM_AAAA))
+                binding.dataDespPaga.setText(System.currentTimeMillis().dataFormatada(DD_MM_AAAA))
                 viewModel.dataEmQueDespesaFoiPaga = MaterialDatePicker.todayInUtcMilliseconds()
 
             } else {
