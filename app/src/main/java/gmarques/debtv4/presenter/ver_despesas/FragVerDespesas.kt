@@ -15,9 +15,12 @@ import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragVerDespesasBinding
 import gmarques.debtv4.domain.MesesController
 import gmarques.debtv4.domain.entidades.Despesa
+import gmarques.debtv4.domain.extension_functions.Datas
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.ver_despesas.adapter.DespesasAdapter
 import gmarques.debtv4.presenter.ver_despesas.adapter.DespesasAdapterCallback
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.joda.time.DateTime
@@ -52,34 +55,19 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
 
         initRecyclerView()
         observarPeriodo()
-        lifecycleScope.launch {
 
-            delay(3000)
-            MesesController.proximoMes()
-
-            delay(3000)
-            MesesController.mesAnterior()
-            MesesController.mesAnterior()
-
-            delay(3000)
-            MesesController.selecionarPeriodo(0, DateTime.now().plusYears(1).millis)
-
-            delay(3000)
-            MesesController.mesAtual()
-
-        }
     }
 
-    // TODO: lsiteners duplicados sao disparados quando atualizo db     
     /**
      * Observa as alterações no período atual e atualiza a lista de despesas com os novos valores.
      */
     private fun observarPeriodo() {
+        var jobColeta: Job? = null
         MesesController.periodoAtual.observe(viewLifecycleOwner) { periodo ->
-            lifecycleScope.launch {
+            jobColeta?.cancel()
+            jobColeta = lifecycleScope.launch {
                 viewModel.carregarDespesas(periodo.inicio, periodo.fim).collect {
                     adapter.atualizarColecao(it)
-                    Log.d("USUK", "FragVerDespesas.observarPeriodo: ouvindo ${periodo.nome}")
                 }
             }
         }
