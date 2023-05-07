@@ -57,12 +57,12 @@ class SincAdapterCallbackImpl @Inject constructor(
 
     override suspend fun addNovoObjetoLocal(nuvemObj: Sincronizavel) {
         despesasDaoLocal.addOuAtualizar(mapper.getDespesaEntidade(nuvemObj as Despesa))
-        uiCallback.status("adicionar", "despesa  ${nuvemObj.nome} foi atualizada localmente")
+        uiCallback.status("adicionar", "despesa  ${nuvemObj.nome} foi adicionada localmente")
     }
 
     override suspend fun addNovoObjetoNuvem(localObj: Sincronizavel) {
         despesasDaoNuvem.addOuatualizarSincrono(localObj as Despesa)
-        uiCallback.status("adicionar", "despesa  ${localObj.nome} foi atualizada na nuvem")
+        uiCallback.status("adicionar", "despesa  ${localObj.nome} foi adicionada na nuvem")
     }
 
     override suspend fun sincronismoConluido() {

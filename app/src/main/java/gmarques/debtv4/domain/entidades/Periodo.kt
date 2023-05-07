@@ -1,5 +1,7 @@
 package gmarques.debtv4.domain.entidades
 
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.inicioDoMes
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import java.util.Locale
@@ -9,6 +11,8 @@ import java.util.Locale
  * um periodo de datas distintas
  */
 class Periodo(val inicio: Long, val fim: Long) {
+
+    constructor(data: DateTime) : this(data.inicioDoMes().millis, data.finalDoMes().millis)
 
 
     var nome: String = ""

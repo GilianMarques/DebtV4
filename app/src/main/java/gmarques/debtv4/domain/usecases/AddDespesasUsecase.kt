@@ -9,14 +9,14 @@ import gmarques.debtv4.data.room.dao.DespesaRecorrenteDaoRoom
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
+import gmarques.debtv4.domain.extension_functions.Datas
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import javax.inject.Inject
-
-// TODO: aplicar alteraçoes do keep
 
 /**
  * @Author: Gilian Marques
@@ -69,7 +69,7 @@ class AddDespesasUsecase @Inject constructor(
             novaDespesa.estaPaga = false
 
             addOuAtualizarDespesa(novaDespesa)
-            Log.d("USUK", "DespesaController.addDespesaRecorrentePorMes: ${novaDespesa.uid} ${DateTime(DateTimeZone.UTC).withMillis(novaDespesa.dataDoPagamento)}")
+            Log.d("USUK", "DespesaController.addDespesaRecorrentePorMes: ${novaDespesa.uid} ${novaDespesa.dataDoPagamento.dataFormatada(Datas.Mascaras.DD_MM_AAAA_H_M_S)}")
         }
 
     }
@@ -136,19 +136,25 @@ class AddDespesasUsecase @Inject constructor(
      * as pendecias serao resolvidas
      */
     private suspend fun addOuAtualizarDespesa(despesa: Despesa) = withContext(Dispatchers.IO) {
+        despesa.ultimaAtualizacao = DateTime(DateTimeZone.UTC).millis
+
         val entidade = mapper.getDespesaEntidade(despesa)
         despesaDaoFirebase.addOuAtualizar(despesa)
         despesaDaoRoom.addOuAtualizar(entidade)
     }
+
     /**
      * Adiciona a despesa recorrente nos bancos de dados local e da nuvem, não tem problema se por algum
      * motivo o envio da despesa recorrente pra nuvem falhar, posteriormente quando o app sincronizar
      * as pendecias serao resolvidas
      */
-    private suspend fun addDespesaRecorrente(despesa: DespesaRecorrente) = withContext(Dispatchers.IO) {
-        val entidade = mapper.getDespesaRecorrenteEntidade(despesa)
-        despesaRecorrenteDaoFirebase.addDespesaRecorrente(entidade)
-        despesaRecorrenteDaoRoom.addOuAtualizar(entidade)
-    }
+    private suspend fun addDespesaRecorrente(despesa: DespesaRecorrente) =
+        withContext(Dispatchers.IO) {
+            despesa.ultimaAtualizacao = DateTime(DateTimeZone.UTC).millis
+
+            val entidade = mapper.getDespesaRecorrenteEntidade(despesa)
+            despesaRecorrenteDaoFirebase.addDespesaRecorrente(entidade)
+            despesaRecorrenteDaoRoom.addOuAtualizar(entidade)
+        }
 
 }

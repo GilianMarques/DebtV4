@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.*
 import androidx.activity.addCallback
 import androidx.core.animation.doOnEnd
+import androidx.core.view.WindowCompat
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
@@ -30,15 +31,19 @@ class CustomBottomSheet : DialogFragment() {
         savedInstanceState: Bundle?,
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
+
         binding = LayoutBottomSheetBinding.inflate(layoutInflater)
         binding.root.visibility = View.INVISIBLE
+
         aplicarFlags()
+
         customView?.let {
             binding.container.addView(customView)
             val params = customView!!.layoutParams
             params.width = ViewGroup.LayoutParams.MATCH_PARENT
             customView!!.layoutParams = params
         }
+
         return binding.root
     }
 
@@ -48,10 +53,10 @@ class CustomBottomSheet : DialogFragment() {
      */
     private fun aplicarFlags() {
         dialog?.window?.let {
-            it?.requestFeature(Window.FEATURE_NO_TITLE)
-            it?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            it?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND); // remove o dimmer
-            it?.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)// deixa a navbar coma cor certa
+            it.requestFeature(Window.FEATURE_NO_TITLE)
+            it.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            it.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND); // remove o dimmer
+            it.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)// deixa a navbar coma cor certa
         }
     }
 
@@ -117,6 +122,7 @@ class CustomBottomSheet : DialogFragment() {
      */
     override fun dismiss() {
         animarSaida()
+
     }
 
     /**

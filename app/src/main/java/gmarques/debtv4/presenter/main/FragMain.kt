@@ -6,18 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
+import gmarques.debtv4.data.sincronismo.SincAdapterCallbackImpl
 import gmarques.debtv4.databinding.FragMainBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class FragMain : CustomFrag() {
 
 
-    private lateinit var viewModel: FragMainViewModel
+    private val viewModel: FragMainViewModel by viewModels()
     private lateinit var binding: FragMainBinding
 
     override fun onCreateView(
@@ -30,7 +34,6 @@ class FragMain : CustomFrag() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this)[FragMainViewModel::class.java]
         if (viewModel.ocultarSplashScreen) ocultarSplashScreen()
         verificarUsuarioLogado()
         Log.d("USUK", "FragMain.onViewCreated: ")
@@ -53,15 +56,24 @@ class FragMain : CustomFrag() {
     }
 
     private fun init() {
-        initToolbar(binding,getString(R.string.Nova_despesa))
+        initToolbar(binding, getString(R.string.Nova_despesa))
+        binding.btnVerDespesas.setOnClickListener {
+            findNavController().navigate(FragMainDirections.actionVerDespesas())
 
+        }
+        binding.btnAddDespesas.setOnClickListener {
+            findNavController().navigate(FragMainDirections.actionAddDespesa())
+
+        }
+
+        binding.btnSincronizar.setOnClickListener {
+            viewModel.sincronizar()
+        }
 
 
         lifecycleScope.launch {
-            delay(1000)
+            // delay(1000)
             ocultarSplashScreen()
-            findNavController().navigate(FragMainDirections.actionVerDespesas())
-            //  FirebaseAuth.getInstance().signOut()
         }
     }
 

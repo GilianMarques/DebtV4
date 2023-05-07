@@ -1,7 +1,6 @@
 package gmarques.debtv4.presenter.ver_despesas
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,17 +12,14 @@ import com.google.android.flexbox.JustifyContent
 import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragVerDespesasBinding
-import gmarques.debtv4.domain.MesesController
+import gmarques.debtv4.domain.PeriodosController
 import gmarques.debtv4.domain.entidades.Despesa
-import gmarques.debtv4.domain.extension_functions.Datas
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.ver_despesas.adapter.DespesasAdapter
 import gmarques.debtv4.presenter.ver_despesas.adapter.DespesasAdapterCallback
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.joda.time.DateTime
 
 
 @AndroidEntryPoint
@@ -54,18 +50,18 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
     private fun init() {
 
         initRecyclerView()
-        observarPeriodo()
+        lifecycleScope.launch { observarPeriodo() }
 
     }
 
     /**
      * Observa as alterações no período atual e atualiza a lista de despesas com os novos valores.
      */
-    private fun observarPeriodo() {
-        var jobColeta: Job? = null
-        MesesController.periodoAtual.observe(viewLifecycleOwner) { periodo ->
-            jobColeta?.cancel()
-            jobColeta = lifecycleScope.launch {
+    private suspend fun observarPeriodo() {
+        var observarPeriodoJob: Job? = null
+        PeriodosController.periodoAtual.collectLatest { periodo ->
+            observarPeriodoJob?.cancel()
+            observarPeriodoJob = lifecycleScope.launch {
                 viewModel.carregarDespesas(periodo.inicio, periodo.fim).collect {
                     adapter.atualizarColecao(it)
                 }
@@ -75,7 +71,7 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
 
     private fun initRecyclerView() {
 
-        adapter = DespesasAdapter(this@FragVerDespesas, this@FragVerDespesas)
+        adapter = DespesasAdapter(this@FragVerDespesas)
 
         val layoutManager = FlexboxLayoutManager(requireContext())
         layoutManager.flexDirection = FlexDirection.ROW
@@ -88,7 +84,7 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
     }
 
     override fun mostrarBottomSheetResumo(despesa: Despesa) {
-// TODO: implementar
+// TODO: implementar usando wilian chart
     }
 
 

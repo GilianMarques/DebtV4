@@ -147,6 +147,7 @@ class FragLogin : Fragment() {
      * se tiver mais de uma conta no dispositivo, isso impede o usuario de alternar entre contas por exemplo*/
     private fun revogarAcessoAoApp() {
         mGoogleSignInClient!!.revokeAccess()
+        // TODO:  usar essa linha pra fazer logoff    FirebaseAuth.getInstance().signOut()
     }
 
     /**

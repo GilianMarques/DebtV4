@@ -1,6 +1,7 @@
 package gmarques.debtv4.presenter.ver_despesas.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -11,10 +12,8 @@ import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
-import gmarques.debtv4.presenter.ver_despesas.FragVerDespesas
 
 class DespesasAdapter(
-    fragListaDeCompras: FragVerDespesas,
     private val callback: DespesasAdapterCallback,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -66,6 +65,7 @@ class DespesasAdapter(
             bindingView.tvNome.text = despesa.nome
             bindingView.tvValor.text = despesa.valor.toString().emMoeda()
             bindingView.tvDataPgto.text = despesa.dataDoPagamento.dataFormatadaComOffset(Datas.Mascaras.DD_MM_AAAA)
+            bindingView.tvPago.visibility = if (despesa.estaPaga) View.VISIBLE else View.GONE
             bindingView.parentCv.setOnClickListener {
                 callback.mostrarBottomSheetResumo(despesa)
             }

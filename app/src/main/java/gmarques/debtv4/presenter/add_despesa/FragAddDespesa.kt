@@ -9,6 +9,7 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import androidx.core.view.WindowCompat
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
@@ -19,7 +20,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
-import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterDDMMAAAAparaMillis
@@ -83,15 +83,6 @@ class FragAddDespesa : CustomFrag() {
         initBtnConcluir()
         observarErros()
         observarFecharFragmento()
-        initDebug()
-    }
-
-    // TODO: remover
-    private fun initDebug() = lifecycleScope.launch {
-        delay(300)
-        binding.edtNome.setText("Despesa #${Random.nextInt(9999)}")
-        binding.dataPagamento.setText("10/04/2023")
-        binding.edtRepetir.requestFocus()
     }
 
     private fun observarFecharFragmento() {
@@ -125,7 +116,7 @@ class FragAddDespesa : CustomFrag() {
                 val dataInicial = viewModel.dataEmQueDespesaFoiPaga
                     ?: MaterialDatePicker.todayInUtcMilliseconds()
 
-                mostrarDataPicker(dataInicial) { dataEmUTC: Long, dataFormatada: String ->
+                mostrarDataPicker(dataInicial) { _: Long, dataFormatada: String ->
                     binding.dataDespPaga.setText(dataFormatada)
                     binding.dataDespPaga.setSelection(dataFormatada.length)
                 }
@@ -287,8 +278,8 @@ class FragAddDespesa : CustomFrag() {
     }
 
     private fun initCampoValor() {
-        binding.tvValor.text = VALOR_MINIMO.toString().emMoedaSemSimbolo()
-        viewModel.valorDespesa = VALOR_MINIMO.toString()
+        viewModel.valorDespesa = "0"
+        binding.tvValor.text = viewModel.valorDespesa.emMoedaSemSimbolo()
         binding.tvMoeda.text = Currency.getInstance(Locale.getDefault()).symbol
         binding.tvValor.setOnClickListener {
             TecladoCalculadora.Builder().valorInicial(binding.tvValor.text.toString().emDouble()).callback { valor: String ->
@@ -318,25 +309,20 @@ class FragAddDespesa : CustomFrag() {
     }
 
     private fun initAnimacaoDeCorDaStatusBar() {
-        val decorView: View = requireActivity().window.decorView
-        val decorViewFlags = decorView.systemUiVisibility
+        val corAlvo: Int = UIUtils.corAttr(android.R.attr.windowBackground, requireActivity())
 
-        val targetColor: Int = UIUtils.corAttr(android.R.attr.windowBackground, requireActivity())
-
-        val statusBarColorAnimatior = ValueAnimator.ofArgb(requireActivity().window.statusBarColor, targetColor)
-        statusBarColorAnimatior.interpolator = PathInterpolatorCompat.create(1.000f, 0.000f, 1.000f, 1.030f)
-        statusBarColorAnimatior.addUpdateListener { animation ->
+        val statusBarColorAnimator = ValueAnimator.ofArgb(requireActivity().window.statusBarColor, corAlvo)
+        statusBarColorAnimator.interpolator = PathInterpolatorCompat.create(1.000f, 0.000f, 1.000f, 1.030f)
+        statusBarColorAnimator.addUpdateListener { animation ->
             requireActivity().window.statusBarColor = animation.animatedValue as Int
 
-            if (animation.animatedFraction < 0.80) {
-                decorView.systemUiVisibility = decorViewFlags
-            } else {
-                decorView.systemUiVisibility = decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            }
+            val windowInsetsController = WindowCompat.getInsetsController(requireActivity().window, requireActivity().window.decorView)
+            windowInsetsController.isAppearanceLightStatusBars = animation.animatedFraction >= 0.80
         }
 
-        animsAtualizadasPeloAppBar.add(statusBarColorAnimatior)
+        animsAtualizadasPeloAppBar.add(statusBarColorAnimator)
     }
+
 
     private fun initAnimacaoDosCantosDoScrollView() = binding.nestedScroll.post {
 

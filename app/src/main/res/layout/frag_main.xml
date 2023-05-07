@@ -7,6 +7,7 @@
     android:layout_height="match_parent">
 
 
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -58,7 +59,27 @@
                 android:layout_margin="8dp"
                 android:animateLayoutChanges="true"
                 android:orientation="vertical"
-                tools:context=".presenter.main.FragMain" />
+                tools:context=".presenter.main.FragMain" >
+
+                <Button
+                    android:id="@+id/btn_ver_despesas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ver despesas" />
+
+                <Button
+                    android:id="@+id/btn_add_despesas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Adicionar desesas" />
+
+
+                <Button
+                    android:id="@+id/btn_sincronizar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sincronizar" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
         </androidx.core.widget.NestedScrollView>
 

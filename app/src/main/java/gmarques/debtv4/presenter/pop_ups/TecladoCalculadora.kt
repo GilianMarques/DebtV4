@@ -64,10 +64,10 @@ class TecladoCalculadora : DialogFragment() {
      */
     private fun aplicarFlags() {
         dialog?.window?.let {
-            it?.requestFeature(Window.FEATURE_NO_TITLE)
-            it?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            it?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND) // remove o dimmer
-            it?.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)// deixa a navbar coma cor certa
+            it.requestFeature(Window.FEATURE_NO_TITLE)
+            it.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            it.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND) // remove o dimmer
+            it.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)// deixa a navbar coma cor certa
         }
     }
 

@@ -1,23 +1,26 @@
 package gmarques.debtv4.domain
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import gmarques.debtv4.domain.entidades.Periodo
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.inicioDoMes
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
 /**
- * Objeto responsável por controlar o período de meses.
+ * Objeto responsável por controlar o período de tempo em que o app trabalha.
  */
 @Suppress("ObjectPropertyName")
-object MesesController {
+object PeriodosController {
 
-    private val data = MutableLiveData(DateTime.now(DateTimeZone.UTC))
+    private var observarDataJob: Job? = null
+    private val data = MutableStateFlow(DateTime.now(DateTimeZone.UTC))
 
-    private val _periodoAtual = MutableLiveData<Periodo>()
-    val periodoAtual: LiveData<Periodo>
+    private val _periodoAtual = MutableStateFlow(Periodo(data.value))
+    val periodoAtual: StateFlow<Periodo>
         get() = _periodoAtual
 
     init {
@@ -30,8 +33,8 @@ object MesesController {
      * [Periodo] corespondente.
      */
     private fun observarData() {
-        data.observeForever {
-            _periodoAtual.value = Periodo(data.value!!.inicioDoMes().millis, data.value!!.finalDoMes().millis)
+        observarDataJob = CoroutineScope(Main).launch {
+            data.collect { _periodoAtual.value = Periodo(data.value) }
         }
     }
 

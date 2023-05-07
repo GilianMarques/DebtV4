@@ -49,9 +49,9 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'com.google.android.material:material:1.9.0' // voltar pra 1.7.0 se der bug na ui
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
@@ -63,7 +63,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.3.0'
 
     //permite usar DataBindingUtil
-    implementation 'androidx.databinding:databinding-runtime:8.0.0'
+    implementation 'androidx.databinding:databinding-runtime:8.0.1'
 
     // room
     implementation "androidx.room:room-runtime:2.5.1"
@@ -95,6 +95,14 @@ dependencies {
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1'
 
     implementation 'joda-time:joda-time:2.10.2'
+
+    // wilian chart
+    implementation 'com.diogobernardino:williamchart:3.10.1'
+
+    // Tooltips
+    implementation 'com.diogobernardino.williamchart:tooltip-slider:3.10.1'
+    implementation 'com.diogobernardino.williamchart:tooltip-points:3.10.1'
+    // wilian chart
 
     // permite usar livedatas em setups de teste
     testImplementation 'androidx.arch.core:core-testing:2.2.0'

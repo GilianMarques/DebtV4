@@ -37,7 +37,7 @@ class DespesaDaoFireBase @Inject constructor() {
     }
 
     /**
-     * no fim das contas faz o mesmo que [addOuAtualizar]
+     * faz o mesmo que [addOuAtualizar]
      * mas de forma sincrona
      * @See addOuAtualizar
      */
