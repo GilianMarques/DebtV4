@@ -99,10 +99,6 @@ dependencies {
     // wilian chart
     implementation 'com.diogobernardino:williamchart:3.10.1'
 
-    // Tooltips
-    implementation 'com.diogobernardino.williamchart:tooltip-slider:3.10.1'
-    implementation 'com.diogobernardino.williamchart:tooltip-points:3.10.1'
-    // wilian chart
 
     // permite usar livedatas em setups de teste
     testImplementation 'androidx.arch.core:core-testing:2.2.0'

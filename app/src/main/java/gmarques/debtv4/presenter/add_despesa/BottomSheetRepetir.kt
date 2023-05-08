@@ -33,6 +33,7 @@ class BottomSheetRepetir(
     private var dialogo: CustomBottomSheet = CustomBottomSheet()
     private var binding: LayoutBsRepetirDespesaBinding = LayoutBsRepetirDespesaBinding.inflate(fragmento.layoutInflater)
 
+
     init {
         initBotoes()
         initBotoesTipoRecorrencia()

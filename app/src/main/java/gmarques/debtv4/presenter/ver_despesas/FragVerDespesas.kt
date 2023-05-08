@@ -12,6 +12,7 @@ import com.google.android.flexbox.JustifyContent
 import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragVerDespesasBinding
+import gmarques.debtv4.databinding.LayoutBsDetalhesDaDespesaBinding
 import gmarques.debtv4.domain.PeriodosController
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.presenter.main.CustomFrag
@@ -84,7 +85,7 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
     }
 
     override fun mostrarBottomSheetResumo(despesa: Despesa) {
-// TODO: implementar usando wilian chart
+        BottomSheetDetalhesDaDespesa(despesa, this@FragVerDespesas).mostrar()
     }
 
 

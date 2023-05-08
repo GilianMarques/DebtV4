@@ -78,5 +78,9 @@
     <string name="Selecione_a_data_limite_da_recorr_ncia">Selecione a data limite da recorrência</string>
     <string name="Pago">Pago</string>
     <string name="Ver_despesas">Ver despesas</string>
+    <string name="Editar">Editar</string>
+    <string name="Pagar">Pagar</string>
+    <string name="Remover">Remover</string>
+    <string name="Em_aberto">Em aberto</string>
 
 </resources>

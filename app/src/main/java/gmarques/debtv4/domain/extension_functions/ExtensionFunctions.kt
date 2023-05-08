@@ -1,6 +1,7 @@
 package gmarques.debtv4.domain.extension_functions
 
 import android.content.res.Resources
+import gmarques.debtv4.App
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
@@ -40,6 +41,7 @@ class ExtensionFunctions {
          * Exemplo de string valida 1520.00
          */
         fun String.emMoeda(): String {
+            if (App.demonstracao) return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(123.45).toString()
             return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(this.toDouble()).toString()
         }
 
