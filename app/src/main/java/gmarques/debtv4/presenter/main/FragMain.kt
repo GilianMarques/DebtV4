@@ -75,6 +75,10 @@ class FragMain : CustomFrag() {
             // delay(1000)
             ocultarSplashScreen()
         }
+
+
+        // TODO: remover
+        //binding.btnVerDespesas.callOnClick()
     }
 
 

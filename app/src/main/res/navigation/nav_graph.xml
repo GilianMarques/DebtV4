@@ -9,7 +9,7 @@
         android:id="@+id/fragMain"
         android:name="gmarques.debtv4.presenter.main.FragMain"
         android:label="frag_main"
-        tools:layout="@layout/frag_main" >
+        tools:layout="@layout/frag_main">
 
         <action
             android:id="@+id/action_login"
@@ -28,7 +28,7 @@
     <fragment
         android:id="@+id/login"
         android:name="gmarques.debtv4.presenter.FragLogin"
-        android:label="Login" >
+        android:label="Login">
         <action
             android:id="@+id/action_fragMain"
             app:destination="@id/fragMain" />
@@ -37,14 +37,30 @@
     <fragment
         android:id="@+id/fragAddDespesa"
         android:name="gmarques.debtv4.presenter.add_despesa.FragAddDespesa"
-        android:label="FragAddDespesa" >
+        android:label="FragAddDespesa">
         <action
             android:id="@+id/action_fragMain"
             app:destination="@id/fragMain" />
     </fragment>
+
     <fragment
         android:id="@+id/fragVerDespesas"
         android:name="gmarques.debtv4.presenter.ver_despesas.FragVerDespesas"
-        android:label="FragVerDespesas" />
+        android:label="FragVerDespesas">
+
+        <action
+            android:id="@+id/action_fragDetalhesDespesa"
+            app:destination="@id/fragDetalhesDespesa" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragDetalhesDespesa"
+        android:name="gmarques.debtv4.presenter.ver_despesas.detalhes.FragDetalhesDespesa"
+        android:label="FragDetalhesDespesa" >
+        <argument
+            android:name="despesa"
+            app:argType="gmarques.debtv4.domain.entidades.Despesa" />
+    </fragment>
 
 </navigation>

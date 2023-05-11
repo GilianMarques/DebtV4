@@ -5,6 +5,6 @@ import gmarques.debtv4.domain.entidades.Despesa
 
 fun interface DespesasAdapterCallback {
 
-    fun mostrarBottomSheetResumo(despesa: Despesa)
+    fun mostrarResumoDaDespesa(despesa: Despesa)
 
 }

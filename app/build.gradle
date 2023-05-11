@@ -96,9 +96,7 @@ dependencies {
 
     implementation 'joda-time:joda-time:2.10.2'
 
-    // wilian chart
-    implementation 'com.diogobernardino:williamchart:3.10.1'
-
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     // permite usar livedatas em setups de teste
     testImplementation 'androidx.arch.core:core-testing:2.2.0'

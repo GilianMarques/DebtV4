@@ -1,11 +1,12 @@
 package gmarques.debtv4.data.sincronismo.api
 
+import java.io.Serializable
 import java.util.UUID
 
 /**
  * Todos os objetos que serao sincronizados devem extender essa classe
  */
-abstract class Sincronizavel {
+abstract class Sincronizavel : Serializable {
 
     /**
      * Use um valor constante independente de fuso-horario para atualizar

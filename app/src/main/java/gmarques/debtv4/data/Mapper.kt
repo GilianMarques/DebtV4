@@ -1,7 +1,6 @@
 package gmarques.debtv4.data
 
 
-import android.util.Log
 import gmarques.debtv4.data.room.entidades.DespesaEntidade
 import gmarques.debtv4.data.room.entidades.DespesaRecorrenteEntidade
 import gmarques.debtv4.domain._interfaces.JsonSerializador

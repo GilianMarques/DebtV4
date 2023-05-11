@@ -6,13 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragVerDespesasBinding
-import gmarques.debtv4.databinding.LayoutBsDetalhesDaDespesaBinding
 import gmarques.debtv4.domain.PeriodosController
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.presenter.main.CustomFrag
@@ -84,8 +84,8 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
 
     }
 
-    override fun mostrarBottomSheetResumo(despesa: Despesa) {
-        BottomSheetDetalhesDaDespesa(despesa, this@FragVerDespesas).mostrar()
+    override fun mostrarResumoDaDespesa(despesa: Despesa) {
+        findNavController().navigate(FragVerDespesasDirections.actionFragDetalhesDespesa(despesa))
     }
 
 

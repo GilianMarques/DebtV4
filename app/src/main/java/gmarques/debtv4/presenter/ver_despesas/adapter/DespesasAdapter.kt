@@ -67,7 +67,7 @@ class DespesasAdapter(
             bindingView.tvDataPgto.text = despesa.dataDoPagamento.dataFormatadaComOffset(Datas.Mascaras.DD_MM_AAAA)
             bindingView.tvPago.visibility = if (despesa.estaPaga) View.VISIBLE else View.GONE
             bindingView.parentCv.setOnClickListener {
-                callback.mostrarBottomSheetResumo(despesa)
+                callback.mostrarResumoDaDespesa(despesa)
             }
 
             val lp: ViewGroup.LayoutParams = bindingView.parentCv.layoutParams

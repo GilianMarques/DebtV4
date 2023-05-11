@@ -10,6 +10,8 @@ class App : Application() {
         super.onCreate()
         inst = this
     }
+// TODO: ajustar as colorOnPrimary, secondary e accent
+
 
     companion object {
         lateinit var inst: App

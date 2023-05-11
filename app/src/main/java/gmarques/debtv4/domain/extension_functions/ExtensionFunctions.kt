@@ -28,6 +28,10 @@ class ExtensionFunctions {
             return (this * Resources.getSystem().displayMetrics.density).roundToInt()
         }
 
+        fun Float.dp(): Float {
+            return (this * Resources.getSystem().displayMetrics.density)
+        }
+
         /**
          * remove da string tudo que não é numero
          */
@@ -41,7 +45,7 @@ class ExtensionFunctions {
          * Exemplo de string valida 1520.00
          */
         fun String.emMoeda(): String {
-            if (App.demonstracao) return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(123.45).toString()
+            if (App.demonstracao) "******"//return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(111.11).toString()
             return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(this.toDouble()).toString()
         }
 

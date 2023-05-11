@@ -4,7 +4,9 @@
         <!-- Customize your light theme here. -->
 
         <!--todo modificar esse tema antes de publicar o app. -->
-
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorSecondary">@color/color_secondary</item>
+        <item name="colorAccent">@color/color_accent</item>
 
     </style>
 
