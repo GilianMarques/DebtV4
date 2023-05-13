@@ -20,7 +20,7 @@
 
     <style name="TextInputEditTextStyle" parent="android:Widget.EditText">
         <item name="android:fontFamily">@font/nunito_sans</item>
-        <item name="android:drawablePadding">16dp</item>
+        <item name="android:drawablePadding">8dp</item>
         <item name="android:textColor">?colorPrimary</item>
         <item name="android:textSize">16sp</item>
     </style>
@@ -61,11 +61,17 @@
         <item name="android:layout_marginBottom">4dp</item>
     </style>
 
-    <style name="DetalhesDespesaTextInputEditTextStyle" parent="TextInputEditTextStyle">
+    <style name="DetalhesDespesa_EditText_Style" parent="TextInputEditTextStyle">
 
         <item name="android:background">@drawable/back_text_input_picker</item>
         <item name="android:focusable">false</item>
-           </style>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:layout_marginStart">12dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+    </style>
 
 
 </resources>

@@ -6,12 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
-import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragDetalhesDespesaBinding
+import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
 import gmarques.debtv4.presenter.main.CustomFrag
+import gmarques.debtv4.presenter.outros.UIUtils
 import javax.inject.Inject
 
 
@@ -45,7 +46,17 @@ class FragDetalhesDespesa : CustomFrag() {
         carregarArgumentos()
         popularUi()
         initGrafico()
+        initCamposDoGrafico(viewModel.despesa)
 
+    }
+
+    /**
+     * Seta os dados da despesa recebida nos campos do grafico
+     * Evita codigo duplicado
+     */
+    private fun initCamposDoGrafico(despesa: Despesa) {
+        binding.tvValor.text = despesa.valor.toString().emMoeda()
+        binding.tvMes.text = despesa.dataDoPagamento.dataFormatada(Datas.Mascaras.DD_MM_AAAA)
     }
 
     private fun initGrafico() {
@@ -54,15 +65,22 @@ class FragDetalhesDespesa : CustomFrag() {
             lineChart = binding.lineChart
             despesa = viewModel.despesa
             activity = requireActivity()
-        }.initGrafico()
+            clickListener = { despesa: Despesa ->
+                UIUtils.vibrar(UIUtils.Vibracao.INTERACAO)
+                initCamposDoGrafico(despesa)
+            }
+        }.executar()
     }
+
 
     private fun popularUi() {
 
         binding.edtNome.setText(viewModel.despesa.nome)
+
         binding.edtValor.setText(viewModel.despesa.valor.toString().emMoeda())
         binding.edtDataPagamento.setText(viewModel.despesa.dataDoPagamento.dataFormatada(Datas.Mascaras.DD_MM_AAAA))
-        binding.edtPaga.setText(if (viewModel.despesa.estaPaga) getString(R.string.Despesa_esta_paga) else getString(R.string.Em_aberto))
+
+        // TODO:  binding.edtPaga.setText(if (viewModel.despesa.estaPaga) getString(R.string.Despesa_esta_paga) else getString(R.string.Em_aberto))
 
         binding.edtObservacoes.setText(viewModel.despesa.observacoes)
         if (viewModel.despesa.observacoes.isEmpty()) binding.edtObservacoes.visibility = View.GONE

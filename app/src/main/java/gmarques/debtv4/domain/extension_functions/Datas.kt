@@ -149,5 +149,27 @@ class Datas {
             return this.withDayOfMonth(1).withTimeAtStartOfDay()
         }
 
+        /**
+         * Retorna o nome abreviado em letras maiúsculas do mês correspondente a um determinado
+         * timestamp Unix.
+         *
+         * @param stamp O timestamp Unix a ser convertido em nome de mês.
+         * @return O nome abreviado em letras maiúsculas do mês correspondente ao timestamp Unix.
+         *
+         * Exemplo de uso:
+         * ```
+         * val stamp = 1620734400L // 11 de maio de 2021, 00:00:00 UTC
+         * val mes = nomeComMesTresLetras(stamp) // mes = "MAI"
+         * ```
+         */
+        fun nomeDoMesAbreviado(stamp: Long): String {
+            return DateTime(stamp, DateTimeZone.UTC)
+                .monthOfYear()
+                .getAsShortText(Locale.getDefault())
+                .dropLast(1)
+                .uppercase()
+        }
+
+
     }
 }

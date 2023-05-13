@@ -20,7 +20,7 @@ class DespesaRecorrente() : Despesa() {
         /**
          * intervalo entre as repeticoes nao pode ser menor que esse valor para dias
          */
-        const val INTERVALO_MIN_REPETICAO_DIAS = 7
+        const val INTERVALO_MIN_REPETICAO_DIAS = 32 // n pode repetir a despesa dentro do mesmo mes
 
         /**
          * intervalo entre as repeticoes nao pode ser maior que esse valor para meses

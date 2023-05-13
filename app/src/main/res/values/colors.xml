@@ -18,7 +18,7 @@
     <color name="color_primary">#250545</color>
     <color name="color_secondary">#E3D3FC</color>
     <color name="color_accent">#E1883B</color>
-    <color name="cinza_claro">#F0ECF6</color>
+    <color name="cinza_claro">#40E3D3FC</color>
 
 
 </resources>
