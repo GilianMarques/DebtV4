@@ -18,6 +18,7 @@ import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.ver_despesas.adapter.DespesasAdapter
 import gmarques.debtv4.presenter.ver_despesas.adapter.DespesasAdapterCallback
+import gmarques.debtv4.presenter.ver_despesas.detalhes.BottomSheetDetalhesDaDespesa
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -85,7 +86,8 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
     }
 
     override fun mostrarResumoDaDespesa(despesa: Despesa) {
-        findNavController().navigate(FragVerDespesasDirections.actionFragDetalhesDespesa(despesa))
+        BottomSheetDetalhesDaDespesa(despesa, this@FragVerDespesas).mostrar()
+        // findNavController().navigate(FragVerDespesasDirections.actionFragDetalhesDespesa(despesa))
     }
 
 

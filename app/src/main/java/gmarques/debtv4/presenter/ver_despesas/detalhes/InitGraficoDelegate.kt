@@ -67,17 +67,20 @@ class InitGraficoDelegate @Inject constructor(
     private fun carregarDados() = apply {
 
         job = activity.lifecycleScope.launch {
-            despesasUsecase(despesa.nome, DateTime(DateTimeZone.UTC).minusMonths(3).millis, DateTime(DateTimeZone.UTC).plusMonths(3).millis).collect { despesas ->
-                val dados = ArrayList<Entry>()
+            despesasUsecase(despesa.nome,
+                DateTime(DateTimeZone.UTC).minusMonths(3).millis,
+                DateTime(DateTimeZone.UTC).plusMonths(3).millis)
+                .collect { despesas ->
 
-                for (despesa in despesas) {
-                    dados.add(Entry(despesa.dataDoPagamento.toFloat(), despesa.valor.toFloat()).apply { data = despesa }) // TODO: filtrar despesa
-                    Log.d("USUK", "InitGraficoDelegate.carregarDados: ${despesa.dataDoPagamento.dataFormatadaComOffset(Datas.Mascaras.DD_MM_AAAA_H_M_S)}, ${despesa.valor.toFloat()} ")
+                    val dados = ArrayList<Entry>()
+                    despesas.forEach { despesa ->
+                        dados.add(
+                            Entry(despesa.dataDoPagamento.toFloat(),
+                                despesa.valor.toFloat())
+                                .apply { data = despesa })
+                    }
+                    atualizarGrafico(dados)
                 }
-                //  job.cancel()
-
-                atualizarGrafico(dados)
-            }
         }
 
 

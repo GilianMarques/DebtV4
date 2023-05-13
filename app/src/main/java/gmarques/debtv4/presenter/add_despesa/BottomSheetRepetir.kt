@@ -5,15 +5,15 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButtonToggleGroup
 import gmarques.debtv4.R
-import gmarques.debtv4.databinding.LayoutBsRepetirDespesaBinding
+import gmarques.debtv4.databinding.BsRepetirDespesaBinding
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.INTERVALO_MAX_REPETICAO_DIAS
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.INTERVALO_MAX_REPETICAO_MESES
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.INTERVALO_MIN_REPETICAO_DIAS
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Tipo.*
-import gmarques.debtv4.presenter.pop_ups.CustomBottomSheet
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.UIUtils
+import gmarques.debtv4.presenter.pop_ups.CustomBottomSheet
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -31,7 +31,7 @@ class BottomSheetRepetir(
 ) {
 
     private var dialogo: CustomBottomSheet = CustomBottomSheet()
-    private var binding: LayoutBsRepetirDespesaBinding = LayoutBsRepetirDespesaBinding.inflate(fragmento.layoutInflater)
+    private var binding: BsRepetirDespesaBinding = BsRepetirDespesaBinding.inflate(fragmento.layoutInflater)
 
 
     init {
@@ -88,19 +88,19 @@ class BottomSheetRepetir(
 
         val texto = when (tipoDeRecorrencia) {
 
-            MES -> {
+            MES  -> {
                 when (intervaloDasRepeticoes) {
-                    1   -> fragmento.getString(R.string.A_despesa_se_repete_todos_os_meses)
-                    2   -> fragmento.getString(R.string.A_despesa_se_repete_mes_sim_e_mes_nao)
+                    1    -> fragmento.getString(R.string.A_despesa_se_repete_todos_os_meses)
+                    2    -> fragmento.getString(R.string.A_despesa_se_repete_mes_sim_e_mes_nao)
                     else -> String.format(fragmento.getString(R.string.A_despesa_se_repete_a_cada_x_meses), intervaloDasRepeticoes)
                 }
             }
 
-            DIA -> {
+            DIA  -> {
                 String.format(fragmento.getString(R.string.A_despesa_se_repete_a_cada_x_dias), intervaloDasRepeticoes)
             }
 
-            null  -> fragmento.getString(R.string.Selecione_um_tipo_de_recorrencia)
+            null -> fragmento.getString(R.string.Selecione_um_tipo_de_recorrencia)
         }
 
         binding.tvDica.text = texto
@@ -121,8 +121,8 @@ class BottomSheetRepetir(
 
         when (tipoDeRecorrencia) {
             null -> binding.toggleButton.check(binding.meses.id)
-            MES -> binding.toggleButton.check(binding.meses.id)
-            DIA -> binding.toggleButton.check(binding.dias.id)
+            MES  -> binding.toggleButton.check(binding.meses.id)
+            DIA  -> binding.toggleButton.check(binding.dias.id)
 
         }
 
@@ -218,14 +218,11 @@ class BottomSheetRepetir(
         return true
     }
 
-    fun mostrar() {
-        /*se esse dialogo for cancelavel sera necessario definir um dismiss listener para
+    fun mostrar() {/*se esse dialogo for cancelavel sera necessario definir um dismiss listener para
         * tirar o foco a view de repetir, senao ocorrera um bug toda vez que o usuario fechar
         * o dialogo sem ser pelos botoes(salvar e cancelar) onde é possivel editar o texto da view livremente
         * */
-        dialogo.customView(binding.root)
-            .cancelavel(false)
-            .show(fragmento.parentFragmentManager)
+        dialogo.customView(binding.root).cancelavel(false).show(fragmento.parentFragmentManager)
     }
 
     fun interface Callback {

@@ -16,7 +16,7 @@
     <string name="Observacoes">Observações</string>
     <string name="Selecione_a_data_do_pagamento">Selecione a data do pagamento</string>
     <string name="Concluir">Concluir</string>
-    <string name="Despesa_esta_paga">Despesa está paga</string>
+    <string name="Foi_paga_em_x">Foi paga em %1$s</string>
     <string name="Despesa_recorrente">Despesa recorrente</string>
     <string name="Fatura_de_cartao">Fatura de cartão</string>
     <string name="Poupanca">Poupança</string>
@@ -83,5 +83,9 @@
     <string name="Remover">Remover</string>
     <string name="Em_aberto">Em aberto</string>
     <string name="Variacoes_de_preco">Variações de preço</string>
+    <string name="Vence_em_x_dias">Vence em %1$d dias</string>
+    <string name="Atrasada_a_x_dias">Atrasada a %1$d dias</string>
+    <string name="Vence_hoje">Vence hoje</string>
+    <string name="Despesa_esta_paga">Despesa está paga</string>
 
 </resources>
