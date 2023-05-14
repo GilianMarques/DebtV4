@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gmarques.debtv4.App
 import gmarques.debtv4.R
 import gmarques.debtv4.data.Mapper
-import gmarques.debtv4.domain.usecases.AddDespesasUsecase
+import gmarques.debtv4.domain.usecases.despesas.AddDespesasUsecase
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.COMPRIMENTO_MAXIMO_NOME
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MAXIMO

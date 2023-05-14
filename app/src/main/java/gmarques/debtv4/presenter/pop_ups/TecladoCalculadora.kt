@@ -143,7 +143,7 @@ class TecladoCalculadora : DialogFragment() {
 
                 if (comecoSelecao != finalSelecao) {
                     binding.edtValor.setText(formula.removeRange(comecoSelecao until finalSelecao))
-                    binding.edtValor.setSelection(binding.edtValor.text.length - 1)
+                     binding.edtValor.setSelection(binding.edtValor.text.length)
                 } else {
                     binding.edtValor.setText(formula.removeRange((comecoSelecao - 1).coerceAtLeast(0), comecoSelecao))
                     binding.edtValor.setSelection((comecoSelecao - 1).coerceAtLeast(0))

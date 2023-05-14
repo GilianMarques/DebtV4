@@ -24,7 +24,7 @@ class SincAdapterCallbackImpl @Inject constructor(
 
 
     override suspend fun getDadosLocal(): ArrayList<Sincronizavel> {
-        val dados = ArrayList<Sincronizavel>(despesasDaoLocal.getTodosObjetos().map { mapper.getDespesa(it) })
+        val dados = ArrayList<Sincronizavel>(despesasDaoLocal.getTodas().map { mapper.getDespesa(it) })
         uiCallback.status("Carregando...", "dados da locais carregados " + dados.size)
         return dados
     }

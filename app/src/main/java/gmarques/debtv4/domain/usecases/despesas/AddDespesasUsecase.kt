@@ -1,4 +1,4 @@
-package gmarques.debtv4.domain.usecases
+package gmarques.debtv4.domain.usecases.despesas
 
 import android.util.Log
 import gmarques.debtv4.data.Mapper
@@ -139,7 +139,7 @@ class AddDespesasUsecase @Inject constructor(
         despesa.ultimaAtualizacao = DateTime(DateTimeZone.UTC).millis
 
         val entidade = mapper.getDespesaEntidade(despesa)
-        despesaDaoFirebase.addOuAtualizar(despesa)
+        despesaDaoFirebase.addOuAtualizar(entidade)
         despesaDaoRoom.addOuAtualizar(entidade)
     }
 
@@ -153,7 +153,7 @@ class AddDespesasUsecase @Inject constructor(
             despesa.ultimaAtualizacao = DateTime(DateTimeZone.UTC).millis
 
             val entidade = mapper.getDespesaRecorrenteEntidade(despesa)
-            despesaRecorrenteDaoFirebase.addDespesaRecorrente(entidade)
+            despesaRecorrenteDaoFirebase.addOuAtualizar(entidade)
             despesaRecorrenteDaoRoom.addOuAtualizar(entidade)
         }
 

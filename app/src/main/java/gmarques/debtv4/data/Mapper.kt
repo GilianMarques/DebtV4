@@ -45,6 +45,13 @@ class Mapper @Inject constructor(private val jsonSerializador: JsonSerializador)
         return jsonSerializador.fromJson(jsonString, DespesaRecorrente::class.java)
     }
 
+    fun getDespesaRecorrente(despesaRecorrenteEntidade: DespesaRecorrenteEntidade): DespesaRecorrente {
+        val jsonString = JSONObject(jsonSerializador.toJSon(despesaRecorrenteEntidade))
+            .toString()
+
+        return jsonSerializador.fromJson(jsonString, DespesaRecorrente::class.java)
+    }
+
     /**
      * Cria uma [Despesa] com os mesmos dados da despesa recebida, porem com uma uid diferente
      */

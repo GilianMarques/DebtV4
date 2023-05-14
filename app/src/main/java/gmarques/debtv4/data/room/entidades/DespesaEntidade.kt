@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
  * Entidade da classe [gmarques.debtv4.domain.entidades.Despesa]
  * @see gmarques.debtv4.domain.entidades.Despesa
  */
-data class DespesaEntidade(
+open class DespesaEntidade(
 
     @PrimaryKey @ColumnInfo(name = "uid") val uid: String,
 

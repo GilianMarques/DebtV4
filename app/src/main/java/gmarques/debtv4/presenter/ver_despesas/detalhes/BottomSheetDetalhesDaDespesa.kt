@@ -1,6 +1,8 @@
 package gmarques.debtv4.presenter.ver_despesas.detalhes
 
 import android.view.View
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.EntryPoint
 import dagger.hilt.EntryPoints
 import dagger.hilt.InstallIn
@@ -8,13 +10,22 @@ import dagger.hilt.components.SingletonComponent
 import gmarques.debtv4.App
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.BsDetalhesDespesaBinding
+import gmarques.debtv4.domain.PeriodosController
 import gmarques.debtv4.domain.entidades.Despesa
+import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
+import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.formatarHtml
+import gmarques.debtv4.domain.usecases.despesas.AtualizarDespesasUsecase
+import gmarques.debtv4.domain.usecases.despesas.GetDespesasPorNomeNoPeriodoUseCase
+import gmarques.debtv4.domain.usecases.despesas.RemoverDespesasUseCase
+import gmarques.debtv4.domain.usecases.despesas_recorrentes.GetDespesaRecorrenteUseCase
+import gmarques.debtv4.domain.usecases.despesas_recorrentes.RemoverDespesaRecorrenteUseCase
 import gmarques.debtv4.presenter.main.CustomFrag
 import gmarques.debtv4.presenter.outros.UIUtils
 import gmarques.debtv4.presenter.pop_ups.CustomBottomSheet
+import kotlinx.coroutines.launch
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.Days
@@ -24,17 +35,30 @@ class BottomSheetDetalhesDaDespesa(
     private val despesa: Despesa,
     private val fragmento: CustomFrag,
 ) {
+    // TODO: obter versao recorrente  pra remover se o usuario aprovar
+    // TODO: exibir dialogo, remover despesas e inicializar os outros botoes
 
+    // TODO: terminar esse dialogo e colocar o db na memoria
 
-    lateinit var initGraficoDelegate: InitGraficoDelegate
+    private lateinit var atualizarDespesasUsecase: AtualizarDespesasUsecase
+    private lateinit var removerDespesaRecorrenteUseCase: RemoverDespesaRecorrenteUseCase
+    private lateinit var getDespesaRecorrenteUseCase: GetDespesaRecorrenteUseCase
+    private lateinit var getDespesasPorNomeNoPeriodoUseCase: GetDespesasPorNomeNoPeriodoUseCase
+    private lateinit var removerDespesaUsecase: RemoverDespesasUseCase
+    private lateinit var initGraficoDelegate: InitGraficoDelegate
 
     private var dialogo: CustomBottomSheet = CustomBottomSheet()
     private var binding: BsDetalhesDespesaBinding = BsDetalhesDespesaBinding.inflate(fragmento.layoutInflater)
 
     @InstallIn(SingletonComponent::class)
     @EntryPoint
-    interface GraficoDelegateComponent {
+    interface Dependencias {
         fun getDelegate(): InitGraficoDelegate
+        fun getRemoverDespesaUsecase(): RemoverDespesasUseCase
+        fun getDespesasPorNomeNoPeriodoUseCase(): GetDespesasPorNomeNoPeriodoUseCase
+        fun getDespesaRecorrenteUseCase(): GetDespesaRecorrenteUseCase
+        fun removerDespesaRecorrenteUseCase(): RemoverDespesaRecorrenteUseCase
+        fun atualizarDespesasUsecase(): AtualizarDespesasUsecase
     }
 
 
@@ -45,8 +69,7 @@ class BottomSheetDetalhesDaDespesa(
      * e inicializa o campo de observações.
      */
     private fun init() {
-        initGraficoDelegate = EntryPoints.get(App.inst, GraficoDelegateComponent::class.java).getDelegate()
-
+        initDependencias()
         initGrafico()
         initCamposDoGrafico(despesa)
         initNome()
@@ -54,8 +77,22 @@ class BottomSheetDetalhesDaDespesa(
         initDataDePagamento()
         initCampoDespesaPaga()
         initObservacoes()
+        initBotaoEditar()
+        initBotaoPagar()
+        initBotaoRemover()
     }
 
+    private fun initDependencias() {
+
+        val entryPoint = EntryPoints.get(App.inst, Dependencias::class.java)
+
+        initGraficoDelegate = entryPoint.getDelegate()
+        removerDespesaUsecase = entryPoint.getRemoverDespesaUsecase()
+        getDespesasPorNomeNoPeriodoUseCase = entryPoint.getDespesasPorNomeNoPeriodoUseCase()
+        getDespesaRecorrenteUseCase = entryPoint.getDespesaRecorrenteUseCase()
+        removerDespesaRecorrenteUseCase = entryPoint.removerDespesaRecorrenteUseCase()
+        atualizarDespesasUsecase = entryPoint.atualizarDespesasUsecase()
+    }
 
     /**
      * Inicializa o campo de exibição do estado da despesa.
@@ -143,13 +180,88 @@ class BottomSheetDetalhesDaDespesa(
         if (despesa.observacoes.isEmpty()) binding.edtObservacoes.visibility = View.GONE
     }
 
+    private fun initBotaoRemover() {
+
+        binding.btnRemover.setOnClickListener { mostrarDialogoRemoverDespesa() }
+
+    }
+
+    private fun mostrarDialogoRemoverDespesa() {
+        val msg = String.format(
+            fragmento.getString(R.string.Deseja_mesmo_remover_x_essa_acao_nao_podera_ser_desfeita),
+            despesa.nome)
+            .formatarHtml()
+
+        MaterialAlertDialogBuilder(fragmento.requireContext()).setTitle(fragmento.getString(R.string.Por_favor_confirme))
+            .setMessage(msg)
+            .setPositiveButton(fragmento.getString(R.string.Remover)) { _, _ ->
+
+                fragmento.lifecycleScope.launch {
+                    removerDespesaUsecase(despesa)
+                    verificarRecorrencias()
+                }
+
+            }.setNegativeButton(fragmento.getString(R.string.Cancelar)) { _, _ -> }
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * Se a despesa for recorrente, o usuario sera indagado se deseja ou nao remover as recorrencias
+     * da despesa, se nao o dialogo sera fechado
+     */
+    private suspend fun verificarRecorrencias() {
+        val recorrencias = getDespesasPorNomeNoPeriodoUseCase(despesa.nome, despesa.dataDoPagamento, PeriodosController.periodoMaximo)
+        val despesaRecorrente = getDespesaRecorrenteUseCase(despesa)
+        if (recorrencias.isEmpty() && despesaRecorrente == null) dialogo.dismiss()
+        else mostrarDialogoRemoverRecorrencias(recorrencias, despesaRecorrente)
+    }
+
+    private fun mostrarDialogoRemoverRecorrencias(recorrencias: List<Despesa>, despesaRecorrente: DespesaRecorrente?) {
+        val nomeMes = Datas.nomeDoMes(despesa.dataDoPagamento)
+        val msg = String.format(
+            fragmento.getString(R.string.X_eh_uma_despesa_recorrente_deseja_remover_todas_as_copias_de_y_em_diante),
+            despesa.nome,
+            nomeMes)
+            .formatarHtml()
+
+        MaterialAlertDialogBuilder(fragmento.requireContext()).setTitle(fragmento.getString(R.string.Por_favor_confirme))
+            .setMessage(msg)
+            .setPositiveButton(String.format(fragmento.getString(R.string.De_x_em_diante), nomeMes)) { _, _ ->
+
+                fragmento.lifecycleScope.launch {
+
+                    if (despesaRecorrente != null) removerDespesaRecorrenteUseCase(despesaRecorrente)
+                    recorrencias.forEach { removerDespesaUsecase(it) }
+                    dialogo.dismiss()
+                }
+
+            }
+            .setNegativeButton(String.format(fragmento.getString(R.string.De_x_apenas), nomeMes)) { _, _ -> dialogo.dismiss() }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun initBotaoPagar() {
+        binding.btnPagar.setOnClickListener {
+
+            despesa.estaPaga = !despesa.estaPaga
+
+            if (despesa.estaPaga) despesa.dataEmQueFoiPaga = DateTime(DateTimeZone.UTC).millis
+            else despesa.dataEmQueFoiPaga = 0
+
+            fragmento.lifecycleScope.launch { atualizarDespesasUsecase(despesa) }
+            initCampoDespesaPaga()
+        }
+    }
+
+    private fun initBotaoEditar() {
+        // TODO: implementar
+    }
+
 
     fun mostrar() {
         init()
-        /*se esse dialogo for cancelavel sera necessario definir um dismiss listener para
-        * tirar o foco a view de repetir, senao ocorrera um bug toda vez que o usuario fechar
-        * o dialogo sem ser pelos botoes(salvar e cancelar) onde é possivel editar o texto da view livremente
-        * */
         dialogo.customView(binding.root)
             .cancelavel(true)
             .show(fragmento.parentFragmentManager)

@@ -6,7 +6,7 @@ import java.util.UUID
 
 /**
  * Versao de dominio do objeto despesa. Alteraçoes nos campos dessa classe
- * devem se refletir na sua entidade.
+ * devem se refletir na sua entidade e classes que a herdam.
  * @see gmarques.debtv4.data.room.entidades.DespesaEntidade
  * @see DespesaRecorrente
  */

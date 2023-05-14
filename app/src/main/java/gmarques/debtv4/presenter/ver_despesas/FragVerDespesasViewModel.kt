@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gmarques.debtv4.data.room.dao.DespesaDaoRoom
 import gmarques.debtv4.domain.entidades.Despesa
-import gmarques.debtv4.domain.usecases.ObservarDespesasUseCase
+import gmarques.debtv4.domain.usecases.despesas.ObservarDespesasNoPeriodoUseCase
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -13,7 +13,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class FragVerDespesasViewModel @Inject constructor(
-    private val observarDespesasUseCase: ObservarDespesasUseCase,
+    private val observarDespesasNoPeriodoUseCase: ObservarDespesasNoPeriodoUseCase,
     private val dao: DespesaDaoRoom,
 ) : ViewModel() {
 
@@ -26,6 +26,6 @@ class FragVerDespesasViewModel @Inject constructor(
      * @param fimPeriodo timestamp em milissegundos do fim do período desejado.
      */
     fun carregarDespesas(inicioPeriodo: Long, fimPeriodo: Long): Flow<ArrayList<Despesa>> {
-        return observarDespesasUseCase(inicioPeriodo, fimPeriodo)
+        return observarDespesasNoPeriodoUseCase(inicioPeriodo, fimPeriodo)
     }
 }

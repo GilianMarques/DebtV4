@@ -4,6 +4,8 @@ package gmarques.debtv4.domain.entidades
  * Um subtipo de despesa que herda todos os seu atributos alem de adicionar novos, necessarios
  * para a aplicação da recorrencia na despesa
  * @see Despesa
+ * @see gmarques.debtv4.data.room.entidades.DespesaRecorrenteEntidade
+ *
  */
 class DespesaRecorrente() : Despesa() {
 
@@ -41,7 +43,7 @@ class DespesaRecorrente() : Despesa() {
          * adicionar dados, tambem define um limite para a auto-importação de despesas e receitas no 
          * ato de sua criação
          * */
-        const val DATA_LIMITE_IMPORATACAO = 2
+        const val DATA_LIMITE_IMPORATACAO = 2 // anos
 
     }
 

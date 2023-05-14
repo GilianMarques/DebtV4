@@ -12,6 +12,10 @@ import java.util.Locale
  */
 class Periodo(val inicio: Long, val fim: Long) {
 
+    /**
+     * Cria um periodo com base no mes da data recebida começano e teminando no inicio e fim do
+     * mes.
+     */
     constructor(data: DateTime) : this(data.inicioDoMes().millis, data.finalDoMes().millis)
 
 

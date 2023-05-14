@@ -170,6 +170,12 @@ class Datas {
                 .uppercase()
         }
 
+        fun nomeDoMes(stamp: Long): String {
+            return DateTime(stamp, DateTimeZone.UTC)
+                .monthOfYear()
+                .getAsText(Locale.getDefault())
+        }
+
 
     }
 }

@@ -27,11 +27,15 @@ data class DespesaRecorrenteEntidade(
     @ColumnInfo(name = "data_em_que_foi_paga") val dataEmQueFoiPaga: Long,
 
     @ColumnInfo(name = "observacoes") val observacoes: String,
-    
+
     @ColumnInfo(name = "tipo_recorrencia") var tipoDeRecorrencia: DespesaRecorrente.Tipo,
-    
+
     @ColumnInfo(name = "intervalo_das_repeticoes") var intervaloDasRepeticoes: Int,
-    
+
     @ColumnInfo(name = "data_Limite_da_rcorrencia") var dataLimiteDaRecorrencia: Long,
+
+    @ColumnInfo(name = "foi_removida") val foiRemovida: Boolean,
+
+    @ColumnInfo(name = "ultima_atualizacao") val ultimaAtualizacao: Long,
 
 )

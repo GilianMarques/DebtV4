@@ -1,4 +1,4 @@
-package gmarques.debtv4.domain.usecases
+package gmarques.debtv4.domain.usecases.despesas
 
 import gmarques.debtv4.data.Mapper
 import gmarques.debtv4.data.room.dao.DespesaDaoRoom
@@ -23,7 +23,7 @@ class ObservarDespesasPorNomeNoPeriodoUseCase @Inject constructor(
      * foi em uma linha inclusa nma query.
      */
     operator fun invoke(nome: String, inicioPeriodo: Long, finalPeriodo: Long): Flow<ArrayList<Despesa>> {
-        return roomDao.observar(nome, inicioPeriodo, finalPeriodo)
+        return roomDao.observarPorNomeNoPeriodo(nome, inicioPeriodo, finalPeriodo)
             .distinctUntilChanged()
             .transform { lista ->
                 val despesas = ArrayList<Despesa>()

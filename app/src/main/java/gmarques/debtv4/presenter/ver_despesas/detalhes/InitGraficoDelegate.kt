@@ -1,6 +1,5 @@
 package gmarques.debtv4.presenter.ver_despesas.detalhes
 
-import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
@@ -22,11 +21,10 @@ import gmarques.debtv4.App
 import gmarques.debtv4.R
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.extension_functions.Datas
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.dp
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
-import gmarques.debtv4.domain.usecases.ObservarDespesasPorNomeNoPeriodoUseCase
+import gmarques.debtv4.domain.usecases.despesas.ObservarDespesasPorNomeNoPeriodoUseCase
 import gmarques.debtv4.presenter.outros.UIUtils
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -68,8 +66,8 @@ class InitGraficoDelegate @Inject constructor(
 
         job = activity.lifecycleScope.launch {
             despesasUsecase(despesa.nome,
-                DateTime(DateTimeZone.UTC).minusMonths(3).millis,
-                DateTime(DateTimeZone.UTC).plusMonths(3).millis)
+                DateTime(DateTimeZone.UTC).minusMonths(6).finalDoMes().millis,
+                DateTime(DateTimeZone.UTC).plusMonths(6).finalDoMes().millis)
                 .collect { despesas ->
 
                     val dados = ArrayList<Entry>()
@@ -98,7 +96,7 @@ class InitGraficoDelegate @Inject constructor(
         initEixoY(dataSet)
         initDescricao()
         initLegenda()
-        initGrafico(dados, lineData!!)
+        initGrafico(lineData)
 
 
     }
@@ -106,13 +104,13 @@ class InitGraficoDelegate @Inject constructor(
     /**
      * Aplica as costumizaçoes pertinentes ao grafico em si
      */
-    private fun initGrafico(dados: ArrayList<Entry>, lineData: LineData) {
+    private fun initGrafico(lineData: LineData) {
 
         val comprimentoTexto = lineData.yMax.toString().emMoeda().length
 
         /*'comprimentoTexto * 6.5f.dp()' deixa um espaço perfeito entre a borda esquerda do grafico e
-        os valores do grafico (em moeda) se o comprimento for '7' por isso
-        * se o comprimento for maior que 7 eu subtraio para obter a sobra e multiplico po um numero
+        os valores (em moeda) se o comprimento for '7', por isso
+        * se o comprimento for maior que 7 eu subtraio para obter a sobra e multiplico por um numero
         * que resulta em um resultado aceitavel que nesse caso é 1.75f*/
         val offsetVariavel: Float = comprimentoTexto * 6.5f.dp() - ((comprimentoTexto - 7) * 1.75f.dp())
         val offset = 30f.dp()
@@ -208,17 +206,8 @@ class InitGraficoDelegate @Inject constructor(
         }
     }
 
-    private fun carregarLineData(dataSet: LineDataSet): LineData? {
-        val lineData = LineData(dataSet)
-
-        // TODO: atualmente isso nao serve pra nada, nao tenho certeza do que faz
-        lineData.setValueFormatter(object : ValueFormatter() {
-            override fun getAxisLabel(value: Float, axis: AxisBase): String {
-                val date: String = value.toLong().dataFormatada(Datas.Mascaras.DD_MM_AAAA)
-                return date.substring(2) //remove the day from string. '22 AGO' becomes 'AGO'
-            }
-        })
-        return lineData
+    private fun carregarLineData(dataSet: LineDataSet): LineData {
+        return LineData(dataSet)
     }
 
     /**

@@ -1,6 +1,8 @@
 package gmarques.debtv4.domain.extension_functions
 
 import android.content.res.Resources
+import android.text.Spanned
+import androidx.core.text.HtmlCompat
 import gmarques.debtv4.App
 import java.math.BigDecimal
 import java.math.MathContext
@@ -38,6 +40,10 @@ class ExtensionFunctions {
         fun String?.apenasNumeros(): String? {
             return if (this == null) null else Regex("""\D""").replace(this, "")
         }
+
+        fun String.formatarHtml(): Spanned =
+            HtmlCompat.fromHtml(this, HtmlCompat.FROM_HTML_MODE_LEGACY)
+
 
         /**
          * Converte a string em moeda

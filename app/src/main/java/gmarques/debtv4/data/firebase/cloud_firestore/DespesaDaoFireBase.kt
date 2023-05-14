@@ -1,6 +1,7 @@
 package gmarques.debtv4.data.firebase.cloud_firestore
 
 import gmarques.debtv4.data.firebase.auth.CloudFireStoreDb
+import gmarques.debtv4.data.room.entidades.DespesaEntidade
 import gmarques.debtv4.domain.entidades.Despesa
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -14,10 +15,9 @@ import javax.inject.Inject
  *
  * @see gmarques.debtv4.data.room.dao.DespesaDaoRoom
  */
-// TODO: testar 
 class DespesaDaoFireBase @Inject constructor() {
 
-    fun addOuAtualizar(despesa: Despesa) {
+    fun addOuAtualizar(despesa: DespesaEntidade) {
         CloudFireStoreDb.despesasCollection.document(despesa.uid).set(despesa)
     }
 

@@ -1,4 +1,4 @@
-package gmarques.debtv4.domain.usecases
+package gmarques.debtv4.domain.usecases.despesas
 
 import gmarques.debtv4.data.Mapper
 import gmarques.debtv4.data.room.dao.DespesaDaoRoom
@@ -12,7 +12,7 @@ import javax.inject.Inject
 /**
  * Observa as despesas dentro de um intervalo de data especifico
  */
-class ObservarDespesasUseCase @Inject constructor(
+class ObservarDespesasNoPeriodoUseCase @Inject constructor(
     private val roomDao: DespesaDaoRoom,
     private val mapper: Mapper,
 ) {
@@ -20,10 +20,10 @@ class ObservarDespesasUseCase @Inject constructor(
      * Observa alteraçoes na tabela de despesas, emitindo novos valores apenas quando ocorre a
      * atualização de uma despesa dentro do periodo recebido. Isso é assegurado por
      * [Flow.distinctUntilChanged], ja que o Room nao consegue dicernir se a alteração na tabela
-     * foi em uma linha inclusa nma query.
+     * foi em uma linha inclusa na query.
      */
     operator fun invoke(inicioPeriodo: Long, finalPeriodo: Long): Flow<ArrayList<Despesa>> {
-        return roomDao.observar(inicioPeriodo, finalPeriodo)
+        return roomDao.observarPeriodo(inicioPeriodo, finalPeriodo)
             .distinctUntilChanged()
             .transform { lista ->
             val despesas = ArrayList<Despesa>()
