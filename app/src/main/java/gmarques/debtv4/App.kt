@@ -3,6 +3,7 @@ package gmarques.debtv4
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
+// TODO: ajustar as colorOnPrimary, secondary e accent
 
 @HiltAndroidApp
 class App : Application() {
@@ -10,11 +11,9 @@ class App : Application() {
         super.onCreate()
         inst = this
     }
-// TODO: ajustar as colorOnPrimary, secondary e accent
-
 
     companion object {
         lateinit var inst: App
-        var demonstracao = true // se true, o app nao mostra valores
+        var demonstracao = false // se true, o app nao mostra valores
     }
 }

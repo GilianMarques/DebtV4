@@ -18,12 +18,21 @@ class ExtensionFunctions {
 
     companion object {
         /**
-         * @return quantos % 'A' é de 'B' on de 'A' é o inteiro no qual a funçao esta sendo chamada e
+         * @return quantos % 'A' é de 'B' onde 'A' é o inteiro no qual a funçao esta sendo chamada e
          * 'B' é o parametro recebido.
          * Exemplo: Se 'A' é = 30 e 'B' é = 200 o retorno sera 15.0
          * */
         fun Int.porcentoDe(alvo: Int): Float {
             return BigDecimal(this).divide(BigDecimal(alvo), MathContext(6, RoundingMode.UP)).multiply(BigDecimal(100)).toFloat()
+        }
+
+        /**
+         * @return quantos % 'A' é de 'B' onde 'A' é o inteiro no qual a funçao esta sendo chamada e
+         * 'B' é o parametro recebido.
+         * Exemplo: Se 'A' é = 30 e 'B' é = 200 o retorno sera 15.0
+         * */
+        fun Long.porcentoDe(alvo: Long): Double {
+            return BigDecimal(this).divide(BigDecimal(alvo), MathContext(6, RoundingMode.UP)).multiply(BigDecimal(100)).toDouble()
         }
 
         fun Int.dp(): Int {
@@ -51,7 +60,7 @@ class ExtensionFunctions {
          * Exemplo de string valida 1520.00
          */
         fun String.emMoeda(): String {
-            if (App.demonstracao) "******"//return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(111.11).toString()
+            if (App.demonstracao) return "**.***,**"//return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(111.11).toString()
             return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(this.toDouble()).toString()
         }
 

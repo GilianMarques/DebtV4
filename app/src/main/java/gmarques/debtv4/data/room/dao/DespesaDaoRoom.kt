@@ -45,6 +45,12 @@ abstract class DespesaDaoRoom : BaseDao<DespesaEntidade>() {
      */
     abstract suspend fun getTodas(): List<DespesaEntidade>
 
+    @Query("SELECT * FROM despesas")
+    /**
+     * observa todas as despesas, mesmo as marcadas como removidas
+     */
+    abstract fun observarTodas(): Flow<List<DespesaEntidade>>
+
     @Query("SELECT COUNT(*) FROM despesas")
     abstract suspend fun contar(): Int
 

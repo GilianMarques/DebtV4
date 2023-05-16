@@ -181,6 +181,7 @@ class InitGraficoDelegate @Inject constructor(
             }
         }
         leftYAxis.setLabelCount(3, true)
+        leftYAxis.textColor = accent
         // oculta o lado direito do eixo
         lineChart.axisRight.isEnabled = false
     }

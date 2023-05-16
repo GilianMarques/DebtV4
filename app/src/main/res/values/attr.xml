@@ -2,4 +2,11 @@
 <resources>
 
     <attr name="appCardBackground" format="reference" />
+    <attr name="appWindowBackground" format="reference" />
+    <attr name="appBsDetalhesEdittextBackground" format="reference" />
+
+    <attr name="appTextoCorPrimaria" format="reference" />
+    <attr name="appTextoCorSecundaria" format="reference" />
+    <attr name="appTextoCorDestaque" format="reference" />
+
 </resources>

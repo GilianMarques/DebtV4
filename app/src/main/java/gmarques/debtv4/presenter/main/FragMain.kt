@@ -7,14 +7,11 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
-import gmarques.debtv4.data.sincronismo.SincAdapterCallbackImpl
 import gmarques.debtv4.databinding.FragMainBinding
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -79,6 +76,7 @@ class FragMain : CustomFrag() {
 
         // TODO: remover
         //binding.btnVerDespesas.callOnClick()
+
     }
 
 

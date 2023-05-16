@@ -16,6 +16,7 @@
         android:layout_height="match_parent"
         android:layout_margin="4dp"
         android:foreground="?attr/selectableItemBackgroundBorderless"
+        app:cardBackgroundColor="?appCardBackground"
         app:cardCornerRadius="@dimen/app_card_raio"
         app:cardElevation="@dimen/app_card_elevation">
 
@@ -48,7 +49,7 @@
                     android:layout_gravity="center_vertical"
                     android:padding="7dp"
                     app:srcCompat="@drawable/vec_despesas"
-                    app:tint="?colorPrimary" />
+                    app:tint="?appTextoCorPrimaria" />
 
                 <TextView
                     android:id="@+id/tv_pago"
@@ -59,7 +60,8 @@
                     android:layout_marginEnd="8dp"
                     android:fontFamily="@font/nunito_sans"
                     android:padding="4dp"
-                    android:text="@string/Pago"
+                    android:text="@string/Paga"
+                    android:textColor="?appTextoCorPrimaria"
                     android:textSize="11dp"
                     android:textStyle="bold"
                     android:visibility="gone"
@@ -75,7 +77,7 @@
                 android:id="@+id/tv_valor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/nunito_sans_extrabold"
+                android:fontFamily="@font/nunito_sans"
                 android:gravity="bottom"
                 android:text="R$1.250,14"
                 android:textAlignment="gravity"
@@ -108,7 +110,7 @@
                 android:autoSizeMaxTextSize="18sp"
                 android:autoSizeMinTextSize="6sp"
                 android:autoSizeTextType="uniform"
-                android:fontFamily="@font/nunito_sans"
+                android:fontFamily="@font/nunito_sans_extrabold"
                 android:maxLines="1"
                 android:text="Receita disponível"
                 android:textAlignment="gravity"

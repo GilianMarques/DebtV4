@@ -14,7 +14,6 @@ import javax.inject.Inject
 @HiltViewModel
 class FragVerDespesasViewModel @Inject constructor(
     private val observarDespesasNoPeriodoUseCase: ObservarDespesasNoPeriodoUseCase,
-    private val dao: DespesaDaoRoom,
 ) : ViewModel() {
 
     /**

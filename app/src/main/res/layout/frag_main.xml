@@ -3,29 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:animateLayoutChanges="true"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/colorPrimary">
+        android:background="?colorPrimary">
 
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="192dp"
-            android:background="?attr/colorPrimary"
+            android:background="?colorPrimary"
             android:visibility="invisible"
             tools:visibility="visible">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:contentScrim="?attr/colorPrimary"
+                app:contentScrim="?colorPrimary"
                 app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed|snap"
                 app:toolbarId="@+id/toolbar">
 
@@ -49,7 +48,7 @@
             android:id="@+id/nested_scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/layout_background"
+            android:background="@drawable/back_layout"
             android:paddingTop="16dp"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
@@ -59,26 +58,29 @@
                 android:layout_margin="8dp"
                 android:animateLayoutChanges="true"
                 android:orientation="vertical"
-                tools:context=".presenter.main.FragMain" >
+                tools:context=".presenter.main.FragMain">
 
                 <Button
                     android:id="@+id/btn_ver_despesas"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ver despesas" />
+                    android:text="Ver despesas"
+                    android:textColor="?appTextoCorPrimaria" />
 
                 <Button
                     android:id="@+id/btn_add_despesas"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Adicionar desesas" />
+                    android:text="Adicionar desesas"
+                    android:textColor="?appTextoCorPrimaria" />
 
 
                 <Button
                     android:id="@+id/btn_sincronizar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sincronizar" />
+                    android:text="Sincronizar"
+                    android:textColor="?appTextoCorPrimaria" />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
         </androidx.core.widget.NestedScrollView>

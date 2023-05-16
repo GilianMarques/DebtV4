@@ -75,6 +75,7 @@
         <Button
             android:id="@+id/meses"
             style="?attr/materialButtonOutlinedStyle"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -91,7 +92,7 @@
         android:layout_marginBottom="8dp"
         android:text="@string/Nao_repetir"
         android:textAllCaps="true"
-        android:textColor="?colorPrimary"
+        android:textColor="?appTextoCorPrimaria"
         app:backgroundTint="?colorSecondary"
 
         app:layout_constraintEnd_toStartOf="@id/guideline3"
@@ -115,6 +116,7 @@
         android:layout_marginBottom="8dp"
         android:text="@string/Salvar"
         android:textAllCaps="true"
+        android:textColor="@color/text_color_primary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/guideline3"
         app:layout_constraintTop_toBottomOf="@+id/toggleButton" />

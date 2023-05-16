@@ -16,6 +16,8 @@ import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,6 +48,7 @@ class FragAddDespesaViewModel @Inject constructor(
     private val _fecharFragmento: MutableLiveData<Boolean> = MutableLiveData()
     val fecharFragmento get() = _fecharFragmento
 
+
     fun validarEntradasDoUsuario() = viewModelScope.launch(IO) {
         if (!validarValor()) return@launch
         if (!validarNome()) return@launch
@@ -55,7 +58,6 @@ class FragAddDespesaViewModel @Inject constructor(
         if (!validarDataLimiteRecorrencia()) return@launch
         addDespesa()
     }
-
 
     private suspend fun addDespesa() {
 
