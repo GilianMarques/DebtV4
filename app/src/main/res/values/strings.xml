@@ -93,5 +93,6 @@
     <string name="X_eh_uma_despesa_recorrente_deseja_remover_todas_as_copias_de_y_em_diante"><![CDATA[<b>%1$s</b> é uma despesa recorrente.\nDeseja remover todas as copias de <b>%2$s</b> em diante?]]></string>
     <string name="De_x_em_diante">De %1$s em diante</string>
     <string name="De_x_apenas">" De %1$s apenas"</string>
+    <string name="Ja_existe_uma_despesa_com_o_esse_nome_em_x">Já existe uma despesa com o esse nome em %1$s</string>
 
 </resources>

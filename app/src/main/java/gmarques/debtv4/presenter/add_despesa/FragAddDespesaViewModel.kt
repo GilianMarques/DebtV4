@@ -7,15 +7,25 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gmarques.debtv4.App
 import gmarques.debtv4.R
 import gmarques.debtv4.data.Mapper
+import gmarques.debtv4.domain.PeriodosController
 import gmarques.debtv4.domain.usecases.despesas.AddDespesasUsecase
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.COMPRIMENTO_MAXIMO_NOME
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MAXIMO
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
+import gmarques.debtv4.domain.extension_functions.Datas
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.inicioDoMes
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
+import gmarques.debtv4.domain.usecases.despesas.GetDespesasPorNomeNoPeriodoUseCase
+import gmarques.debtv4.domain.usecases.despesas.PesquisarDespesasPorNomeNoPeriodoUseCase
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import javax.inject.Inject
@@ -23,6 +33,8 @@ import javax.inject.Inject
 @HiltViewModel
 class FragAddDespesaViewModel @Inject constructor(
     private val addDespesaUsecase: AddDespesasUsecase,
+    private val pesquisarDespesasPorNomeNoPeriodoUseCase: PesquisarDespesasPorNomeNoPeriodoUseCase,
+    private val getDespesasPorNomeNoPeriodoUseCase: GetDespesasPorNomeNoPeriodoUseCase,
     private val mapper: Mapper,
 ) : ViewModel() {
 
@@ -48,10 +60,15 @@ class FragAddDespesaViewModel @Inject constructor(
     private val _fecharFragmento: MutableLiveData<Boolean> = MutableLiveData()
     val fecharFragmento get() = _fecharFragmento
 
+    /**
+     * Serve para interromper uma busca em andamento quando o usuario altera o nome na UI
+     */
+    private var jobDeBucaDeSugestoes: Job? = null
 
     fun validarEntradasDoUsuario() = viewModelScope.launch(IO) {
         if (!validarValor()) return@launch
         if (!validarNome()) return@launch
+        if (!validarDuplicata()) return@launch
         if (!validarDataDePagamento()) return@launch
         if (!validarDataEmQueDespesaFoiPaga()) return@launch
         if (!validarRecorrencia()) return@launch
@@ -102,6 +119,17 @@ class FragAddDespesaViewModel @Inject constructor(
         if (nomeDespesa.isNullOrEmpty()) return erroDeValidacao(R.string.O_nome_nao_pode_ficar_vazio)
 
         if (nomeDespesa!!.length > COMPRIMENTO_MAXIMO_NOME) return erroDeValidacao(String.format(context.getString(R.string.O_nome_nao_pode_ser_maior_que_x), COMPRIMENTO_MAXIMO_NOME))
+
+        return true
+    }
+
+    private suspend fun validarDuplicata(): Boolean {
+        val duplicata = getDespesasPorNomeNoPeriodoUseCase(nomeDespesa!!,
+            DateTime(dataDePagamentoDaDespesa, DateTimeZone.UTC).inicioDoMes().millis,
+            DateTime(dataDePagamentoDaDespesa, DateTimeZone.UTC).finalDoMes().millis
+        ).isNotEmpty()
+
+        if (duplicata) return erroDeValidacao(String.format(context.getString(R.string.Ja_existe_uma_despesa_com_o_esse_nome_em_x), Datas.nomeDoMes(dataDePagamentoDaDespesa!!)))
 
         return true
     }
@@ -180,4 +208,30 @@ class FragAddDespesaViewModel @Inject constructor(
         msgErro.postValue(msg)
         return false
     }
+
+    /**
+     * Busca sugestões de despesas com base no nome fornecido.
+     *
+     * @param nome O nome usado para buscar sugestões de despesas.
+     * @return Um par contendo a lista de sugestões de nomes de despesas e a lista mutável de
+     *         objetos Despesa correspondentes.
+     */
+    suspend fun buscarSugestoes(nome: String): Pair<List<String>, MutableList<Despesa>> {
+        jobDeBucaDeSugestoes?.cancel()
+        jobDeBucaDeSugestoes = Job()
+
+        val sugestoes = mutableListOf<Despesa>()
+
+        return withContext(IO + jobDeBucaDeSugestoes!!) {
+            return@withContext pesquisarDespesasPorNomeNoPeriodoUseCase(nome,
+                0,
+                PeriodosController.periodoAtual.value.fim)
+                .distinctBy { it.nome }
+                .map {
+                    sugestoes.add(it)
+                    it.nome
+                }
+        } to sugestoes
+    }
+
 }

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import androidx.core.view.WindowCompat
 import androidx.core.view.animation.PathInterpolatorCompat
@@ -25,6 +26,7 @@ import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECOR
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterDDMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
 import gmarques.debtv4.domain.extension_functions.Datas.Mascaras.*
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emDouble
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoedaSemSimbolo
@@ -37,13 +39,12 @@ import gmarques.debtv4.presenter.outros.UIUtils
 import gmarques.debtv4.presenter.pop_ups.DataPicker
 import gmarques.debtv4.presenter.pop_ups.DataPicker.*
 import gmarques.debtv4.presenter.pop_ups.TecladoCalculadora
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Currency
 import java.util.Locale
 import kotlin.math.abs
-import kotlin.random.Random
 
+@Suppress("UNUSED_ANONYMOUS_PARAMETER")
 @AndroidEntryPoint
 class FragAddDespesa : CustomFrag() {
 
@@ -266,7 +267,43 @@ class FragAddDespesa : CustomFrag() {
         }
         binding.edtNome.addTextChangedListener {
             viewModel.nomeDespesa = it.toString()
+            mostarSugestoesDeDespesa(it.toString())
+
         }
+    }
+
+    /**
+     * exibe um drop-down list no campo de nome com sugestoes de despesas pro usuario importar
+     */
+    private fun mostarSugestoesDeDespesa(nome: String) = lifecycleScope.launch() {
+
+        if (nome.length < 2) return@launch
+
+        val (nomes, despesas) = viewModel.buscarSugestoes(nome)
+        val adapter = ArrayAdapter(requireContext(),
+            android.R.layout.select_dialog_item,
+            nomes)
+
+        binding.edtNome.setAdapter(adapter)
+
+        binding.edtNome.setOnItemClickListener { parent, view, position, id ->
+            aplicarDadosDaSugestao(despesas[position])
+        }
+    }
+
+    /**
+     * popula a interface com os dados da despesa selecionada no campo de sugestoes
+     * e salva os valores no viewmodel
+     */
+    private fun aplicarDadosDaSugestao(despesa: Despesa) {
+
+        binding.tvValor.text = despesa.valor.toString().emMoedaSemSimbolo()
+        viewModel.valorDespesa = despesa.valor.toString()
+
+        binding.dataPagamento.setText(despesa.dataDoPagamento.dataFormatadaComOffset(DD_MM_AAAA))
+
+        binding.observacoes.setText(despesa.observacoes)
+
     }
 
     private fun initCampoObservacoes() {

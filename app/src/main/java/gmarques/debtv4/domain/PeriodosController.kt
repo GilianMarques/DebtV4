@@ -21,8 +21,6 @@ object PeriodosController {
     // TODO: mudar esse valor para a data mais a frente no banco de dados(?)
     val periodoMaximo: Long = DateTime(DateTimeZone.UTC).plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
 
-    private var observarDataJob: Job? = null
-
     private val _periodoAtual = MutableStateFlow(Periodo(DateTime(DateTimeZone.UTC)))
     val periodoAtual: StateFlow<Periodo>
         get() = _periodoAtual
