@@ -48,6 +48,7 @@ class InitGraficoDelegate @Inject constructor(
     private var primary: Int = 0
     private var accent: Int = 0
     private var secondary: Int = 0
+
     lateinit var job: Job
 
     private fun initVariaveis() {
@@ -133,9 +134,11 @@ class InitGraficoDelegate @Inject constructor(
             }
         })
 
+        lineChart.setNoDataText(activity.getString(R.string.Essa_despesa_nao_se_repete))  // Texto a ser exibido quando não há dados
+        lineChart.setNoDataTextColor(primary)
 
         // set data
-        lineChart.data = lineData
+        if (lineData.entryCount > 1) lineChart.data = lineData
         lineChart.invalidate()
         lineChart.visibility = View.VISIBLE
         lineChart.animateY(650, Easing.EaseInOutExpo)

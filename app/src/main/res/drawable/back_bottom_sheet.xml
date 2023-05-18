@@ -4,7 +4,7 @@
 
     <!--> usar '?android:windowBackground' como fundo causa uma exception em dialogos <-->
 
-    <solid android:color="?appWindowBackground" />
+    <solid android:color="?appCardBackground" />
 
     <corners
         android:topLeftRadius="8dp"

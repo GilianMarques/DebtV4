@@ -4,7 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00FFFFFF</color>
     <color name="contorno">#7C6E8C</color>
-    <color name="dimmer_bottom_sheet">#8007010E</color>
+    <color name="dimmer_bottom_sheet">#3307010E</color>
 
     <color name="btn_background">#80000000</color>
     <color name="window_background">#FBF9FF</color>
@@ -26,5 +26,5 @@
     <color name="color_primary_dark">#8B59DC</color>
     <color name="color_secondary_dark">#A35EE7</color>
     <color name="color_accent_dark">#FB7400</color>
-    <color name="back_bs_detalhes_edittext_dark">#231A32</color>
+    <color name="back_bs_detalhes_edittext_dark">#291F3A</color>
 </resources>

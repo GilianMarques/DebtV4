@@ -94,5 +94,6 @@
     <string name="De_x_em_diante">De %1$s em diante</string>
     <string name="De_x_apenas">" De %1$s apenas"</string>
     <string name="Ja_existe_uma_despesa_com_o_esse_nome_em_x">Já existe uma despesa com o esse nome em %1$s</string>
+    <string name="Essa_despesa_nao_se_repete">Essa despesa não se repete</string>
 
 </resources>

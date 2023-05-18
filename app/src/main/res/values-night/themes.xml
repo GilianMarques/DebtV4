@@ -6,8 +6,9 @@
         <item name="android:windowLightStatusBar">false</item>
 
         <!--<item name="android:windowLightNavigationBar">true</item> -->
-
         <item name="appWindowBackground">@color/window_background_dark</item>
+        <item name="android:windowBackground">?appWindowBackground</item>
+
         <item name="appCardBackground">@color/card_background_dark</item>
 
         <item name="appBsDetalhesEdittextBackground">@color/back_bs_detalhes_edittext_dark</item>
@@ -22,7 +23,6 @@
         <item name="appTextoCorPrimaria">@color/text_color_primary</item>
         <item name="appTextoCorSecundaria">@color/text_color_secondary</item>
         <item name="appTextoCorDestaque">?colorAccent</item>
-
 
     </style>
 
