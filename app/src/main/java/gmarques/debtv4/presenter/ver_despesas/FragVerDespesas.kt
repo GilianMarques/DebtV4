@@ -65,7 +65,7 @@ class FragVerDespesas : CustomFrag(), DespesasAdapterCallback {
         PeriodosController.periodoAtual.collectLatest { periodo ->
             observarPeriodoJob?.cancel()
             observarPeriodoJob = lifecycleScope.launch {
-                viewModel.carregarDespesas(periodo.inicio, periodo.fim).collect {
+                 viewModel.carregarDespesas(periodo.inicio, periodo.fim).collect {
                     adapter.atualizarColecao(it)
                 }
             }

@@ -60,7 +60,7 @@ class Datas {
 
             val data = criarData(1, mes, ano)
 
-            val ultimoDiaMes = data.plusMonths(1).minusDays(1).dayOfMonth
+            val ultimoDiaMes = data.dayOfMonth().maximumValue
 
             // exemplo: 31/02/2023 sendo que fevereiro tem 28/29 dias dependendo do ano
             if (dia > ultimoDiaMes) return null

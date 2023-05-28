@@ -2,6 +2,7 @@ package gmarques.debtv4.presenter.ver_despesas.detalhes
 
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.EntryPoint
 import dagger.hilt.EntryPoints
@@ -17,14 +18,17 @@ import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.formatarHtml
-import gmarques.debtv4.domain.usecases.despesas.AtualizarDespesasUsecase
+import gmarques.debtv4.domain.usecases.despesas.AtualizarDespesaUsecase
 import gmarques.debtv4.domain.usecases.despesas.GetDespesasPorNomeNoPeriodoUseCase
 import gmarques.debtv4.domain.usecases.despesas.RemoverDespesasUseCase
 import gmarques.debtv4.domain.usecases.despesas_recorrentes.GetDespesaRecorrenteUseCase
 import gmarques.debtv4.domain.usecases.despesas_recorrentes.RemoverDespesaRecorrenteUseCase
 import gmarques.debtv4.presenter.main.CustomFrag
+import gmarques.debtv4.presenter.main.FragMainDirections
 import gmarques.debtv4.presenter.outros.UIUtils
 import gmarques.debtv4.presenter.pop_ups.CustomBottomSheet
+import gmarques.debtv4.presenter.ver_despesas.FragVerDespesasDirections
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -35,12 +39,8 @@ class BottomSheetDetalhesDaDespesa(
     private val despesa: Despesa,
     private val fragmento: CustomFrag,
 ) {
-    // TODO: obter versao recorrente  pra remover se o usuario aprovar
-    // TODO: exibir dialogo, remover despesas e inicializar os outros botoes
 
-    // TODO: terminar esse dialogo e colocar o db na memoria
-
-    private lateinit var atualizarDespesasUsecase: AtualizarDespesasUsecase
+    private lateinit var atualizarDespesaUsecase: AtualizarDespesaUsecase
     private lateinit var removerDespesaRecorrenteUseCase: RemoverDespesaRecorrenteUseCase
     private lateinit var getDespesaRecorrenteUseCase: GetDespesaRecorrenteUseCase
     private lateinit var getDespesasPorNomeNoPeriodoUseCase: GetDespesasPorNomeNoPeriodoUseCase
@@ -58,7 +58,7 @@ class BottomSheetDetalhesDaDespesa(
         fun getDespesasPorNomeNoPeriodoUseCase(): GetDespesasPorNomeNoPeriodoUseCase
         fun getDespesaRecorrenteUseCase(): GetDespesaRecorrenteUseCase
         fun removerDespesaRecorrenteUseCase(): RemoverDespesaRecorrenteUseCase
-        fun atualizarDespesasUsecase(): AtualizarDespesasUsecase
+        fun atualizarDespesasUsecase(): AtualizarDespesaUsecase
     }
 
 
@@ -91,7 +91,7 @@ class BottomSheetDetalhesDaDespesa(
         getDespesasPorNomeNoPeriodoUseCase = entryPoint.getDespesasPorNomeNoPeriodoUseCase()
         getDespesaRecorrenteUseCase = entryPoint.getDespesaRecorrenteUseCase()
         removerDespesaRecorrenteUseCase = entryPoint.removerDespesaRecorrenteUseCase()
-        atualizarDespesasUsecase = entryPoint.atualizarDespesasUsecase()
+        atualizarDespesaUsecase = entryPoint.atualizarDespesasUsecase()
     }
 
     /**
@@ -212,7 +212,7 @@ class BottomSheetDetalhesDaDespesa(
      */
     private suspend fun verificarRecorrencias() {
         val recorrencias = getDespesasPorNomeNoPeriodoUseCase(despesa.nome, despesa.dataDoPagamento, PeriodosController.periodoMaximo)
-        val despesaRecorrente = getDespesaRecorrenteUseCase(despesa)
+        val despesaRecorrente = getDespesaRecorrenteUseCase(despesa.nome)
         if (recorrencias.isEmpty() && despesaRecorrente == null) dialogo.dismiss()
         else mostrarDialogoRemoverRecorrencias(recorrencias, despesaRecorrente)
     }
@@ -250,13 +250,17 @@ class BottomSheetDetalhesDaDespesa(
             if (despesa.estaPaga) despesa.dataEmQueFoiPaga = DateTime(DateTimeZone.UTC).millis
             else despesa.dataEmQueFoiPaga = 0
 
-            fragmento.lifecycleScope.launch { atualizarDespesasUsecase(despesa) }
+            fragmento.lifecycleScope.launch { atualizarDespesaUsecase(despesa) }
             initCampoDespesaPaga()
         }
     }
 
     private fun initBotaoEditar() {
-        // TODO: implementar
+        binding.btnEditar.setOnClickListener {
+
+            dialogo.dismiss()
+            fragmento.findNavController().navigate(FragVerDespesasDirections.actionAtualizarDespesa(despesa))
+        }
     }
 
 

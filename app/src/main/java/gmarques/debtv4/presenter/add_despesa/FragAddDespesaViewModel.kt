@@ -1,6 +1,5 @@
 package gmarques.debtv4.presenter.add_despesa
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,22 +7,24 @@ import gmarques.debtv4.App
 import gmarques.debtv4.R
 import gmarques.debtv4.data.Mapper
 import gmarques.debtv4.domain.PeriodosController
-import gmarques.debtv4.domain.usecases.despesas.AddDespesasUsecase
+import gmarques.debtv4.domain.usecases.despesas.AdicionarDespesasUsecase
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.COMPRIMENTO_MAXIMO_NOME
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MAXIMO
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.extension_functions.Datas
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.inicioDoMes
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
+import gmarques.debtv4.domain.usecases.despesas.AtualizarDespesaUsecase
+import gmarques.debtv4.domain.usecases.despesas.AtualizarRecorrenciasDaDespesaUsecase
 import gmarques.debtv4.domain.usecases.despesas.GetDespesasPorNomeNoPeriodoUseCase
 import gmarques.debtv4.domain.usecases.despesas.PesquisarDespesasPorNomeNoPeriodoUseCase
+import gmarques.debtv4.domain.usecases.despesas_recorrentes.GetDespesaRecorrenteUseCase
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.joda.time.DateTime
@@ -32,13 +33,54 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FragAddDespesaViewModel @Inject constructor(
-    private val addDespesaUsecase: AddDespesasUsecase,
+    private val addDespesaUsecase: AdicionarDespesasUsecase,
     private val pesquisarDespesasPorNomeNoPeriodoUseCase: PesquisarDespesasPorNomeNoPeriodoUseCase,
     private val getDespesasPorNomeNoPeriodoUseCase: GetDespesasPorNomeNoPeriodoUseCase,
+    private val getDespesaRecorrenteUseCase: GetDespesaRecorrenteUseCase,
+    private val atualizarRecorrenciasDaDespesaUsecase: AtualizarRecorrenciasDaDespesaUsecase,
+    private val atualizarDespesaUsecase: AtualizarDespesaUsecase,
     private val mapper: Mapper,
 ) : ViewModel() {
 
+    private val context = App.inst
 
+    /**
+     * O usuario esta editando uma despesa?
+     * é inicializado pelo setter de [despesaParaEditar]
+     *
+     */
+    var editando: Boolean = false
+
+    /**
+     * Serve para comparar com [despesaParaEditar] em busca de mudanças
+     * é inicializado pelo setter de [despesaParaEditar]
+     */
+    private var despesaOriginal: Despesa? = null
+
+    var despesaParaEditar: Despesa? = null // sera nulo se o usuario estiver adicionando uma despesa
+        set(value) {
+            field = value
+
+            editando = value != null
+            value?.let {
+                despesaOriginal = mapper.clonarDespesa(value)
+            }
+
+        }
+
+    /**
+     * Retem os dados de recorrencia da despesa que sera adicionada pelo usuario, se ele estiver
+     * editando ao inves de adicionando uma despesa, esse objeto sera sempre nulo.
+     */
+    private var despesaRecorrente: DespesaRecorrente? = null
+
+    /**
+     * Despesa que sera adicionada se o usuario nao estiver editando uma despesa, se for o caso
+     * essa despesa nunca sera inicializada.
+     */
+    private lateinit var novaDespesa: Despesa
+
+    // essas variavies guardam os valores convertidos que o usuario colocou na interface
     var despesaPaga: Boolean = false
     var valorDespesa: String = "0"
     var nomeDespesa: String? = null
@@ -48,17 +90,19 @@ class FragAddDespesaViewModel @Inject constructor(
     var intervaloDasRepeticoes: Int? = null
     var dataLimiteDaRepeticao: Long? = null
     var observacoesDespesa = ""
-    private val context = App.inst
 
-    private var despesaRecorrente: DespesaRecorrente? = null
-    private lateinit var despesa: Despesa
 
-    private val _msgErro: MutableLiveData<String> = MutableLiveData()
+    private val _msgErro = MutableSharedFlow<String>()
     val msgErro get() = _msgErro
 
-
-    private val _fecharFragmento: MutableLiveData<Boolean> = MutableLiveData()
+    /**
+     * SharedFlow dispara updates uma unica vez, nao re-dispara se a tela girar. ideal pra snackbars
+     */
+    private val _fecharFragmento = MutableSharedFlow<Boolean>()
     val fecharFragmento get() = _fecharFragmento
+
+    private val _mostrarDialogoAtualizarRecorrentes = MutableSharedFlow<PacoteRecorrente?>()
+    val mostrarDialogoAtualizarRecorrentes get() = _mostrarDialogoAtualizarRecorrentes
 
     /**
      * Serve para interromper uma busca em andamento quando o usuario altera o nome na UI
@@ -73,12 +117,89 @@ class FragAddDespesaViewModel @Inject constructor(
         if (!validarDataEmQueDespesaFoiPaga()) return@launch
         if (!validarRecorrencia()) return@launch
         if (!validarDataLimiteRecorrencia()) return@launch
-        addDespesa()
+
+        when (editando) {
+            true  -> atulizarDespesa()
+            false -> addDespesa()
+        }
+    }
+
+    private suspend fun atulizarDespesa() {
+
+        despesaParaEditar!!.apply {
+
+            this.nome = nomeDespesa!!
+            this.valor = valorDespesa.toDouble()
+            this.dataDoPagamento = dataDePagamentoDaDespesa!!
+            this.estaPaga = despesaPaga
+            this.observacoes = observacoesDespesa
+
+            dataEmQueFoiPaga?.let { this.dataEmQueFoiPaga = it }
+
+        }
+
+
+        val (copias, despRecorrente) = verificarRecorrencias()
+
+        if (copias.size == 1 && despRecorrente == null) {
+            _fecharFragmento.emit(true)
+        } else {
+            _mostrarDialogoAtualizarRecorrentes.emit(PacoteRecorrente(copias, despRecorrente))
+        }
+
+        atualizarDespesaUsecase(despesaParaEditar!!)
+
+    }
+
+    /**
+     * Verifica as recorrências de uma despesa original e retorna uma tupla contendo
+     * a lista de despesas copiadas no período e a despesa recorrente correspondente,
+     * se existir.
+     *
+     * A função realiza as seguintes etapas:
+     * 1. Obtém um array de cópias da despesa original, incluindo a própria despesa original,
+     *    dentro do período máximo definido pelo controlador de períodos.
+     * 2. Obtém a despesa recorrente correspondente ao nome da despesa original.
+     *
+     * @return uma tupla contendo a lista de copias da despesa e a despesa recorrente, se existir.
+     */
+    private suspend fun verificarRecorrencias(): Pair<List<Despesa>, DespesaRecorrente?> {
+        val copias = getDespesasPorNomeNoPeriodoUseCase(despesaOriginal!!.nome, despesaOriginal!!.dataDoPagamento, PeriodosController.periodoMaximo)
+
+        val despesaRecorrente = getDespesaRecorrenteUseCase(despesaOriginal!!.nome)
+
+        return copias to despesaRecorrente
+    }
+
+
+    fun atualizarDespesasRecorrentes(pacote: PacoteRecorrente) = viewModelScope.launch(IO) {
+        val alteracoes = extrairAtualizacoes()
+        atualizarRecorrenciasDaDespesaUsecase(pacote.despesaRecorrente, pacote.copias, alteracoes)
+        _fecharFragmento.emit(true)
+    }
+
+    /**
+     * Extrai as atualizações realizadas na despesa a ser atualizada em relação à despesa original.
+     *
+     * @return HashMap contendo as atualizações realizadas na despesa.
+     */
+    private fun extrairAtualizacoes(): HashMap<String, Any> {
+// TODO: criar uma classe que faça isso com qualquer objeto
+        val despAtt = mapper.emJson(despesaParaEditar!!)
+        val despDesatt = mapper.emJson(despesaOriginal!!)
+
+        val atualizacoes = HashMap<String, Any>()
+
+        despAtt.keys().forEach { chave ->
+            val valor = despAtt[chave]
+            if (valor != despDesatt[chave]) atualizacoes[chave] = valor
+        }
+        return atualizacoes
     }
 
     private suspend fun addDespesa() {
 
-        despesa = Despesa().apply {
+        novaDespesa = Despesa().apply {
 
             this.nome = nomeDespesa!!
             this.valor = valorDespesa.toDouble()
@@ -91,15 +212,15 @@ class FragAddDespesaViewModel @Inject constructor(
         }
 
         if (tipoDeRecorrencia != null) {
-            despesaRecorrente = mapper.getDespesaRecorrente(despesa)
+            despesaRecorrente = mapper.getDespesaRecorrente(novaDespesa)
             despesaRecorrente!!.estaPaga = false
             despesaRecorrente!!.intervaloDasRepeticoes = intervaloDasRepeticoes!!
             despesaRecorrente!!.dataLimiteDaRecorrencia = dataLimiteDaRepeticao!!
             despesaRecorrente!!.tipoDeRecorrencia = tipoDeRecorrencia!!
         }
 
-        addDespesaUsecase(despesa, despesaRecorrente)
-        fecharFragmento.postValue(true)
+        addDespesaUsecase(novaDespesa, despesaRecorrente)
+        fecharFragmento.emit(true)
 
     }
 
@@ -116,7 +237,7 @@ class FragAddDespesaViewModel @Inject constructor(
      */
     private fun validarNome(): Boolean {
 
-        if (nomeDespesa.isNullOrEmpty()) return erroDeValidacao(R.string.O_nome_nao_pode_ficar_vazio)
+        if (nomeDespesa.isNullOrEmpty()) return erroDeValidacao(context.getString(R.string.O_nome_nao_pode_ficar_vazio))
 
         if (nomeDespesa!!.length > COMPRIMENTO_MAXIMO_NOME) return erroDeValidacao(String.format(context.getString(R.string.O_nome_nao_pode_ser_maior_que_x), COMPRIMENTO_MAXIMO_NOME))
 
@@ -124,10 +245,11 @@ class FragAddDespesaViewModel @Inject constructor(
     }
 
     private suspend fun validarDuplicata(): Boolean {
-        val duplicata = getDespesasPorNomeNoPeriodoUseCase(nomeDespesa!!,
-            DateTime(dataDePagamentoDaDespesa, DateTimeZone.UTC).inicioDoMes().millis,
-            DateTime(dataDePagamentoDaDespesa, DateTimeZone.UTC).finalDoMes().millis
-        ).isNotEmpty()
+
+        if (editando && despesaParaEditar!!.nome == nomeDespesa) return true
+
+
+        val duplicata = getDespesasPorNomeNoPeriodoUseCase(nomeDespesa!!, DateTime(dataDePagamentoDaDespesa, DateTimeZone.UTC).inicioDoMes().millis, DateTime(dataDePagamentoDaDespesa, DateTimeZone.UTC).finalDoMes().millis).isNotEmpty()
 
         if (duplicata) return erroDeValidacao(String.format(context.getString(R.string.Ja_existe_uma_despesa_com_o_esse_nome_em_x), Datas.nomeDoMes(dataDePagamentoDaDespesa!!)))
 
@@ -191,23 +313,18 @@ class FragAddDespesaViewModel @Inject constructor(
     }
 
     /**
-     * Tem o proposito de evitar codigo duplicado
-     * @param msgRef deve ser uma referencia à uma string
-     */
-    private fun erroDeValidacao(msgRef: Int): Boolean {
-        return erroDeValidacao(context.getString(msgRef))
-    }
-
-    /**
-     * Sobrecarga de [erroDeValidacao] para quando nao for possivel passar apenas uma
-     * referencia a string desejada
-     * @return false, para garantir que a validaçõa seja interrompida assim que
-     * o primeiro erro é encontrado
+     * Envia uma mensagem de erro para a interface do usuário (UI) e retorna false para interromper a validação ao encontrar o primeiro erro.
+     * Essa função é usada para exibir na interface o erro encontrado durante a validação das entradas do usuário.
+     * Seu propósito é evitar a duplicação de código.
+     *
+     * @param msg a mensagem de erro a ser exibida na UI.
+     * @return false para garantir a interrupção da validação assim que o primeiro erro for encontrado.
      */
     private fun erroDeValidacao(msg: String): Boolean {
-        msgErro.postValue(msg)
+        viewModelScope.launch { msgErro.emit(msg) }
         return false
     }
+
 
     /**
      * Busca sugestões de despesas com base no nome fornecido.
@@ -223,15 +340,17 @@ class FragAddDespesaViewModel @Inject constructor(
         val sugestoes = mutableListOf<Despesa>()
 
         return withContext(IO + jobDeBucaDeSugestoes!!) {
-            return@withContext pesquisarDespesasPorNomeNoPeriodoUseCase(nome,
-                0,
-                PeriodosController.periodoAtual.value.fim)
-                .distinctBy { it.nome }
-                .map {
-                    sugestoes.add(it)
-                    it.nome
-                }
+            return@withContext pesquisarDespesasPorNomeNoPeriodoUseCase(nome, 0, PeriodosController.periodoAtual.value.fim).distinctBy { it.nome }.map {
+                sugestoes.add(it)
+                it.nome
+            }
         } to sugestoes
     }
+
+    /**
+     * serve pra manter os dados obtidos do db para caso o usuario queira atualizar as copias da despesa
+     * que ele acabou de atualizar
+     */
+    data class PacoteRecorrente(val copias: List<Despesa>, val despesaRecorrente: DespesaRecorrente?)
 
 }

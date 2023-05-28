@@ -11,6 +11,7 @@ import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
 import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -22,7 +23,7 @@ import javax.inject.Inject
  * @Author: Gilian Marques
  * @Date: sábado, 29 de abril de 2023 às 23:49
  */
-class AddDespesasUsecase @Inject constructor(
+class AdicionarDespesasUsecase @Inject constructor(
     private val despesaDaoRoom: DespesaDaoRoom,
     private val despesaDaoFirebase: DespesaDaoFireBase,
     private val despesaRecorrenteDaoRoom: DespesaRecorrenteDaoRoom,
@@ -32,7 +33,7 @@ class AddDespesasUsecase @Inject constructor(
 
     /**
      * Essa é a data limite que o app permite importações de objetos no futuro. despesas recorrentes
-     * nao deverao ser importadas se suas datas excederem esse valor, nesse caso sua versao recorrente
+     * nao deverão ser importadas se suas datas excederem esse valor, nesse caso sua versao recorrente
      * deverá ser salva no banco para que os novos meses criados as importem no momento de sua criação
      */
     private val limiteMaximoDoApp = DateTime(DateTimeZone.UTC).plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO)
@@ -64,7 +65,7 @@ class AddDespesasUsecase @Inject constructor(
 
             if (proxData.isAfter(dataLimiteDaRecorrencia)) break
 
-            val novaDespesa = mapper.clonarDespesa(despesa)
+            val novaDespesa = mapper.clonarDespesaComOutraId(despesa)
             novaDespesa.dataDoPagamento = proxData.millis
             novaDespesa.estaPaga = false
 
@@ -76,7 +77,7 @@ class AddDespesasUsecase @Inject constructor(
 
     private suspend fun addDespesaRecorrentePorMes(despesa: Despesa, despesaRecorrente: DespesaRecorrente) {
 
-        var proxData = DateTime(DateTimeZone.UTC).withMillis(despesa.dataDoPagamento)
+        var proxData = DateTime(despesa.dataDoPagamento, DateTimeZone.UTC)
         val diaPgtoDespesa = proxData.dayOfMonth // isolo o dia para futuras verificações
 
         while (true) {
@@ -90,7 +91,7 @@ class AddDespesasUsecase @Inject constructor(
 
             if (proxData.isAfter(dataLimiteDaRecorrencia)) break
 
-            val novaDespesa = mapper.clonarDespesa(despesa)
+            val novaDespesa = mapper.clonarDespesaComOutraId(despesa)
             novaDespesa.dataDoPagamento = proxData.millis
             novaDespesa.estaPaga = false
 

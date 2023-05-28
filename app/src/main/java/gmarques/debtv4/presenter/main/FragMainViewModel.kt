@@ -9,12 +9,14 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gmarques.debtv4.data.sincronismo.SincAdapterCallbackImpl
 import gmarques.debtv4.data.sincronismo.api.UICallback
+import gmarques.debtv4.domain.usecases.despesas.ObservarTodasAsDespesasUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FragMainViewModel @Inject constructor(
     private val sincAdapterCallback: SincAdapterCallbackImpl,
+     val observarTodasAsDespesasUseCase: ObservarTodasAsDespesasUseCase,
 ) : ViewModel() {
 
 

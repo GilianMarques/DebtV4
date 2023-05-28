@@ -90,10 +90,12 @@
     <string name="Deseja_mesmo_remover_x_essa_acao_nao_podera_ser_desfeita"><![CDATA[Deseja mesmo remover <b>%1$s?</b> Essa ação não poderá ser desfeita.]]></string>
     <string name="Por_favor_confirme">Por favor, confirme:</string>
     <string name="Cancelar">Cancelar</string>
-    <string name="X_eh_uma_despesa_recorrente_deseja_remover_todas_as_copias_de_y_em_diante"><![CDATA[<b>%1$s</b> é uma despesa recorrente.\nDeseja remover todas as copias de <b>%2$s</b> em diante?]]></string>
-    <string name="De_x_em_diante">De %1$s em diante</string>
-    <string name="De_x_apenas">" De %1$s apenas"</string>
+    <string name="X_eh_uma_despesa_recorrente_deseja_remover_todas_as_copias_de_y_em_diante"><![CDATA[<b>%1$s</b> é uma despesa recorrente.\nDeseja remover todas as cópias de <b>%2$s</b> em diante?]]></string>
+    <string name="De_x_em_diante">Sim, de %1$s em diante</string>
+    <string name="De_x_apenas">"Não, apenas de %1$s"</string>
     <string name="Ja_existe_uma_despesa_com_o_esse_nome_em_x">Já existe uma despesa com o esse nome em %1$s</string>
     <string name="Essa_despesa_nao_se_repete">Essa despesa não se repete</string>
+    <string name="Editar_despesa">Editar despesa</string>
+    <string name="X_eh_uma_despesa_recorrente_deseja_atualizar_todas_as_copias_de_y_em_diante"><![CDATA[<b>%1$s</b> é uma despesa recorrente.\nDeseja atualizar todas as cópias de <b>%2$s</b> em diante?]]></string>
 
 </resources>

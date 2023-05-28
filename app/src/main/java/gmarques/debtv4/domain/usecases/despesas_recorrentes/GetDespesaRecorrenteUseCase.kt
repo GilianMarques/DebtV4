@@ -21,8 +21,8 @@ class GetDespesaRecorrenteUseCase @Inject constructor(
     private val mapper: Mapper,
 ) {
 
-    suspend operator fun invoke(despesa: Despesa): DespesaRecorrente? {
-        val despRec = roomDao.getPorNome(despesa.nome) ?: return null
+    suspend operator fun invoke(nome:String): DespesaRecorrente? {
+        val despRec = roomDao.getPorNome(nome) ?: return null
         return mapper.getDespesaRecorrente(despRec)
     }
 

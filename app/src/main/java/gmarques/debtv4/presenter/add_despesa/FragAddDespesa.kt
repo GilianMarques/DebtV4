@@ -17,19 +17,24 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.DespesaRecorrente
 import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
+import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterDDMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
+import gmarques.debtv4.domain.extension_functions.Datas.Companion.inicioDoMes
 import gmarques.debtv4.domain.extension_functions.Datas.Mascaras.*
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emDouble
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoedaSemSimbolo
+import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.formatarHtml
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.porcentoDe
 import gmarques.debtv4.domain.uteis.Nomes
 import gmarques.debtv4.presenter.main.CustomFrag
@@ -39,14 +44,20 @@ import gmarques.debtv4.presenter.outros.UIUtils
 import gmarques.debtv4.presenter.pop_ups.DataPicker
 import gmarques.debtv4.presenter.pop_ups.DataPicker.*
 import gmarques.debtv4.presenter.pop_ups.TecladoCalculadora
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 import java.util.Currency
 import java.util.Locale
 import kotlin.math.abs
 
+
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
 @AndroidEntryPoint
 class FragAddDespesa : CustomFrag() {
+
+    private var corOriginalDoStatusBar: Int = -1
 
     // para injetar com hilt ao inves de usar @Inject. É assim que se injeta viewModels
     private val viewModel: FragAddDespesaViewModel by viewModels()
@@ -69,13 +80,15 @@ class FragAddDespesa : CustomFrag() {
     }
 
     private fun init() {
+        corOriginalDoStatusBar = requireActivity().window.statusBarColor
         initAppBar()
-        this.initToolbar(binding, getString(R.string.Nova_despesa))
+        carregarArgumentos()
+        this.initToolbar(binding, if (viewModel.editando) getString(R.string.Editar_despesa) else getString(R.string.Nova_despesa))
         initAnimacaoDosCantosDoScrollView()
         initAnimacaoDeCorDaStatusBar()
         initCampoValor()
         initCampoDeNome()
-        initCampoData()
+        initCampoDataPagamento()
         initCampoObservacoes()
         initCampoRepetir()
         initCampoDataLimiteRepeticao()
@@ -84,17 +97,49 @@ class FragAddDespesa : CustomFrag() {
         initBtnConcluir()
         observarErros()
         observarFecharFragmento()
+        observarMostrarDialogoRecorrentes()
+        popularUi()
     }
 
-    private fun observarFecharFragmento() {
-        viewModel.fecharFragmento.observe(viewLifecycleOwner) {
-            if (it) findNavController().navigateUp()
+    private fun popularUi() = lifecycleScope.launch {
+        if (!viewModel.editando) return@launch
+
+        val despesa = viewModel.despesaParaEditar!!
+
+        binding.tvValor.text = despesa.valor.toString().emMoedaSemSimbolo()
+        binding.despesaPaga.isChecked = despesa.estaPaga
+        binding.edtNome.setText(despesa.nome)
+        binding.dataPagamento.setText(despesa.dataDoPagamento.dataFormatadaComOffset(DD_MM_AAAA))
+
+        with(binding.dataDespPaga) {
+            delay(200)
+            setText(despesa.dataEmQueFoiPaga?.dataFormatadaComOffset(DD_MM_AAAA))
+        }
+
+        binding.observacoes.setText(despesa.observacoes)
+
+    }
+
+    private fun carregarArgumentos() {
+        val args: FragAddDespesaArgs = FragAddDespesaArgs.fromBundle(requireArguments())
+        viewModel.despesaParaEditar = args.despesa
+    }
+
+    private fun observarFecharFragmento() = lifecycleScope.launch {
+        viewModel.fecharFragmento.collect { value ->
+            if (value) findNavController().navigateUp()
         }
     }
 
-    private fun observarErros() {
-        viewModel.msgErro.observe(viewLifecycleOwner) {
-            notificarErro(binding.root, it)
+    private fun observarErros() = lifecycleScope.launch {
+        viewModel.msgErro.collect { value ->
+            notificarErro(binding.root, value)
+        }
+    }
+
+    private fun observarMostrarDialogoRecorrentes() = lifecycleScope.launch {
+        viewModel.mostrarDialogoAtualizarRecorrentes.collect { pacote ->
+            if (pacote != null) mostrarDialogoRemoverRecorrencias(pacote)
         }
     }
 
@@ -117,7 +162,7 @@ class FragAddDespesa : CustomFrag() {
                 val dataInicial = viewModel.dataEmQueDespesaFoiPaga
                     ?: MaterialDatePicker.todayInUtcMilliseconds()
 
-                mostrarDataPicker(dataInicial) { _: Long, dataFormatada: String ->
+                mostrarDataPickerQuandoDespesaFoiPaga(dataInicial) { _: Long, dataFormatada: String ->
                     binding.dataDespPaga.setText(dataFormatada)
                     binding.dataDespPaga.setSelection(dataFormatada.length)
                 }
@@ -137,8 +182,14 @@ class FragAddDespesa : CustomFrag() {
 
             if (checado) {
                 binding.containerDataDespesaPaga.visibility = VISIBLE
-                binding.dataDespPaga.setText(System.currentTimeMillis().dataFormatada(DD_MM_AAAA))
-                viewModel.dataEmQueDespesaFoiPaga = MaterialDatePicker.todayInUtcMilliseconds()
+
+                if (viewModel.editando) {
+                    binding.dataDespPaga.setText(viewModel.despesaParaEditar!!.dataEmQueFoiPaga?.dataFormatada(DD_MM_AAAA))
+                    viewModel.dataEmQueDespesaFoiPaga = viewModel.despesaParaEditar!!.dataEmQueFoiPaga
+                } else {
+                    binding.dataDespPaga.setText(System.currentTimeMillis().dataFormatada(DD_MM_AAAA))
+                    viewModel.dataEmQueDespesaFoiPaga = MaterialDatePicker.todayInUtcMilliseconds()
+                }
 
             } else {
                 binding.containerDataDespesaPaga.visibility = GONE
@@ -175,7 +226,16 @@ class FragAddDespesa : CustomFrag() {
 
     }
 
+    /**
+     * Inicializa ou oculta o campo de repetiçoes
+     */
     private fun initCampoRepetir() {
+
+        if (viewModel.editando) {
+            binding.repetir.visibility = GONE
+            return
+        }
+
         binding.edtRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
             if (b) mostrarBottomSheetRepetir { intervaloDasRepeticoes: Int?, tipoDeRecorrencia: DespesaRecorrente.Tipo?, dica: String ->
 
@@ -226,7 +286,7 @@ class FragAddDespesa : CustomFrag() {
             ?: 1, viewModel.tipoDeRecorrencia ?: DespesaRecorrente.Tipo.MES).mostrar()
     }
 
-    private fun initCampoData() {
+    private fun initCampoDataPagamento() {
 
         binding.dataPagamento.addTextChangedListener(MascaraData.mascaraData())
 
@@ -252,8 +312,45 @@ class FragAddDespesa : CustomFrag() {
 
     }
 
+    /**
+     * Mostra o picker de data pro usuario adicionar ou editar a data de pagamento da despesa.
+     * Se editando, o usuario nao deve ser capaz de alterar o mes ou ano de pagamento da despesa.
+     */
     private fun mostrarDataPicker(dataInicial: Long, callback: DataPickerCallback) {
-        DataPicker(dataInicial, parentFragmentManager, callback)
+
+        // limites de datas do datapicker
+
+        val max = when (viewModel.editando) {
+            true  -> DateTime(viewModel.despesaParaEditar!!.dataDoPagamento, DateTimeZone.UTC).finalDoMes().millis
+            false -> DateTime.now().plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
+        }
+
+        val min = when (viewModel.editando) {
+            true  -> DateTime(viewModel.despesaParaEditar!!.dataDoPagamento, DateTimeZone.UTC).inicioDoMes().millis
+            false -> DateTime.now().minusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
+        }
+
+        DataPicker(dataInicial,
+            min,
+            max,
+            parentFragmentManager,
+            callback)
+    }
+
+    /**
+     * mostra o datapicker pra seelcionar quando a despesa foi paga, usando os limites de data padrao do app
+     */
+    private fun mostrarDataPickerQuandoDespesaFoiPaga(dataInicial: Long, callback: DataPickerCallback) {
+
+
+        val max = DateTime.now().plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
+        val min = DateTime.now().minusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
+
+        DataPicker(dataInicial,
+            min,
+            max,
+            parentFragmentManager,
+            callback)
     }
 
     private fun initCampoDeNome() {
@@ -267,7 +364,7 @@ class FragAddDespesa : CustomFrag() {
         }
         binding.edtNome.addTextChangedListener {
             viewModel.nomeDespesa = it.toString()
-            mostarSugestoesDeDespesa(it.toString())
+            if (!viewModel.editando) mostarSugestoesDeDespesa(it.toString())
 
         }
     }
@@ -326,6 +423,9 @@ class FragAddDespesa : CustomFrag() {
             }.titulo(getString(R.string.Digite_o_valor_da_despesa)).build().show(parentFragmentManager, "")
 
         }
+        binding.tvValor.addTextChangedListener {
+            viewModel.valorDespesa = it.toString().emDouble()
+        }
     }
 
     private fun initAppBar() {
@@ -360,7 +460,6 @@ class FragAddDespesa : CustomFrag() {
         animsAtualizadasPeloAppBar.add(statusBarColorAnimator)
     }
 
-
     private fun initAnimacaoDosCantosDoScrollView() = binding.nestedScroll.post {
 
         val drawable = binding.nestedScroll.background as GradientDrawable
@@ -380,6 +479,35 @@ class FragAddDespesa : CustomFrag() {
         }
 
         animsAtualizadasPeloAppBar.add(cornerAnimation)
+    }
+
+    /**
+     * pergunta ao usuario se ele quer atualizar as copias da despesa que acabou de ser atualizada
+     * caso esta seja recorrente. Se sim chama a função adequada no viewmodel, se nao fecha o fragmento.
+     */
+    private fun mostrarDialogoRemoverRecorrencias(pacote: FragAddDespesaViewModel.PacoteRecorrente) {
+        val despesa = viewModel.despesaParaEditar!!
+        val nomeMes = Datas.nomeDoMes(despesa.dataDoPagamento)
+
+        val msg = String.format(
+            getString(R.string.X_eh_uma_despesa_recorrente_deseja_atualizar_todas_as_copias_de_y_em_diante),
+            despesa.nome,
+            nomeMes)
+            .formatarHtml()
+
+        MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.Por_favor_confirme))
+            .setMessage(msg)
+            .setPositiveButton(String.format(getString(R.string.De_x_em_diante), nomeMes)) { _, _ ->
+                viewModel.atualizarDespesasRecorrentes(pacote)
+            }
+            .setNegativeButton(String.format(getString(R.string.De_x_apenas), nomeMes)) { _, _ -> findNavController().navigateUp() }
+            .setCancelable(false)
+            .show()
+    }
+
+    override fun onStop() {
+        requireActivity().window.statusBarColor = corOriginalDoStatusBar
+        super.onStop()
     }
 
 }

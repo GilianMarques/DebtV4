@@ -128,13 +128,13 @@
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/edt_nome"
                     style="@style/TextInputEditTextStyle"
-                    android:padding="12dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vec_nome"
                     android:hint="@string/Nome_da_despesa"
                     android:inputType="textCapSentences"
                     android:minHeight="60dp"
+                    android:padding="12dp"
                     android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>

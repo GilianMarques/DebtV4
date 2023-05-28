@@ -21,7 +21,13 @@ open class Despesa : Sincronizavel() {
 
     var nome = ""
     var valor = 0.0
+
     var estaPaga = false
+        set(value) {
+            field = value
+            if (!value) dataEmQueFoiPaga = 0L
+        }
+
     var dataDoPagamento = 0L //utc
     var dataEmQueFoiPaga: Long? = null //utc
     var observacoes = ""

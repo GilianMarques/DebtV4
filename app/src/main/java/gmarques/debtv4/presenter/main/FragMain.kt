@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragMainBinding
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -59,7 +60,7 @@ class FragMain : CustomFrag() {
 
         }
         binding.btnAddDespesas.setOnClickListener {
-            findNavController().navigate(FragMainDirections.actionAddDespesa())
+            findNavController().navigate(FragMainDirections.actionAdicionarDespesa())
 
         }
 
@@ -74,8 +75,6 @@ class FragMain : CustomFrag() {
         }
 
 
-        // TODO: remover
-        //binding.btnVerDespesas.callOnClick()
 
     }
 

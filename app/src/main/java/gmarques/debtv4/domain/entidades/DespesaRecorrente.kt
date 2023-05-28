@@ -53,9 +53,9 @@ class DespesaRecorrente() : Despesa() {
     var tipoDeRecorrencia: Tipo = Tipo.MES
 
     /**
-     * deve ser um inteiro >0 ou [INTERVALO_MIN_REPETICAO_MESES]
+     * deve ser um inteiro > 0 ou [INTERVALO_MIN_REPETICAO_MESES]
      */
-    var intervaloDasRepeticoes: Int = INTERVALO_MIN_REPETICAO_MESES.toInt()
+    var intervaloDasRepeticoes: Int = INTERVALO_MIN_REPETICAO_MESES
 
     /**
      * deve ser uma data no futuro (dentro do limite especificado) ou [LIMITE_RECORRENCIA_INDEFINIDO]
