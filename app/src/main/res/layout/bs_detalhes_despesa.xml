@@ -3,7 +3,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/parent_dados"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/transparent"
@@ -12,217 +11,234 @@
     app:layout_constraintStart_toStartOf="parent">
 
 
-    <EditText
-        android:id="@+id/edt_nome"
-        style="@style/DetalhesDespesa_EditText_Style"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:drawableStart="@drawable/vec_despesas"
-        android:imeOptions="actionNext"
-        app:layout_constraintBottom_toTopOf="@id/edt_valor"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Nome da despesa" />
+        android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/edt_valor"
-        style="@style/DetalhesDespesa_EditText_Style"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="4dp"
-        android:drawableStart="@drawable/vec_valor"
-        android:imeOptions="actionNext"
-        app:layout_constraintBottom_toTopOf="@id/edt_estado"
-        app:layout_constraintEnd_toEndOf="@id/guideline_centro"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="R$ 9.999.99,99" />
-
-    <EditText
-        android:id="@+id/edt_data_pagamento"
-        style="@style/DetalhesDespesa_EditText_Style"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="0dp"
-        android:drawableStart="@drawable/vec_data"
-        android:imeOptions="actionNext"
-        app:layout_constraintBottom_toBottomOf="@id/edt_valor"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guideline_centro"
-        app:layout_constraintTop_toTopOf="@id/edt_valor"
-        tools:text="15/04/2023" />
-
-
-    <EditText
-        android:id="@+id/edt_estado"
-        style="@style/DetalhesDespesa_EditText_Style"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/vec_done"
-        android:imeOptions="actionNext"
-        app:layout_constraintBottom_toBottomOf="@id/btn_pagar"
-        app:layout_constraintBottom_toTopOf="@+id/edt_observacoes"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="Vence em 3 dias" />
-
-    <EditText
-        android:id="@+id/edt_observacoes"
-        style="@style/DetalhesDespesa_EditText_Style"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/vec_observacoes"
-        android:maxLines="4"
-        android:text="num ninho de mafagafos haviam 7 mafagafinhos num ninho de mafagafos haviam 7 mafagafinhos num ninho de mafagafos haviam 7 mafagafinhos num ninho de mafagafos haviam 7 mafagafinhos num ninho de mafagafos haviam 7 mafagafinhos"
-        app:layout_constraintBottom_toBottomOf="@id/btn_pagar"
-        app:layout_constraintBottom_toTopOf="@+id/parent_chart"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/parent_chart"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/back_bs_despesas_edittexts"
-        android:padding="8dp"
-        android:paddingTop="4dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_pagar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:id="@+id/tv_variacao"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:fontFamily="@font/nunito_sans"
-            android:text="@string/Variacoes_de_preco"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toTopOf="@id/tv_valor"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_valor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:fontFamily="@font/nunito_sans_extrabold"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@id/lineChart"
-            app:layout_constraintStart_toStartOf="@id/tv_variacao"
-            app:layout_constraintTop_toBottomOf="@id/tv_variacao"
-            tools:text="R$ 250,00" />
-
-        <TextView
-            android:id="@+id/tv_mes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:fontFamily="@font/nunito_sans"
-            android:text="@string/Variacoes_de_preco"
-            android:textSize="12sp"
-            app:layout_constraintBaseline_toBaselineOf="@id/tv_valor"
-            app:layout_constraintStart_toEndOf="@id/tv_valor" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/vec_insight"
-            app:layout_constraintBottom_toBottomOf="@id/tv_valor"
-            app:layout_constraintEnd_toEndOf="@id/lineChart"
-            app:layout_constraintTop_toTopOf="@id/tv_variacao" />
-
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/lineChart"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/parent_dados"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintStart_toStartOf="parent">
 
-    <Button
-        android:id="@+id/btn_editar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="0dp"
-        android:drawableLeft="@drawable/vec_nome"
-        android:drawableTint="@color/text_color_primary"
-        android:text="@string/Editar"
-        android:textColor="@color/text_color_primary"
-        app:backgroundTint="?colorPrimary"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/parent_chart"
-        app:layout_constraintStart_toEndOf="@id/guideline_dir"
-        tools:ignore="RtlHardcoded" />
 
-    <Button
-        android:id="@+id/btn_pagar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="?colorSecondary"
-        android:drawableLeft="@drawable/vec_done"
-        android:drawableTint="?appTextoCorPrimaria"
-        android:text="@string/Pagar"
-        android:textColor="?appTextoCorPrimaria"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/guideline_dir"
-        app:layout_constraintStart_toEndOf="@id/guideline_esq"
-        tools:ignore="RtlHardcoded" />
+            <EditText
+                android:id="@+id/edt_nome"
+                style="@style/DetalhesDespesa_EditText_Style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:drawableStart="@drawable/vec_despesas"
+                android:imeOptions="actionNext"
+                app:layout_constraintBottom_toTopOf="@id/edt_valor"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Nome da despesa" />
 
-    <ImageView
-        android:id="@+id/btn_remover"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/back_circulo"
-        android:backgroundTint="?colorAccent"
-        android:drawableTint="?android:windowBackground"
-        android:padding="8dp"
-        android:src="@drawable/vec_remover"
-        app:layout_constraintBottom_toBottomOf="@id/btn_pagar"
-        app:layout_constraintEnd_toStartOf="@id/guideline_esq"
-        app:layout_constraintStart_toStartOf="@id/parent_chart"
-        app:layout_constraintTop_toTopOf="@id/btn_pagar"
-        app:tint="?colorOnSecondary" />
+            <EditText
+                android:id="@+id/edt_valor"
+                style="@style/DetalhesDespesa_EditText_Style"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="4dp"
+                android:drawableStart="@drawable/vec_valor"
+                android:imeOptions="actionNext"
+                app:layout_constraintBottom_toTopOf="@id/edt_estado"
+                app:layout_constraintEnd_toEndOf="@id/guideline_centro"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="R$ 9.999.99,99" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_esq"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.15" />
+            <EditText
+                android:id="@+id/edt_data_pagamento"
+                style="@style/DetalhesDespesa_EditText_Style"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp"
+                android:drawableStart="@drawable/vec_data"
+                android:imeOptions="actionNext"
+                app:layout_constraintBottom_toBottomOf="@id/edt_valor"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/guideline_centro"
+                app:layout_constraintTop_toTopOf="@id/edt_valor"
+                tools:text="15/04/2023" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_dir"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.55" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_centro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
+            <EditText
+                android:id="@+id/edt_estado"
+                style="@style/DetalhesDespesa_EditText_Style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/vec_done"
+                android:imeOptions="actionNext"
+                app:layout_constraintBottom_toBottomOf="@id/btn_pagar"
+                app:layout_constraintBottom_toTopOf="@+id/edt_observacoes"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="Vence em 3 dias" />
 
+            <EditText
+                android:id="@+id/edt_observacoes"
+                style="@style/DetalhesDespesa_EditText_Style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/vec_observacoes"
+                android:maxLines="4"
+                android:text="num ninho de mafagafos haviam 7 mafagafinhos num ninho de mafagafos haviam 7 mafagafinhos num ninho de mafagafos haviam 7 mafagafinhos num ninho de mafagafos haviam 7 mafagafinhos num ninho de mafagafos haviam 7 mafagafinhos"
+                app:layout_constraintBottom_toBottomOf="@id/btn_pagar"
+                app:layout_constraintBottom_toTopOf="@+id/parent_chart"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/parent_chart"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/back_bs_despesas_edittexts"
+                android:padding="8dp"
+                android:paddingTop="4dp"
+                app:layout_constraintBottom_toTopOf="@id/btn_pagar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:id="@+id/tv_variacao"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/nunito_sans"
+                    android:text="@string/Variacoes_de_preco"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toTopOf="@id/tv_valor"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_valor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/nunito_sans_extrabold"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toTopOf="@id/lineChart"
+                    app:layout_constraintStart_toStartOf="@id/tv_variacao"
+                    app:layout_constraintTop_toBottomOf="@id/tv_variacao"
+                    tools:text="R$ 250,00" />
+
+                <TextView
+                    android:id="@+id/tv_mes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/nunito_sans"
+                    android:text="@string/Variacoes_de_preco"
+                    android:textSize="12sp"
+                    app:layout_constraintBaseline_toBaselineOf="@id/tv_valor"
+                    app:layout_constraintStart_toEndOf="@id/tv_valor" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/vec_insight"
+                    app:layout_constraintBottom_toBottomOf="@id/tv_valor"
+                    app:layout_constraintEnd_toEndOf="@id/lineChart"
+                    app:layout_constraintTop_toTopOf="@id/tv_variacao" />
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/lineChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <Button
+                android:id="@+id/btn_editar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="16dp"
+                android:drawableLeft="@drawable/vec_nome"
+                android:drawableTint="@color/text_color_primary"
+                android:text="@string/Editar"
+                android:textColor="@color/text_color_primary"
+                app:backgroundTint="?colorPrimary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/parent_chart"
+                app:layout_constraintStart_toEndOf="@id/guideline_dir"
+                tools:ignore="RtlHardcoded" />
+
+            <Button
+                android:id="@+id/btn_pagar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="?colorSecondary"
+                android:drawableLeft="@drawable/vec_done"
+                android:drawableTint="?appTextoCorPrimaria"
+                android:text="@string/Pagar"
+                android:textColor="?appTextoCorPrimaria"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guideline_dir"
+                app:layout_constraintStart_toEndOf="@id/guideline_esq"
+                tools:ignore="RtlHardcoded" />
+
+            <ImageView
+                android:id="@+id/btn_remover"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/back_circulo"
+                android:backgroundTint="?colorAccent"
+                android:drawableTint="?android:windowBackground"
+                android:padding="8dp"
+                android:src="@drawable/vec_remover"
+                app:layout_constraintBottom_toBottomOf="@id/btn_pagar"
+                app:layout_constraintEnd_toStartOf="@id/guideline_esq"
+                app:layout_constraintStart_toStartOf="@id/parent_chart"
+                app:layout_constraintTop_toTopOf="@id/btn_pagar"
+                app:tint="?colorOnSecondary" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_esq"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.15" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_dir"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.55" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_centro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

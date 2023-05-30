@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragMainBinding
+import gmarques.debtv4.domain.PeriodosController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -68,12 +69,10 @@ class FragMain : CustomFrag() {
             viewModel.sincronizar()
         }
 
-
         lifecycleScope.launch {
             // delay(1000)
             ocultarSplashScreen()
         }
-
 
 
     }

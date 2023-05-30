@@ -5,6 +5,10 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/fragMain">
 
+    <!--app:enterAnim = entrada do novo frag (2)
+       app:exitAnim  = saida do frag que ta na tela (1)
+       app:popEnterAnim = entrada do frag que tava na tela (1)
+       app:popExitAnim = saida do frag que ta na tela (2)-->
     <fragment
         android:id="@+id/fragMain"
         android:name="gmarques.debtv4.presenter.main.FragMain"
@@ -13,14 +17,26 @@
 
         <action
             android:id="@+id/action_login"
-            app:destination="@id/login" />
+            app:destination="@id/login"
+            app:enterAnim="@anim/enter_down_up"
+            app:exitAnim="@anim/exit_up"
+            app:popEnterAnim="@anim/enter_up_down"
+            app:popExitAnim="@anim/exit_down" />
 
         <action
             android:id="@+id/action_ver_despesas"
-            app:destination="@id/fragVerDespesas" />
+            app:destination="@id/fragVerDespesas"
+            app:enterAnim="@anim/enter_down_up"
+            app:exitAnim="@anim/exit_up"
+            app:popEnterAnim="@anim/enter_up_down"
+            app:popExitAnim="@anim/exit_down" />
         <action
             android:id="@+id/action_adicionar_despesa"
-            app:destination="@id/fragAddDespesa" />
+            app:destination="@id/fragAddDespesa"
+            app:enterAnim="@anim/enter_down_up"
+            app:exitAnim="@anim/exit_up"
+            app:popEnterAnim="@anim/enter_up_down"
+            app:popExitAnim="@anim/exit_down" />
 
     </fragment>
 
@@ -30,7 +46,11 @@
         android:label="Login">
         <action
             android:id="@+id/action_fragMain"
-            app:destination="@id/fragMain" />
+            app:destination="@id/fragMain"
+            app:enterAnim="@anim/enter_down_up"
+            app:exitAnim="@anim/exit_up"
+            app:popEnterAnim="@anim/enter_up_down"
+            app:popExitAnim="@anim/exit_down" />
     </fragment>
 
     <fragment
@@ -40,9 +60,9 @@
 
         <argument
             android:name="despesa"
+            android:defaultValue="@null"
             app:argType="gmarques.debtv4.domain.entidades.Despesa"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
 
     </fragment>
 
@@ -51,12 +71,15 @@
         android:name="gmarques.debtv4.presenter.ver_despesas.FragVerDespesas"
         android:label="FragVerDespesas">
 
-              <action
+        <action
             android:id="@+id/action_atualizar_despesa"
-            app:destination="@id/fragAddDespesa" />
+            app:destination="@id/fragAddDespesa"
+            app:enterAnim="@anim/enter_down_up"
+            app:exitAnim="@anim/exit_up"
+            app:popEnterAnim="@anim/enter_up_down"
+            app:popExitAnim="@anim/exit_down" />
 
     </fragment>
-
 
 
 </navigation>
