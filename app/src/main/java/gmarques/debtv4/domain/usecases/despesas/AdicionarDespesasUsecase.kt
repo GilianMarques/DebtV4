@@ -3,15 +3,14 @@ package gmarques.debtv4.domain.usecases.despesas
 import android.util.Log
 import gmarques.debtv4.data.Mapper
 import gmarques.debtv4.data.firebase.cloud_firestore.DespesaDaoFireBase
-import gmarques.debtv4.data.firebase.cloud_firestore.DespesaRecorrenteDaoFireBase
+import gmarques.debtv4.data.firebase.cloud_firestore.RecorrenciaDaoFireBase
 import gmarques.debtv4.data.room.dao.DespesaDaoRoom
-import gmarques.debtv4.data.room.dao.DespesaRecorrenteDaoRoom
+import gmarques.debtv4.data.room.dao.RecorrenciaDaoRoom
 import gmarques.debtv4.domain.entidades.Despesa
-import gmarques.debtv4.domain.entidades.DespesaRecorrente
-import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
+import gmarques.debtv4.domain.entidades.Recorrencia
+import gmarques.debtv4.domain.entidades.Recorrencia.Companion.LIMITE_RECORRENCIA_INDEFINIDO
 import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,8 +25,8 @@ import javax.inject.Inject
 class AdicionarDespesasUsecase @Inject constructor(
     private val despesaDaoRoom: DespesaDaoRoom,
     private val despesaDaoFirebase: DespesaDaoFireBase,
-    private val despesaRecorrenteDaoRoom: DespesaRecorrenteDaoRoom,
-    private val despesaRecorrenteDaoFirebase: DespesaRecorrenteDaoFireBase,
+    private val recorrenciaDaoRoom: RecorrenciaDaoRoom,
+    private val recorrenciaDaoFirebase: RecorrenciaDaoFireBase,
     private val mapper: Mapper,
 ) {
 
@@ -36,32 +35,32 @@ class AdicionarDespesasUsecase @Inject constructor(
      * nao deverão ser importadas se suas datas excederem esse valor, nesse caso sua versao recorrente
      * deverá ser salva no banco para que os novos meses criados as importem no momento de sua criação
      */
-    private val limiteMaximoDoApp = DateTime(DateTimeZone.UTC).plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO)
+    private val limiteMaximoDoApp = DateTime(DateTimeZone.UTC).plusYears(Recorrencia.DATA_LIMITE_IMPORATACAO)
     private var dataLimiteDaRecorrencia: DateTime? = null
 
-    suspend operator fun invoke(despesa: Despesa, despesaRecorrente: DespesaRecorrente? = null) {
+    suspend operator fun invoke(despesa: Despesa, recorrencia: Recorrencia? = null) {
         addOuAtualizarDespesa(despesa)
 
-        if (despesaRecorrente != null) {
-            dataLimiteDaRecorrencia = calcularDataLimiteDaRecorrencia(despesaRecorrente)
+        if (recorrencia != null) {
+            dataLimiteDaRecorrencia = calcularDataLimiteDaRecorrencia(recorrencia)
 
-            if (manterCopiaRecorrente(despesaRecorrente)) {
-                addDespesaRecorrente(despesaRecorrente)
+            if (manterCopiaRecorrente(recorrencia)) {
+                addRecorrencia(recorrencia)
             }
 
-            when (despesaRecorrente.tipoDeRecorrencia) {
-                DespesaRecorrente.Tipo.MES -> addDespesaRecorrentePorMes(despesa, despesaRecorrente)
-                DespesaRecorrente.Tipo.DIA -> addDespesaRecorrentePorDia(despesa, despesaRecorrente)
+            when (recorrencia.tipoDeRecorrencia) {
+                Recorrencia.Tipo.MES -> addRecorrenciaPorMes(despesa, recorrencia)
+                Recorrencia.Tipo.DIA -> addRecorrenciaPorDia(despesa, recorrencia)
             }
         }
     }
 
-    private suspend fun addDespesaRecorrentePorDia(despesa: Despesa, despesaRecorrente: DespesaRecorrente) {
+    private suspend fun addRecorrenciaPorDia(despesa: Despesa, recorrencia: Recorrencia) {
 
         var proxData = DateTime(DateTimeZone.UTC).withMillis(despesa.dataDoPagamento)
 
         while (true) {
-            proxData = proxData.plusDays(despesaRecorrente.intervaloDasRepeticoes)
+            proxData = proxData.plusDays(recorrencia.intervaloDasRepeticoes)
 
             if (proxData.isAfter(dataLimiteDaRecorrencia)) break
 
@@ -70,12 +69,12 @@ class AdicionarDespesasUsecase @Inject constructor(
             novaDespesa.estaPaga = false
 
             addOuAtualizarDespesa(novaDespesa)
-            Log.d("USUK", "DespesaController.addDespesaRecorrentePorMes: ${novaDespesa.uid} ${novaDespesa.dataDoPagamento.dataFormatada(Datas.Mascaras.DD_MM_AAAA_H_M_S)}")
+            Log.d("USUK", "DespesaController.addRecorrenciaPorMes: ${novaDespesa.uid} ${novaDespesa.dataDoPagamento.dataFormatada(Datas.Mascaras.DD_MM_AAAA_H_M_S)}")
         }
 
     }
 
-    private suspend fun addDespesaRecorrentePorMes(despesa: Despesa, despesaRecorrente: DespesaRecorrente) {
+    private suspend fun addRecorrenciaPorMes(despesa: Despesa, recorrencia: Recorrencia) {
 
         var proxData = DateTime(despesa.dataDoPagamento, DateTimeZone.UTC)
         val diaPgtoDespesa = proxData.dayOfMonth // isolo o dia para futuras verificações
@@ -86,7 +85,7 @@ class AdicionarDespesasUsecase @Inject constructor(
         * tiver que ser adicionada em um mes com 28, 29 ou 30 dias o seu dia de pagamento sera decrementado para o ultimo
         * dia desse mes, assim evitando que a despesa acabe caindo no mes seguinte
         * */
-            proxData = proxData.plusMonths(despesaRecorrente.intervaloDasRepeticoes).finalDoMes()
+            proxData = proxData.plusMonths(recorrencia.intervaloDasRepeticoes).finalDoMes()
             proxData = proxData.withDayOfMonth(diaPgtoDespesa.coerceAtMost(proxData.dayOfMonth))
 
             if (proxData.isAfter(dataLimiteDaRecorrencia)) break
@@ -96,22 +95,22 @@ class AdicionarDespesasUsecase @Inject constructor(
             novaDespesa.estaPaga = false
 
             addOuAtualizarDespesa(novaDespesa)
-            Log.d("USUK", "DespesaController.addDespesaRecorrentePorMes: ${novaDespesa.uid} ${DateTime(DateTimeZone.UTC).withMillis(novaDespesa.dataDoPagamento)}")
+            Log.d("USUK", "DespesaController.addRecorrenciaPorMes: ${novaDespesa.uid} ${DateTime(DateTimeZone.UTC).withMillis(novaDespesa.dataDoPagamento)}")
         }
 
     }
 
     /**
-     * Verifica se  o limite da recorrencia dessa despesa caso nao seja [DespesaRecorrente.LIMITE_RECORRENCIA_INDEFINIDO]
+     * Verifica se  o limite da recorrencia dessa despesa caso nao seja [Recorrencia.LIMITE_RECORRENCIA_INDEFINIDO]
      * esta dentro do limite maximo de variação de datas do app
      *
      * @return a data maxima em que a despesa pode ser importada, esta data pode ser a data maxima permitida pelo app
      * ou a data limite de recorrencia da propria despesa, caso esta nao viole os limites e nao seja indefinida
      */
-    private fun calcularDataLimiteDaRecorrencia(despesaRecorrente: DespesaRecorrente): DateTime {
+    private fun calcularDataLimiteDaRecorrencia(recorrencia: Recorrencia): DateTime {
 
-        val dataLimiteDaRecorrencia = if (despesaRecorrente.dataLimiteDaRecorrencia == LIMITE_RECORRENCIA_INDEFINIDO) limiteMaximoDoApp
-        else if (limiteMaximoDoApp.isAfter(despesaRecorrente.dataLimiteDaRecorrencia)) DateTime(DateTimeZone.UTC).withMillis(despesaRecorrente.dataLimiteDaRecorrencia)
+        val dataLimiteDaRecorrencia = if (recorrencia.dataLimiteDaRecorrencia == LIMITE_RECORRENCIA_INDEFINIDO) limiteMaximoDoApp
+        else if (limiteMaximoDoApp.isAfter(recorrencia.dataLimiteDaRecorrencia)) DateTime(DateTimeZone.UTC).withMillis(recorrencia.dataLimiteDaRecorrencia)
         else limiteMaximoDoApp
 
         return dataLimiteDaRecorrencia.finalDoMes()
@@ -124,10 +123,10 @@ class AdicionarDespesasUsecase @Inject constructor(
      *
      * @return true se a versao recorrente tiver que ser persistida
      */
-    private fun manterCopiaRecorrente(despesaRecorrente: DespesaRecorrente): Boolean {
+    private fun manterCopiaRecorrente(recorrencia: Recorrencia): Boolean {
 
-        if (despesaRecorrente.dataLimiteDaRecorrencia == LIMITE_RECORRENCIA_INDEFINIDO) return true
-        val dataLimiteRecorrencia = DateTime(DateTimeZone.UTC).withMillis(despesaRecorrente.dataLimiteDaRecorrencia).finalDoMes()
+        if (recorrencia.dataLimiteDaRecorrencia == LIMITE_RECORRENCIA_INDEFINIDO) return true
+        val dataLimiteRecorrencia = DateTime(DateTimeZone.UTC).withMillis(recorrencia.dataLimiteDaRecorrencia).finalDoMes()
         return dataLimiteRecorrencia.isAfter(limiteMaximoDoApp)
     }
 
@@ -145,17 +144,16 @@ class AdicionarDespesasUsecase @Inject constructor(
     }
 
     /**
-     * Adiciona a despesa recorrente nos bancos de dados local e da nuvem, não tem problema se por algum
-     * motivo o envio da despesa recorrente pra nuvem falhar, posteriormente quando o app sincronizar
+     * Adiciona a recorrencia nos bancos de dados local e da nuvem, não tem problema se por algum
+     * motivo o envio pra nuvem falhar, posteriormente quando o app sincronizar
      * as pendecias serao resolvidas
      */
-    private suspend fun addDespesaRecorrente(despesa: DespesaRecorrente) =
-        withContext(Dispatchers.IO) {
-            despesa.ultimaAtualizacao = DateTime(DateTimeZone.UTC).millis
+    private suspend fun addRecorrencia(recorrencia: Recorrencia) =  withContext(Dispatchers.IO) {
+            recorrencia.ultimaAtualizacao = DateTime(DateTimeZone.UTC).millis
 
-            val entidade = mapper.getDespesaRecorrenteEntidade(despesa)
-            despesaRecorrenteDaoFirebase.addOuAtualizar(entidade)
-            despesaRecorrenteDaoRoom.addOuAtualizar(entidade)
+            val entidade = mapper.getRecorrenciaEntidade(recorrencia)
+            recorrenciaDaoFirebase.addOuAtualizar(entidade)
+            recorrenciaDaoRoom.addOuAtualizar(entidade)
         }
 
 }

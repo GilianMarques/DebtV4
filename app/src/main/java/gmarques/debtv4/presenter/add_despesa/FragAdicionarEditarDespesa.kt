@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import androidx.core.view.WindowCompat
@@ -22,11 +23,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import gmarques.debtv4.R
 import gmarques.debtv4.databinding.FragAddDespesaBinding
 import gmarques.debtv4.domain.entidades.Despesa
-import gmarques.debtv4.domain.entidades.DespesaRecorrente
-import gmarques.debtv4.domain.entidades.DespesaRecorrente.Companion.LIMITE_RECORRENCIA_INDEFINIDO
+import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterDDMMAAAAparaMillis
-import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
@@ -55,12 +54,12 @@ import kotlin.math.abs
 
 @Suppress("UNUSED_ANONYMOUS_PARAMETER")
 @AndroidEntryPoint
-class FragAddDespesa : CustomFrag() {
+class FragAdicionarEditarDespesa : CustomFrag() {
 
     private var corOriginalDoStatusBar: Int = -1
 
     // para injetar com hilt ao inves de usar @Inject. É assim que se injeta viewModels
-    private val viewModel: FragAddDespesaViewModel by viewModels()
+    private val viewModel: FragAdicionarEditarDespesaViewModel by viewModels()
 
     private lateinit var binding: FragAddDespesaBinding
     private val animsAtualizadasPeloAppBar = ArrayList<ValueAnimator>()
@@ -87,13 +86,12 @@ class FragAddDespesa : CustomFrag() {
         initAnimacaoDosCantosDoScrollView()
         initAnimacaoDeCorDaStatusBar()
         initCampoValor()
+        initSwitchDespesaPaga()
         initCampoDeNome()
         initCampoDataPagamento()
-        initCampoObservacoes()
-        initCampoRepetir()
-        initCampoDataLimiteRepeticao()
-        initSwitchDespesaPaga()
         initCampoDataEmQueDespesaFoiPaga()
+        initCampoRepetir()
+        initCampoObservacoes()
         initBtnConcluir()
         observarErros()
         observarFecharFragmento()
@@ -121,7 +119,7 @@ class FragAddDespesa : CustomFrag() {
     }
 
     private fun carregarArgumentos() {
-        val args: FragAddDespesaArgs = FragAddDespesaArgs.fromBundle(requireArguments())
+        val args: FragAdicionarEditarDespesaArgs = FragAdicionarEditarDespesaArgs.fromBundle(requireArguments())
         viewModel.despesaParaEditar = args.despesa
     }
 
@@ -148,11 +146,18 @@ class FragAddDespesa : CustomFrag() {
         binding.fabConcluir.setOnClickListener {
             binding.root.clearFocus()
             viewModel.validarEntradasDoUsuario()
+            binding.appbar.setExpanded(true)
+            UIUtils.ocultarTeclado(binding.appbar)
+
         }
     }
 
     private fun initCampoDataEmQueDespesaFoiPaga() {
 
+
+        binding.tilDataPago.setOnFocusChangeListener { _: View, b: Boolean ->
+            binding.dataDespPaga.requestFocus()
+        }
         binding.dataDespPaga.addTextChangedListener(MascaraData.mascaraData())
 
         binding.ivDataPickerDespPaga.setOnClickListener(object : AnimatedClickListener() {
@@ -199,32 +204,6 @@ class FragAddDespesa : CustomFrag() {
         }
     }
 
-    private fun initCampoDataLimiteRepeticao() {
-
-        val compMaximMascara = 7
-        val indeterm = getString(R.string.Indeterminadamente)
-        binding.ivRecorrente.setOnClickListener {
-            binding.dataLimiteRepetir.filters = arrayOf(InputFilter.LengthFilter(indeterm.length))
-
-            binding.dataLimiteRepetir.setText(indeterm)
-            binding.dataLimiteRepetir.clearFocus()
-        }
-
-        binding.dataLimiteRepetir.addTextChangedListener {
-
-
-            if (indeterm == it.toString()) {
-                viewModel.dataLimiteDaRepeticao = LIMITE_RECORRENCIA_INDEFINIDO
-            } else {
-                // o valor setado será null até que seja digitada uma data valida
-                viewModel.dataLimiteDaRepeticao = it.toString().converterMMAAAAparaMillis()
-            }
-            if (it.toString().length <= compMaximMascara) binding.dataLimiteRepetir.filters = arrayOf(InputFilter.LengthFilter(compMaximMascara))
-        }
-
-        binding.dataLimiteRepetir.addTextChangedListener(MascaraData.mascaraDataMeseAno())
-
-    }
 
     /**
      * Inicializa ou oculta o campo de repetiçoes
@@ -232,21 +211,27 @@ class FragAddDespesa : CustomFrag() {
     private fun initCampoRepetir() {
 
         if (viewModel.editando) {
-            binding.repetir.visibility = GONE
+            binding.tilRepetir.visibility = GONE
             return
         }
 
+        binding.tilRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
+            binding.edtRepetir.requestFocus()
+        }
+
         binding.edtRepetir.setOnFocusChangeListener { _: View, b: Boolean ->
-            if (b) mostrarBottomSheetRepetir { intervaloDasRepeticoes: Int?, tipoDeRecorrencia: DespesaRecorrente.Tipo?, dica: String ->
+            if (b) mostrarBottomSheetRepetir { intervaloDasRepeticoes: Int?, tipoDeRecorrencia: Recorrencia.Tipo?, dataLimite: Long?, dica: String ->
 
                 viewModel.intervaloDasRepeticoes = intervaloDasRepeticoes
                 viewModel.tipoDeRecorrencia = tipoDeRecorrencia
+                viewModel.dataLimiteDaRepeticao = dataLimite
 
                 if (tipoDeRecorrencia != null) despesaSeRepete(dica)
                 else despesaNaoSeRepete(dica)
 
             }
         }
+
     }
 
     /**
@@ -254,10 +239,6 @@ class FragAddDespesa : CustomFrag() {
      * view que coleta essa informação
      */
     private fun despesaNaoSeRepete(dica: String) {
-
-        binding.clDataLimiteRepetir.visibility = GONE
-
-        binding.dataLimiteRepetir.setText("")
 
         binding.edtRepetir.setText(dica)
         binding.edtRepetir.clearFocus()
@@ -270,8 +251,12 @@ class FragAddDespesa : CustomFrag() {
      */
     private fun despesaSeRepete(dica: String) {
 
-        binding.clDataLimiteRepetir.visibility = VISIBLE
-        binding.dataLimiteRepetir.requestFocus()
+        binding.appbar.setExpanded(false)
+
+        lifecycleScope.launch {
+            delay(500)
+            UIUtils.mostrarTeclado(binding.observacoes)
+        }
 
         binding.edtRepetir.setText(dica)
     }
@@ -282,8 +267,11 @@ class FragAddDespesa : CustomFrag() {
      * o usuario é notificado para corrigir o que for necessario
      */
     private fun mostrarBottomSheetRepetir(callback: BottomSheetRepetir.Callback) {
-        BottomSheetRepetir(callback, this@FragAddDespesa, viewModel.intervaloDasRepeticoes
-            ?: 1, viewModel.tipoDeRecorrencia ?: DespesaRecorrente.Tipo.MES).mostrar()
+        BottomSheetRepetir(callback,
+            this@FragAdicionarEditarDespesa,
+            viewModel.intervaloDasRepeticoes ?: 1,
+            viewModel.tipoDeRecorrencia ?: Recorrencia.Tipo.MES,
+            viewModel.dataLimiteDaRepeticao).mostrar()
     }
 
     private fun initCampoDataPagamento() {
@@ -299,8 +287,10 @@ class FragAddDespesa : CustomFrag() {
 
                 mostrarDataPicker(dataInicial) { _: Long, dataFormatada: String ->
 
+                    // TODO: testar adiçao e ediçao de despesas recorrentes 
                     binding.dataPagamento.setText(dataFormatada)
                     binding.dataPagamento.setSelection(dataFormatada.length)
+
                 }
             }
         })
@@ -322,19 +312,15 @@ class FragAddDespesa : CustomFrag() {
 
         val max = when (viewModel.editando) {
             true  -> DateTime(viewModel.despesaParaEditar!!.dataDoPagamento, DateTimeZone.UTC).finalDoMes().millis
-            false -> DateTime.now().plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
+            false -> DateTime.now().plusYears(Recorrencia.DATA_LIMITE_IMPORATACAO).millis
         }
 
         val min = when (viewModel.editando) {
             true  -> DateTime(viewModel.despesaParaEditar!!.dataDoPagamento, DateTimeZone.UTC).inicioDoMes().millis
-            false -> DateTime.now().minusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
+            false -> DateTime.now().minusYears(Recorrencia.DATA_LIMITE_IMPORATACAO).millis
         }
 
-        DataPicker(dataInicial,
-            min,
-            max,
-            parentFragmentManager,
-            callback)
+        DataPicker(dataInicial, min, max, parentFragmentManager, callback)
     }
 
     /**
@@ -343,14 +329,10 @@ class FragAddDespesa : CustomFrag() {
     private fun mostrarDataPickerQuandoDespesaFoiPaga(dataInicial: Long, callback: DataPickerCallback) {
 
 
-        val max = DateTime.now().plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
-        val min = DateTime.now().minusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).millis
+        val max = DateTime.now().plusYears(Recorrencia.DATA_LIMITE_IMPORATACAO).millis
+        val min = DateTime.now().minusYears(Recorrencia.DATA_LIMITE_IMPORATACAO).millis
 
-        DataPicker(dataInicial,
-            min,
-            max,
-            parentFragmentManager,
-            callback)
+        DataPicker(dataInicial, min, max, parentFragmentManager, callback)
     }
 
     private fun initCampoDeNome() {
@@ -367,19 +349,29 @@ class FragAddDespesa : CustomFrag() {
             if (!viewModel.editando) mostarSugestoesDeDespesa(it.toString())
 
         }
+
+        binding.edtNome.setOnEditorActionListener { _, actionId, _ ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_NEXT -> {
+                    binding.dataPagamento.requestFocus()
+                    true // Retorna true para indicar que o evento foi tratado
+                }
+                // Retorna false para permitir que o evento seja propagado normalmente
+                else                       -> false
+
+            }
+        }
     }
 
     /**
      * exibe um drop-down list no campo de nome com sugestoes de despesas pro usuario importar
      */
-    private fun mostarSugestoesDeDespesa(nome: String) = lifecycleScope.launch() {
+    private fun mostarSugestoesDeDespesa(nome: String) = lifecycleScope.launch {
 
         if (nome.length < 2) return@launch
 
         val (nomes, despesas) = viewModel.buscarSugestoes(nome)
-        val adapter = ArrayAdapter(requireContext(),
-            android.R.layout.select_dialog_item,
-            nomes)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.select_dialog_item, nomes)
 
         binding.edtNome.setAdapter(adapter)
 
@@ -485,24 +477,15 @@ class FragAddDespesa : CustomFrag() {
      * pergunta ao usuario se ele quer atualizar as copias da despesa que acabou de ser atualizada
      * caso esta seja recorrente. Se sim chama a função adequada no viewmodel, se nao fecha o fragmento.
      */
-    private fun mostrarDialogoRemoverRecorrencias(pacote: FragAddDespesaViewModel.PacoteRecorrente) {
+    private fun mostrarDialogoRemoverRecorrencias(pacote: FragAdicionarEditarDespesaViewModel.PacoteRecorrente) {
         val despesa = viewModel.despesaParaEditar!!
         val nomeMes = Datas.nomeDoMes(despesa.dataDoPagamento)
 
-        val msg = String.format(
-            getString(R.string.X_eh_uma_despesa_recorrente_deseja_atualizar_todas_as_copias_de_y_em_diante),
-            despesa.nome,
-            nomeMes)
-            .formatarHtml()
+        val msg = String.format(getString(R.string.X_eh_uma_despesa_recorrente_deseja_atualizar_todas_as_copias_de_y_em_diante), despesa.nome, nomeMes).formatarHtml()
 
-        MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.Por_favor_confirme))
-            .setMessage(msg)
-            .setPositiveButton(String.format(getString(R.string.De_x_em_diante), nomeMes)) { _, _ ->
-                viewModel.atualizarDespesasRecorrentes(pacote)
-            }
-            .setNegativeButton(String.format(getString(R.string.De_x_apenas), nomeMes)) { _, _ -> findNavController().navigateUp() }
-            .setCancelable(false)
-            .show()
+        MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.Por_favor_confirme)).setMessage(msg).setPositiveButton(String.format(getString(R.string.De_x_em_diante), nomeMes)) { _, _ ->
+            viewModel.atualizarDespesasRecorrentes(pacote)
+        }.setNegativeButton(String.format(getString(R.string.De_x_apenas), nomeMes)) { _, _ -> findNavController().navigateUp() }.setCancelable(false).show()
     }
 
     override fun onStop() {

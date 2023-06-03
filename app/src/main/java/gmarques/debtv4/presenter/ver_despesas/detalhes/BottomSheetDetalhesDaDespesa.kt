@@ -13,7 +13,7 @@ import gmarques.debtv4.R
 import gmarques.debtv4.databinding.BsDetalhesDespesaBinding
 import gmarques.debtv4.domain.PeriodosController
 import gmarques.debtv4.domain.entidades.Despesa
-import gmarques.debtv4.domain.entidades.DespesaRecorrente
+import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatada
 import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.emMoeda
@@ -21,14 +21,12 @@ import gmarques.debtv4.domain.extension_functions.ExtensionFunctions.Companion.f
 import gmarques.debtv4.domain.usecases.despesas.AtualizarDespesaUsecase
 import gmarques.debtv4.domain.usecases.despesas.GetDespesasPorNomeNoPeriodoUseCase
 import gmarques.debtv4.domain.usecases.despesas.RemoverDespesasUseCase
-import gmarques.debtv4.domain.usecases.despesas_recorrentes.GetDespesaRecorrenteUseCase
-import gmarques.debtv4.domain.usecases.despesas_recorrentes.RemoverDespesaRecorrenteUseCase
+import gmarques.debtv4.domain.usecases.despesas_recorrentes.GetRecorrenciaUseCase
+import gmarques.debtv4.domain.usecases.despesas_recorrentes.RemoverRecorrenciaUseCase
 import gmarques.debtv4.presenter.main.CustomFrag
-import gmarques.debtv4.presenter.main.FragMainDirections
 import gmarques.debtv4.presenter.outros.UIUtils
 import gmarques.debtv4.presenter.pop_ups.CustomBottomSheet
 import gmarques.debtv4.presenter.ver_despesas.FragVerDespesasDirections
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -41,8 +39,8 @@ class BottomSheetDetalhesDaDespesa(
 ) {
 
     private lateinit var atualizarDespesaUsecase: AtualizarDespesaUsecase
-    private lateinit var removerDespesaRecorrenteUseCase: RemoverDespesaRecorrenteUseCase
-    private lateinit var getDespesaRecorrenteUseCase: GetDespesaRecorrenteUseCase
+    private lateinit var removerRecorrenciaUseCase: RemoverRecorrenciaUseCase
+    private lateinit var getRecorrenciaUseCase: GetRecorrenciaUseCase
     private lateinit var getDespesasPorNomeNoPeriodoUseCase: GetDespesasPorNomeNoPeriodoUseCase
     private lateinit var removerDespesaUsecase: RemoverDespesasUseCase
     private lateinit var initGraficoDelegate: InitGraficoDelegate
@@ -56,8 +54,8 @@ class BottomSheetDetalhesDaDespesa(
         fun getDelegate(): InitGraficoDelegate
         fun getRemoverDespesaUsecase(): RemoverDespesasUseCase
         fun getDespesasPorNomeNoPeriodoUseCase(): GetDespesasPorNomeNoPeriodoUseCase
-        fun getDespesaRecorrenteUseCase(): GetDespesaRecorrenteUseCase
-        fun removerDespesaRecorrenteUseCase(): RemoverDespesaRecorrenteUseCase
+        fun getRecorrenciaUseCase(): GetRecorrenciaUseCase
+        fun removerRecorrenciaUseCase(): RemoverRecorrenciaUseCase
         fun atualizarDespesasUsecase(): AtualizarDespesaUsecase
     }
 
@@ -89,8 +87,8 @@ class BottomSheetDetalhesDaDespesa(
         initGraficoDelegate = entryPoint.getDelegate()
         removerDespesaUsecase = entryPoint.getRemoverDespesaUsecase()
         getDespesasPorNomeNoPeriodoUseCase = entryPoint.getDespesasPorNomeNoPeriodoUseCase()
-        getDespesaRecorrenteUseCase = entryPoint.getDespesaRecorrenteUseCase()
-        removerDespesaRecorrenteUseCase = entryPoint.removerDespesaRecorrenteUseCase()
+        getRecorrenciaUseCase = entryPoint.getRecorrenciaUseCase()
+        removerRecorrenciaUseCase = entryPoint.removerRecorrenciaUseCase()
         atualizarDespesaUsecase = entryPoint.atualizarDespesasUsecase()
     }
 
@@ -212,12 +210,12 @@ class BottomSheetDetalhesDaDespesa(
      */
     private suspend fun verificarRecorrencias() {
         val recorrencias = getDespesasPorNomeNoPeriodoUseCase(despesa.nome, despesa.dataDoPagamento, PeriodosController.periodoMaximo)
-        val despesaRecorrente = getDespesaRecorrenteUseCase(despesa.nome)
+        val despesaRecorrente = getRecorrenciaUseCase(despesa.nome)
         if (recorrencias.isEmpty() && despesaRecorrente == null) dialogo.dismiss()
         else mostrarDialogoRemoverRecorrencias(recorrencias, despesaRecorrente)
     }
 
-    private fun mostrarDialogoRemoverRecorrencias(recorrencias: List<Despesa>, despesaRecorrente: DespesaRecorrente?) {
+    private fun mostrarDialogoRemoverRecorrencias(recorrencias: List<Despesa>, recorrencia: Recorrencia?) {
         val nomeMes = Datas.nomeDoMes(despesa.dataDoPagamento)
         val msg = String.format(
             fragmento.getString(R.string.X_eh_uma_despesa_recorrente_deseja_remover_todas_as_copias_de_y_em_diante),
@@ -231,7 +229,7 @@ class BottomSheetDetalhesDaDespesa(
 
                 fragmento.lifecycleScope.launch {
 
-                    if (despesaRecorrente != null) removerDespesaRecorrenteUseCase(despesaRecorrente)
+                    if (recorrencia != null) removerRecorrenciaUseCase(recorrencia)
                     recorrencias.forEach { removerDespesaUsecase(it) }
                     dialogo.dismiss()
                 }

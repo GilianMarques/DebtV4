@@ -4,9 +4,7 @@
     android:interpolator="@android:anim/accelerate_decelerate_interpolator"
     android:shareInterpolator="true">
     <!--0% é onde a view esta na tela-->
-    <translate
-        android:fromYDelta="0%"
-        android:toYDelta="-5%" />
+
     <alpha
         android:fromAlpha="1"
         android:toAlpha="0.2" />

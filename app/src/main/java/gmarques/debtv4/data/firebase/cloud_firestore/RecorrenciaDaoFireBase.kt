@@ -1,7 +1,7 @@
 package gmarques.debtv4.data.firebase.cloud_firestore
 
 import gmarques.debtv4.data.firebase.auth.CloudFireStoreDb
-import gmarques.debtv4.data.room.entidades.DespesaRecorrenteEntidade
+import gmarques.debtv4.data.room.entidades.RecorrenciaEntidade
 import javax.inject.Inject
 
 
@@ -12,11 +12,11 @@ import javax.inject.Inject
  * Sempre que possivel os nomes das funçoes dessa classe devem coincidir com os nomes das
  * funções da DAO do Room correspondente
  *
- * @see gmarques.debtv4.data.room.dao.DespesaRecorrenteDaoRoom
+ * @see gmarques.debtv4.data.room.dao.RecorrenciaDaoRoom
  */
-class DespesaRecorrenteDaoFireBase @Inject constructor() {
+class RecorrenciaDaoFireBase @Inject constructor() {
 
-     fun addOuAtualizar(entidade: DespesaRecorrenteEntidade) {
+     fun addOuAtualizar(entidade: RecorrenciaEntidade) {
         CloudFireStoreDb.despesasRecorrentesCollection.document(entidade.uid).set(entidade)
     }
 }

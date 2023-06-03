@@ -2,10 +2,10 @@ package gmarques.debtv4.data
 
 
 import gmarques.debtv4.data.room.entidades.DespesaEntidade
-import gmarques.debtv4.data.room.entidades.DespesaRecorrenteEntidade
+import gmarques.debtv4.data.room.entidades.RecorrenciaEntidade
 import gmarques.debtv4.domain._interfaces.JsonSerializador
 import gmarques.debtv4.domain.entidades.Despesa
-import gmarques.debtv4.domain.entidades.DespesaRecorrente
+import gmarques.debtv4.domain.entidades.Recorrencia
 import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,11 +21,11 @@ class Mapper @Inject constructor(private val jsonSerializador: JsonSerializador)
         return jsonSerializador.fromJson(jsonString, DespesaEntidade::class.java)
     }
 
-    fun getDespesaRecorrenteEntidade(mDespesa: DespesaRecorrente): DespesaRecorrenteEntidade {
+    fun getRecorrenciaEntidade(mDespesa: Recorrencia): RecorrenciaEntidade {
 
         val jsonString = jsonSerializador.toJSon(mDespesa)
 
-        return jsonSerializador.fromJson(jsonString, DespesaRecorrenteEntidade::class.java)
+        return jsonSerializador.fromJson(jsonString, RecorrenciaEntidade::class.java)
     }
 
     fun getDespesa(mDespesa: DespesaEntidade): Despesa {
@@ -34,16 +34,11 @@ class Mapper @Inject constructor(private val jsonSerializador: JsonSerializador)
         return jsonSerializador.fromJson(jsonString, Despesa::class.java)
     }
 
-    fun getDespesaRecorrente(despesa: Despesa): DespesaRecorrente {
-        val jsonString = jsonSerializador.toJSon(despesa)
 
-        return jsonSerializador.fromJson(jsonString, DespesaRecorrente::class.java)
-    }
+    fun getRecorrencia(recorrenciaEntidade: RecorrenciaEntidade): Recorrencia {
+        val jsonString = jsonSerializador.toJSon(recorrenciaEntidade)
 
-    fun getDespesaRecorrente(despesaRecorrenteEntidade: DespesaRecorrenteEntidade): DespesaRecorrente {
-        val jsonString = jsonSerializador.toJSon(despesaRecorrenteEntidade)
-
-        return jsonSerializador.fromJson(jsonString, DespesaRecorrente::class.java)
+        return jsonSerializador.fromJson(jsonString, Recorrencia::class.java)
     }
 
     /**

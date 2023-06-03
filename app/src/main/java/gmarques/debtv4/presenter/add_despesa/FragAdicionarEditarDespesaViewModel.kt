@@ -12,7 +12,7 @@ import gmarques.debtv4.domain.entidades.Despesa
 import gmarques.debtv4.domain.entidades.Despesa.Companion.COMPRIMENTO_MAXIMO_NOME
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MAXIMO
 import gmarques.debtv4.domain.entidades.Despesa.Companion.VALOR_MINIMO
-import gmarques.debtv4.domain.entidades.DespesaRecorrente
+import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.Datas
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.inicioDoMes
@@ -21,7 +21,7 @@ import gmarques.debtv4.domain.usecases.despesas.AtualizarDespesaUsecase
 import gmarques.debtv4.domain.usecases.despesas.AtualizarRecorrenciasDaDespesaUsecase
 import gmarques.debtv4.domain.usecases.despesas.GetDespesasPorNomeNoPeriodoUseCase
 import gmarques.debtv4.domain.usecases.despesas.PesquisarDespesasPorNomeNoPeriodoUseCase
-import gmarques.debtv4.domain.usecases.despesas_recorrentes.GetDespesaRecorrenteUseCase
+import gmarques.debtv4.domain.usecases.despesas_recorrentes.GetRecorrenciaUseCase
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,11 +32,11 @@ import org.joda.time.DateTimeZone
 import javax.inject.Inject
 
 @HiltViewModel
-class FragAddDespesaViewModel @Inject constructor(
+class FragAdicionarEditarDespesaViewModel @Inject constructor(
     private val addDespesaUsecase: AdicionarDespesasUsecase,
     private val pesquisarDespesasPorNomeNoPeriodoUseCase: PesquisarDespesasPorNomeNoPeriodoUseCase,
     private val getDespesasPorNomeNoPeriodoUseCase: GetDespesasPorNomeNoPeriodoUseCase,
-    private val getDespesaRecorrenteUseCase: GetDespesaRecorrenteUseCase,
+    private val getRecorrenciaUseCase: GetRecorrenciaUseCase,
     private val atualizarRecorrenciasDaDespesaUsecase: AtualizarRecorrenciasDaDespesaUsecase,
     private val atualizarDespesaUsecase: AtualizarDespesaUsecase,
     private val mapper: Mapper,
@@ -72,7 +72,7 @@ class FragAddDespesaViewModel @Inject constructor(
      * Retem os dados de recorrencia da despesa que sera adicionada pelo usuario, se ele estiver
      * editando ao inves de adicionando uma despesa, esse objeto sera sempre nulo.
      */
-    private var despesaRecorrente: DespesaRecorrente? = null
+    private var recorrencia: Recorrencia? = null
 
     /**
      * Despesa que sera adicionada se o usuario nao estiver editando uma despesa, se for o caso
@@ -86,7 +86,7 @@ class FragAddDespesaViewModel @Inject constructor(
     var nomeDespesa: String? = null
     var dataDePagamentoDaDespesa: Long? = null
     var dataEmQueDespesaFoiPaga: Long? = null
-    var tipoDeRecorrencia: DespesaRecorrente.Tipo? = null
+    var tipoDeRecorrencia: Recorrencia.Tipo? = null
     var intervaloDasRepeticoes: Int? = null
     var dataLimiteDaRepeticao: Long? = null
     var observacoesDespesa = ""
@@ -163,10 +163,10 @@ class FragAddDespesaViewModel @Inject constructor(
      *
      * @return uma tupla contendo a lista de copias da despesa e a despesa recorrente, se existir.
      */
-    private suspend fun verificarRecorrencias(): Pair<List<Despesa>, DespesaRecorrente?> {
+    private suspend fun verificarRecorrencias(): Pair<List<Despesa>, Recorrencia?> {
         val copias = getDespesasPorNomeNoPeriodoUseCase(despesaOriginal!!.nome, despesaOriginal!!.dataDoPagamento, PeriodosController.periodoMaximo)
 
-        val despesaRecorrente = getDespesaRecorrenteUseCase(despesaOriginal!!.nome)
+        val despesaRecorrente = getRecorrenciaUseCase(despesaOriginal!!.nome)
 
         return copias to despesaRecorrente
     }
@@ -174,7 +174,7 @@ class FragAddDespesaViewModel @Inject constructor(
 
     fun atualizarDespesasRecorrentes(pacote: PacoteRecorrente) = viewModelScope.launch(IO) {
         val alteracoes = extrairAtualizacoes()
-        atualizarRecorrenciasDaDespesaUsecase(pacote.despesaRecorrente, pacote.copias, alteracoes)
+        atualizarRecorrenciasDaDespesaUsecase(pacote.recorrencia, pacote.copias, alteracoes)
         _fecharFragmento.emit(true)
     }
 
@@ -212,14 +212,14 @@ class FragAddDespesaViewModel @Inject constructor(
         }
 
         if (tipoDeRecorrencia != null) {
-            despesaRecorrente = mapper.getDespesaRecorrente(novaDespesa)
-            despesaRecorrente!!.estaPaga = false
-            despesaRecorrente!!.intervaloDasRepeticoes = intervaloDasRepeticoes!!
-            despesaRecorrente!!.dataLimiteDaRecorrencia = dataLimiteDaRepeticao!!
-            despesaRecorrente!!.tipoDeRecorrencia = tipoDeRecorrencia!!
+            recorrencia = Recorrencia()
+            recorrencia!!.intervaloDasRepeticoes = intervaloDasRepeticoes!!
+            recorrencia!!.dataLimiteDaRecorrencia = dataLimiteDaRepeticao!!
+            recorrencia!!.tipoDeRecorrencia = tipoDeRecorrencia!!
+            recorrencia!!.nome = novaDespesa.nome
         }
 
-        addDespesaUsecase(novaDespesa, despesaRecorrente)
+        addDespesaUsecase(novaDespesa, recorrencia)
         fecharFragmento.emit(true)
 
     }
@@ -284,23 +284,23 @@ class FragAddDespesaViewModel @Inject constructor(
      */
     private fun validarRecorrencia(): Boolean {
         return when (tipoDeRecorrencia) {
-            DespesaRecorrente.Tipo.MES -> validarRepeticaoMeses()
-            DespesaRecorrente.Tipo.DIA -> validarRepeticaoDias()
-            null                       -> true
+            Recorrencia.Tipo.MES -> validarRepeticaoMeses()
+            Recorrencia.Tipo.DIA -> validarRepeticaoDias()
+            null                 -> true
         }
     }
 
     private fun validarRepeticaoMeses(): Boolean {
         return if (intervaloDasRepeticoes == null) throw Exception("O intervalo das repetiçoes nao pode ser nulo se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
-        else if (intervaloDasRepeticoes!! < DespesaRecorrente.INTERVALO_MIN_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_meses))
-        else if (intervaloDasRepeticoes!! > DespesaRecorrente.INTERVALO_MAX_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_meses))
+        else if (intervaloDasRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_meses))
+        else if (intervaloDasRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_MESES) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_meses))
         else true
     }
 
     private fun validarRepeticaoDias(): Boolean {
         return if (intervaloDasRepeticoes == null) throw Exception("O intervalo das repetiçoes nao pode ser nulo se o usuario selecionou um tipo de recorrencia. Corrija essa brecha")
-        else if (intervaloDasRepeticoes!! < DespesaRecorrente.INTERVALO_MIN_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_dias))
-        else if (intervaloDasRepeticoes!! > DespesaRecorrente.INTERVALO_MAX_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_dias))
+        else if (intervaloDasRepeticoes!! < Recorrencia.INTERVALO_MIN_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_menor_que_o_permitido_para_dias))
+        else if (intervaloDasRepeticoes!! > Recorrencia.INTERVALO_MAX_REPETICAO_DIAS) erroDeValidacao(context.getString(R.string.Valor_de_repeti_o_maior_que_o_permitido_para_dias))
         else true
     }
 
@@ -308,7 +308,7 @@ class FragAddDespesaViewModel @Inject constructor(
 
         // usuario esqueceu de selecionar a data limite da recorrencia
         return if (tipoDeRecorrencia != null && dataLimiteDaRepeticao == null) erroDeValidacao(context.getString(R.string.Selecione_a_data_limite_da_recorr_ncia))
-        else if (dataLimiteDaRepeticao == DespesaRecorrente.LIMITE_RECORRENCIA_INDEFINIDO) true
+        else if (dataLimiteDaRepeticao == Recorrencia.LIMITE_RECORRENCIA_INDEFINIDO) true
         else true
     }
 
@@ -351,6 +351,6 @@ class FragAddDespesaViewModel @Inject constructor(
      * serve pra manter os dados obtidos do db para caso o usuario queira atualizar as copias da despesa
      * que ele acabou de atualizar
      */
-    data class PacoteRecorrente(val copias: List<Despesa>, val despesaRecorrente: DespesaRecorrente?)
+    data class PacoteRecorrente(val copias: List<Despesa>, val recorrencia: Recorrencia?)
 
 }

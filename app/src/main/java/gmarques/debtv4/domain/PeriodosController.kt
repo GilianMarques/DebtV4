@@ -1,15 +1,11 @@
 package gmarques.debtv4.domain
 
-import gmarques.debtv4.domain.entidades.DespesaRecorrente
+import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.entidades.Periodo
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.finalDoMes
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.inicioDoMes
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
@@ -20,7 +16,7 @@ import org.joda.time.DateTimeZone
 object PeriodosController {
 
     // TODO: mudar esse valor para a data mais a frente no banco de dados(?)
-    val periodoMaximo: Long = DateTime(DateTimeZone.UTC).plusYears(DespesaRecorrente.DATA_LIMITE_IMPORATACAO).finalDoMes().millis
+    val periodoMaximo: Long = DateTime(DateTimeZone.UTC).plusYears(Recorrencia.DATA_LIMITE_IMPORATACAO).finalDoMes().millis
 
     private val _periodoAtual = MutableStateFlow(Periodo(DateTime(DateTimeZone.UTC)))
     val periodoAtual: StateFlow<Periodo>

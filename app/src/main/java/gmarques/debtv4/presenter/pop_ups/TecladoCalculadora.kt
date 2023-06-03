@@ -106,6 +106,7 @@ class TecladoCalculadora : DialogFragment() {
     }
 
     private fun initBotaoConcluir() {
+        // TODO: quando o usuario altera o tema ou recria o fragmento de alguma forma o callback perde a referenccia o app crasha se o usuario clicar no botao concluir
         binding.tvConcluir.setOnClickListener(object : AnimatedClickListener() {
             override fun onClick(view: View) {
                 super.onClick(view)
@@ -143,7 +144,7 @@ class TecladoCalculadora : DialogFragment() {
 
                 if (comecoSelecao != finalSelecao) {
                     binding.edtValor.setText(formula.removeRange(comecoSelecao until finalSelecao))
-                     binding.edtValor.setSelection(binding.edtValor.text.length)
+                    binding.edtValor.setSelection(binding.edtValor.text.length)
                 } else {
                     binding.edtValor.setText(formula.removeRange((comecoSelecao - 1).coerceAtLeast(0), comecoSelecao))
                     binding.edtValor.setSelection((comecoSelecao - 1).coerceAtLeast(0))
@@ -185,7 +186,7 @@ class TecladoCalculadora : DialogFragment() {
         binding.edtValor.setText(valorInicial)
         binding.edtValor.requestFocus()
 
-        if (valorInicial.toFloat() <= 0) binding.edtValor.selectAll()
+        if (valorInicial.isNotEmpty() && valorInicial.toFloat() <= 0) binding.edtValor.selectAll()
 
     }
 

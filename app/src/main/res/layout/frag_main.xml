@@ -65,14 +65,22 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Ver despesas"
-                    android:textColor="?appTextoCorPrimaria" />
+                     />
 
                 <Button
                     android:id="@+id/btn_add_despesas"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Adicionar desesas"
-                    android:textColor="?appTextoCorPrimaria" />
+                     />
+
+
+                <Button
+                    android:id="@+id/btn_add_categoria"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Adicionar categorias"
+                     />
 
 
                 <Button
@@ -80,7 +88,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sincronizar"
-                    android:textColor="?appTextoCorPrimaria" />
+                     />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
         </androidx.core.widget.NestedScrollView>

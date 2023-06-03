@@ -9,9 +9,4 @@
         android:toAlpha="0" />
 
 
-    <translate
-        android:fromYDelta="0%"
-        android:toYDelta="20%" />
-
-
 </set>

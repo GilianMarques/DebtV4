@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:contentScrim="?attr/colorPrimary"
+            android:id="@+id/cltb"
             app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed|snap"
             app:toolbarId="@+id/toolbar">
 
@@ -132,7 +133,6 @@
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/vec_nome"
                     android:hint="@string/Nome_da_despesa"
-                    android:inputType="textCapSentences"
                     android:minHeight="60dp"
                     android:padding="12dp"
                     android:singleLine="true" />
@@ -247,7 +247,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/repetir_"
+                android:id="@+id/til_repetir"
                 style="@style/TextInputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -271,59 +271,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_data_limite_repetir"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                tools:context=".presenter.main.FragMain"
-                tools:visibility="visible">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/til_data_limite_repetir"
-                    style="@style/TextInputLayoutStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginBottom="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/iv_recorrente"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/data_limite_repetir"
-                        style="@style/TextInputEditTextStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:digits="0123456789/"
-                        android:drawableStart="@drawable/vec_data"
-                        android:hint="@string/Repetir_ate"
-                        android:inputType="number"
-                        android:selectAllOnFocus="true"
-                        android:singleLine="true" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/iv_recorrente"
-                    android:layout_width="64dp"
-                    android:layout_height="0dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/back_data_picker"
-                    android:padding="18dp"
-                    android:tint="?appTextoCorPrimaria"
-                    app:layout_constraintBottom_toBottomOf="@id/til_data_limite_repetir"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/til_data_limite_repetir"
-                    app:srcCompat="@drawable/vec_indeterminadamente" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_observacoes"

@@ -1,6 +1,6 @@
 package gmarques.debtv4.domain.extension_functions
 
-import gmarques.debtv4.domain.entidades.DespesaRecorrente
+import gmarques.debtv4.domain.entidades.Recorrencia
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterDDMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.converterMMAAAAparaMillis
 import gmarques.debtv4.domain.extension_functions.Datas.Companion.dataFormatadaComOffset
@@ -23,8 +23,8 @@ internal class DatasTest {
     fun converterDDMMAAAAparaMillis() {
 
         val anoAtual = LocalDateTime.now().year
-        val anoInvalidoPraMais = anoAtual + DespesaRecorrente.DATA_LIMITE_IMPORATACAO + 1
-        val anoInvalidoPraMenos = anoAtual - DespesaRecorrente.DATA_LIMITE_IMPORATACAO - 1
+        val anoInvalidoPraMais = anoAtual + Recorrencia.DATA_LIMITE_IMPORATACAO + 1
+        val anoInvalidoPraMenos = anoAtual - Recorrencia.DATA_LIMITE_IMPORATACAO - 1
 
         val millis = "26/04/2023".converterDDMMAAAAparaMillis()
         TestCase.assertEquals(1682467200000, millis)
@@ -45,8 +45,8 @@ internal class DatasTest {
     fun converterMMAAAAparaMillis() {
 
         val anoAtual = LocalDateTime.now().year
-        val anoInvalidoPraMais = anoAtual + DespesaRecorrente.DATA_LIMITE_IMPORATACAO + 1
-        val anoInvalidoPraMenos = anoAtual - DespesaRecorrente.DATA_LIMITE_IMPORATACAO - 1
+        val anoInvalidoPraMais = anoAtual + Recorrencia.DATA_LIMITE_IMPORATACAO + 1
+        val anoInvalidoPraMenos = anoAtual - Recorrencia.DATA_LIMITE_IMPORATACAO - 1
 
         val millis = "04/2023".converterMMAAAAparaMillis()
         TestCase.assertEquals(1680307200000, millis) // 01/04converterMMAAAAparaMillis()

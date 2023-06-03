@@ -36,9 +36,10 @@ class DataPicker(
             callback.dataEscolhida(dataEmUTC, dataFormatada)
 
             Log.d("USUK", "DataPicker.$dataEmUTC, $dataFormatada: ")
+
         }
 
-        picker.show(parentFragmentManager, "tag");
+        picker.show(parentFragmentManager, "tag")
     }
 
     /**

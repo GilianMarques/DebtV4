@@ -2,11 +2,11 @@ package gmarques.debtv4.domain.usecases.despesas
 
 import gmarques.debtv4.data.Mapper
 import gmarques.debtv4.data.firebase.cloud_firestore.DespesaDaoFireBase
-import gmarques.debtv4.data.firebase.cloud_firestore.DespesaRecorrenteDaoFireBase
+import gmarques.debtv4.data.firebase.cloud_firestore.RecorrenciaDaoFireBase
 import gmarques.debtv4.data.room.dao.DespesaDaoRoom
-import gmarques.debtv4.data.room.dao.DespesaRecorrenteDaoRoom
+import gmarques.debtv4.data.room.dao.RecorrenciaDaoRoom
 import gmarques.debtv4.domain.entidades.Despesa
-import gmarques.debtv4.domain.entidades.DespesaRecorrente
+import gmarques.debtv4.domain.entidades.Recorrencia
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import javax.inject.Inject
@@ -18,8 +18,8 @@ import javax.inject.Inject
 class AtualizarRecorrenciasDaDespesaUsecase @Inject constructor(
     private val despesaDaoRoom: DespesaDaoRoom,
     private val despesaDaoFirebase: DespesaDaoFireBase,
-    private val despesaRecorrenteDaoRoom: DespesaRecorrenteDaoRoom,
-    private val despesaRecorrenteDaoFirebase: DespesaRecorrenteDaoFireBase,
+    private val recorrenciaDaoRoom: RecorrenciaDaoRoom,
+    private val recorrenciaDaoFirebase: RecorrenciaDaoFireBase,
     private val mapper: Mapper,
 ) {
 
@@ -31,30 +31,26 @@ class AtualizarRecorrenciasDaDespesaUsecase @Inject constructor(
      * Esse usecase insere nos objetos apenas as alteraçoes que o usuario fez, preservando as diferenças
      * de cada objeto como na versao 3 do Debt.
      */
-    suspend operator fun invoke(despesaRecorrente: DespesaRecorrente?, copias: List<Despesa>, alteracoes: HashMap<String, Any>) {
+    suspend operator fun invoke(recorrencia: Recorrencia?, copias: List<Despesa>, alteracoes: HashMap<String, Any>) {
 
-        despesaRecorrente?.let { atualizarDespesaRecorrente(despesaRecorrente, alteracoes) }
+        recorrencia?.let { atualizarRecorrencia(recorrencia, alteracoes) }
         atualizarCopias(copias, alteracoes)
     }
 
-    private suspend fun atualizarDespesaRecorrente(dr: DespesaRecorrente, alteracoes: java.util.HashMap<String, Any>) {
+    private suspend fun atualizarRecorrencia(dr: Recorrencia, alteracoes: java.util.HashMap<String, Any>) {
 
         val json = mapper.emJson(dr)
 
         json.keys().forEach { if (alteracoes.contains(it)) json.put(it, alteracoes[it]) }
 
-        val despesaAtualizada = mapper.getObjeto(json.toString(), DespesaRecorrente::class.java)
-        despesaAtualizada.estaPaga = false
-        despesaAtualizada.dataEmQueFoiPaga = null
-        despesaAtualizada.ultimaAtualizacao = DateTime(DateTimeZone.UTC).millis
+        val recorrenciaAtualizada = mapper.getObjeto(json.toString(), Recorrencia::class.java)
+        recorrenciaAtualizada.ultimaAtualizacao = DateTime(DateTimeZone.UTC).millis
 
-        val entidade = mapper.getDespesaRecorrenteEntidade(despesaAtualizada)
+        val entidade = mapper.getRecorrenciaEntidade(recorrenciaAtualizada)
 
-        despesaRecorrenteDaoFirebase.addOuAtualizar(entidade)
-        despesaRecorrenteDaoRoom.addOuAtualizar(entidade)
+        recorrenciaDaoFirebase.addOuAtualizar(entidade)
+        recorrenciaDaoRoom.addOuAtualizar(entidade)
     }
-
-    // TODO: tem uma despesa fantasma  
 
     private suspend fun atualizarCopias(copias: List<Despesa>, alteracoes: HashMap<String, Any>) =
         copias.forEach { copia ->

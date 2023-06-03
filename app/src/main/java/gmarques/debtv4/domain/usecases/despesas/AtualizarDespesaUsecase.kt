@@ -2,9 +2,7 @@ package gmarques.debtv4.domain.usecases.despesas
 
 import gmarques.debtv4.data.Mapper
 import gmarques.debtv4.data.firebase.cloud_firestore.DespesaDaoFireBase
-import gmarques.debtv4.data.firebase.cloud_firestore.DespesaRecorrenteDaoFireBase
 import gmarques.debtv4.data.room.dao.DespesaDaoRoom
-import gmarques.debtv4.data.room.dao.DespesaRecorrenteDaoRoom
 import gmarques.debtv4.domain.entidades.Despesa
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone

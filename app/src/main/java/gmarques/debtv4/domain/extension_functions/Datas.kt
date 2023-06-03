@@ -1,6 +1,8 @@
 package gmarques.debtv4.domain.extension_functions
 
-import gmarques.debtv4.domain.entidades.DespesaRecorrente
+import gmarques.debtv4.App
+import gmarques.debtv4.R
+import gmarques.debtv4.domain.entidades.Recorrencia
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import java.text.SimpleDateFormat
@@ -31,6 +33,26 @@ class Datas {
         }
 
         /**
+         * Retorna uma representação formatada do mês e ano correspondentes ao valor em milissegundos.
+         *
+         * @return Uma string no formato "X de Y", onde X é o nome completo do mês e Y é o ano correspondente.
+         *
+         * Exemplo de uso:
+         * ```
+         * val data = 1641100800000 // Valor em milissegundos correspondente a 01/01/2022
+         * val resultado = data.mes_De_Ano() // Retorna "Janeiro de 2022"
+         * ```
+         */
+        fun Long.mes_De_Ano(): String {
+
+            val mes = nomeDoMes(this)
+            val ano = DateTime(this, DateTimeZone.UTC).year
+
+            return String.format(App.inst.getString(R.string.x_de_y), mes, ano)
+
+        }
+
+        /**
          * Converte um long em uma string formatada de acordo com a mascara recebida
          * Use para formatar longs em UTC pro usuario
          */
@@ -56,7 +78,7 @@ class Datas {
             val mes = match.groups[2]!!.value.toInt()
             val ano = match.groups[3]!!.value.toInt()
 
-            if (dia < 1 || dia > 31 || mes < 1 || mes > 12 || ano > (anoAtual + DespesaRecorrente.DATA_LIMITE_IMPORATACAO) || ano < (anoAtual - DespesaRecorrente.DATA_LIMITE_IMPORATACAO)) return null
+            if (dia < 1 || dia > 31 || mes < 1 || mes > 12 || ano > (anoAtual + Recorrencia.DATA_LIMITE_IMPORATACAO) || ano < (anoAtual - Recorrencia.DATA_LIMITE_IMPORATACAO)) return null
 
             val data = criarData(1, mes, ano)
 
@@ -86,7 +108,7 @@ class Datas {
             val mes = match.groups[1]!!.value.toInt()
             val ano = match.groups[2]!!.value.toInt()
 
-            if (mes < 1 || mes > 12 || ano > (anoAtual + DespesaRecorrente.DATA_LIMITE_IMPORATACAO) || ano < (anoAtual - DespesaRecorrente.DATA_LIMITE_IMPORATACAO)) return null
+            if (mes < 1 || mes > 12 || ano > (anoAtual + Recorrencia.DATA_LIMITE_IMPORATACAO) || ano < (anoAtual - Recorrencia.DATA_LIMITE_IMPORATACAO)) return null
 
             return criarData(dia, mes, ano).millis
         }
@@ -110,8 +132,12 @@ class Datas {
             return data - DateTimeZone.getDefault().getOffset(data)
         }
 
-        private fun criarData(dia: Int, mes: Int, ano: Int) =
-            DateTime(DateTimeZone.UTC).withYear(ano).withMonthOfYear(mes).withDayOfMonth(dia).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0)
+        private fun criarData(@Suppress("SameParameterValue") dia: Int, mes: Int, ano: Int) =
+            DateTime(DateTimeZone.UTC)
+                .withYear(ano)
+                .withMonthOfYear(mes)
+                .withDayOfMonth(dia)
+                .withTimeAtStartOfDay()
 
         /**
          * Retorna uma instância de `DateTime` correspondente ao último momento do último dia do mês

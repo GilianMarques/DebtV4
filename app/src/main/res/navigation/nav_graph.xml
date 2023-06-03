@@ -55,7 +55,7 @@
 
     <fragment
         android:id="@+id/fragAddDespesa"
-        android:name="gmarques.debtv4.presenter.add_despesa.FragAddDespesa"
+        android:name="gmarques.debtv4.presenter.add_despesa.FragAdicionarEditarDespesa"
         android:label="FragAddDespesa">
 
         <argument
